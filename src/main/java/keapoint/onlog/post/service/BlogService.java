@@ -2,8 +2,8 @@ package keapoint.onlog.post.service;
 
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
-import keapoint.onlog.post.dto.post.PostCreateBlogReqDto;
-import keapoint.onlog.post.dto.post.PostCreateBlogResDto;
+import keapoint.onlog.post.dto.blog.PostCreateBlogReqDto;
+import keapoint.onlog.post.dto.blog.PostCreateBlogResDto;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.repository.BlogRepository;
 import lombok.RequiredArgsConstructor;

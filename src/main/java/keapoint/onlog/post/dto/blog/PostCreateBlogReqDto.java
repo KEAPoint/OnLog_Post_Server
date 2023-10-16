@@ -1,4 +1,4 @@
-package keapoint.onlog.post.dto.post;
+package keapoint.onlog.post.dto.blog;
 
 import keapoint.onlog.post.entity.Blog;
 import lombok.Data;
