@@ -9,6 +9,11 @@ import org.springframework.http.HttpStatus;
 public enum BaseErrorCode {
 
     /**
+     * 409 Conflict
+     */
+    ALREADY_BLOG_EXISTS_EXCEPTION(HttpStatus.CONFLICT.value(), "해당 ID를 가진 블로그가 이미 존재합니다."),
+
+    /**
      * 500 : INTERNAL SERVER ERROR
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "처리 중에 오류가 발생하였습니다."),
