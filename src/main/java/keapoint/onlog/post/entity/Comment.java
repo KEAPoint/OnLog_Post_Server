@@ -1,5 +1,6 @@
 package keapoint.onlog.post.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import keapoint.onlog.post.base.BaseEntity;
 import lombok.Getter;
@@ -39,6 +40,7 @@ public class Comment extends BaseEntity {
     @Column(name = "comment_answer_num", nullable = false)
     private int answerNum; // 해당댓글의 자식댓글의 수
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
     private Post post; // 댓글이 달린 게시글
