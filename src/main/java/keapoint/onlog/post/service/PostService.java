@@ -1,8 +1,11 @@
 package keapoint.onlog.post.service;
 
+import keapoint.onlog.post.base.BaseErrorCode;
+import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.dto.blog.BlogDto;
+import keapoint.onlog.post.dto.post.GetPostResDto;
 import keapoint.onlog.post.dto.post.GetRecentPostResDto;
-import keapoint.onlog.post.entity.Post;
+import keapoint.onlog.post.entity.*;
 import keapoint.onlog.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,6 +13,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -41,8 +47,39 @@ public class PostService {
                         .blogName(post.getBlog().getBlogName())
                         .blogNickname(post.getBlog().getBlogNickname())
                         .blogProfileImg(post.getBlog().getBlogProfileImg())
-                        .build())
+                        .build()
+                )
                 .build();
     }
 
+    public GetPostResDto getPost(UUID postId) throws BaseException {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
+
+        List<String> hashtags = post.getPostHashtags().stream()
+                .filter(data -> data.getPost().equals(post))
+                .map(hashtag -> hashtag.getHashtag().getName())
+                .toList();
+
+        BlogDto blog = BlogDto.builder()
+                .blogId(post.getBlog().getBlogId())
+                .blogName(post.getBlog().getBlogName())
+                .blogNickname(post.getBlog().getBlogNickname())
+                .blogProfileImg(post.getBlog().getBlogProfileImg())
+                .build();
+
+        return GetPostResDto.builder()
+                .postId(post.getPostId())
+                .postHits(post.getPostHits())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .summary(post.getSummary())
+                .thumbnailLink(post.getThumbnailLink())
+                .modified(post.getModified())
+                .category(post.getCategory().getName())
+                .hashtags(hashtags)
+                .comments(post.getComments())
+                .blog(blog)
+                .build();
+    }
 }
