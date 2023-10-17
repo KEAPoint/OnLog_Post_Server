@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +24,7 @@ public class PostService {
 
     private final PostRepository postRepository;
 
+    @Transactional(readOnly = true)
     public Page<GetRecentPostResDto> getRecentPosts(Pageable pageable) {
         // 수정일자를 기준으로 내림차순 정렬 조건을 적용한 Pageable 객체를 생성한다.
         Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updated_at").descending());
@@ -55,6 +57,8 @@ public class PostService {
     public GetPostResDto getPost(UUID postId) throws BaseException {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
+
+        post.hit();
 
         List<String> hashtags = post.getPostHashtags().stream()
                 .filter(data -> data.getPost().equals(post))

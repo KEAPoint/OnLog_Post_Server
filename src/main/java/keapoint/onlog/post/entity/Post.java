@@ -62,6 +62,13 @@ public class Post extends BaseEntity {
     }
 
     /**
+     * 게시글 방문
+     */
+    public void hit() {
+        this.postHits += 1; // 방문 횟수 1 증가
+    }
+
+    /**
      * 카테고리 추가
      *
      * @param category
