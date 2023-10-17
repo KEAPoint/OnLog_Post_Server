@@ -18,6 +18,9 @@ public class Post extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID postId; // 게시글 식별자
 
+    @Column(name = "post_hits", nullable = false)
+    private Long postHits; // 게시글 방문 횟수
+
     @Column(name = "post_title", nullable = false)
     private String title; // 게시글 제목
 
