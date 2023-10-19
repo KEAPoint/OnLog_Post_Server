@@ -56,14 +56,14 @@ public class Post extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "blog_id")
-    private Blog blog; // 사용자 블로그
+    private Blog writer; // 작성자
 
     public void setCategory(Category category) {
         this.category = category;
     }
 
-    public void setBlog(Blog blog) {
-        this.blog = blog;
+    public void setWriter(Blog blog) {
+        this.writer = blog;
     }
 
     /**
@@ -100,7 +100,7 @@ public class Post extends BaseEntity {
      */
     public void addPost(Blog blog) {
         blog.getPostList().add(this);
-        this.setBlog(blog);
+        this.setWriter(blog);
     }
 
     /**
@@ -110,7 +110,7 @@ public class Post extends BaseEntity {
      */
     public void removePost(Blog blog) {
         blog.getPostList().remove(this);
-        this.setBlog(null);
+        this.setWriter(null);
     }
 
 }

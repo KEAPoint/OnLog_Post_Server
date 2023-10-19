@@ -41,7 +41,7 @@ public class GetRecentPostResDto {
                 .thumbnailLink(post.getThumbnailLink())
                 .modified(post.getModified())
                 .category(post.getCategory().getName())
-                .blog(BlogDto.fromBlog(post.getBlog()))
+                .blog(BlogDto.fromBlog(post.getWriter()))
                 .build();
     }
 }

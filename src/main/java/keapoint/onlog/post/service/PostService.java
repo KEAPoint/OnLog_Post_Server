@@ -33,9 +33,16 @@ public class PostService {
         Page<Post> posts = postRepository.findByStatusAndIsPublic(true, true, sortedByUpdatedDateDesc);
 
         // 조회된 게시글들을 GetRecentPostResDto로 변환하여 반환한다.
-        return posts.map(it->GetRecentPostResDto.fromPost(it, BlogDto.fromBlog(it.getBlog())));
+        return posts.map(it -> GetRecentPostResDto.fromPost(it, BlogDto.fromBlog(it.getWriter())));
     }
 
+    /**
+     * 특정 게시글 조회
+     *
+     * @param postId 게시글 식별자
+     * @return
+     * @throws BaseException
+     */
     public GetPostResDto getPost(UUID postId) throws BaseException {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
@@ -46,8 +53,7 @@ public class PostService {
                 .map(Hashtag::getName)
                 .toList();
 
-        BlogDto blog = BlogDto.fromBlog(post.getBlog());
-
+        BlogDto blog = BlogDto.fromBlog(post.getWriter());
 
         return GetPostResDto.builder().post(post).hashtags(hashtags).blog(blog).build();
     }
