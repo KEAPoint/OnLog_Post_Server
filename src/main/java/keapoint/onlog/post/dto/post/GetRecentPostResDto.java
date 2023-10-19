@@ -19,7 +19,7 @@ public class GetRecentPostResDto {
     private String category; // 게시글 카테고리
     private BlogDto blog; // 사용자 블로그
 
-    public GetRecentPostResDto fromPost(Post post) {
+    static public GetRecentPostResDto fromPost(Post post, BlogDto blog) {
         return GetRecentPostResDto.builder()
                 .postId(post.getPostId())
                 .title(post.getTitle())
@@ -28,7 +28,20 @@ public class GetRecentPostResDto {
                 .thumbnailLink(post.getThumbnailLink())
                 .modified(post.getModified())
                 .category(post.getCategory().getName())
-                .blog(new BlogDto().fromPost(post))
+                .blog(blog)
+                .build();
+    }
+
+    static public GetRecentPostResDto fromPost(Post post) {
+        return GetRecentPostResDto.builder()
+                .postId(post.getPostId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .summary(post.getSummary())
+                .thumbnailLink(post.getThumbnailLink())
+                .modified(post.getModified())
+                .category(post.getCategory().getName())
+                .blog(BlogDto.fromBlog(post.getBlog()))
                 .build();
     }
 }

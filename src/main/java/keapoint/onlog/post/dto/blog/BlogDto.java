@@ -1,5 +1,6 @@
 package keapoint.onlog.post.dto.blog;
 
+import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Post;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,13 +15,12 @@ public class BlogDto {
     private String blogNickname; // 사용자 블로그 별명
     private String blogProfileImg; // 사용자 블로그 프로필
 
-    public BlogDto fromPost(Post post) {
+    static public BlogDto fromBlog(Blog blog) {
         BlogDto dto = new BlogDto();
-
-        dto.blogId = post.getBlog().getBlogId();
-        dto.blogName = post.getBlog().getBlogName();
-        dto.blogNickname = post.getBlog().getBlogNickname();
-        dto.blogProfileImg = post.getBlog().getBlogProfileImg();
+        dto.blogId = blog.getBlogId();
+        dto.blogName =blog.getBlogName();
+        dto.blogNickname = blog.getBlogNickname();
+        dto.blogProfileImg = blog.getBlogProfileImg();
 
         return dto;
     }
