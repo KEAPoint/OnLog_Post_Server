@@ -31,14 +31,20 @@ public class PostController {
     @GetMapping("")
     public BaseResponse<Page<GetPostListResDto>> getPosts(
             @RequestParam(value = "topic", required = false) String topicName,
+            @RequestParam(value = "hashtag", required = false) String hashtag,
             Pageable pageable
     ) {
         try {
             if (topicName != null && !topicName.isEmpty()) {
                 return new BaseResponse<>(postService.getRecentPostsByTopicName(topicName, pageable));
+            } else if (hashtag != null && !hashtag.isEmpty()) {
+                return new BaseResponse<>(postService.getPostsByHashtag(hashtag, pageable));
             } else {
                 return new BaseResponse<>(postService.getRecentPosts(pageable));
             }
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception);
 
         } catch (Exception e) {
             log.error(e.getMessage());
