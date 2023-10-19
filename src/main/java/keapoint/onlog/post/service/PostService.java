@@ -4,7 +4,7 @@ import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.dto.blog.BlogDto;
 import keapoint.onlog.post.dto.post.GetPostResDto;
-import keapoint.onlog.post.dto.post.GetRecentPostResDto;
+import keapoint.onlog.post.dto.post.GetRecentPostListResDto;
 import keapoint.onlog.post.entity.*;
 import keapoint.onlog.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class PostService {
     private final PostRepository postRepository;
 
     @Transactional(readOnly = true)
-    public Page<GetRecentPostResDto> getRecentPosts(Pageable pageable) {
+    public Page<GetRecentPostListResDto> getRecentPosts(Pageable pageable) {
         // 수정일자를 기준으로 내림차순 정렬 조건을 적용한 Pageable 객체를 생성한다.
         Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updated_at").descending());
 
@@ -33,7 +33,7 @@ public class PostService {
         Page<Post> posts = postRepository.findByStatusAndIsPublic(true, true, sortedByUpdatedDateDesc);
 
         // 조회된 게시글들을 GetRecentPostResDto로 변환하여 반환한다.
-        return posts.map(it -> GetRecentPostResDto.fromPost(it, BlogDto.fromBlog(it.getWriter())));
+        return posts.map(it -> GetRecentPostListResDto.fromPost(it, BlogDto.fromBlog(it.getWriter())));
     }
 
     /**
