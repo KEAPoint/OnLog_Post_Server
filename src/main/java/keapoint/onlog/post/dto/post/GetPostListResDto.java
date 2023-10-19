@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class GetRecentPostListResDto {
+public class GetPostListResDto {
     private UUID postId; // 게시글 식별자
     private String title; // 게시글 제목
     private String content; // 게시글 내용
@@ -19,8 +19,8 @@ public class GetRecentPostListResDto {
     private String category; // 게시글 카테고리
     private BlogDto blog; // 사용자 블로그
 
-    public static GetRecentPostListResDto fromPost(Post post, BlogDto blog) {
-        return GetRecentPostListResDto.builder()
+    public static GetPostListResDto fromPost(Post post, BlogDto blog) {
+        return GetPostListResDto.builder()
                 .postId(post.getPostId())
                 .title(post.getTitle())
                 .content(post.getContent())
@@ -32,8 +32,8 @@ public class GetRecentPostListResDto {
                 .build();
     }
 
-    public static GetRecentPostListResDto fromPost(Post post) {
-        return GetRecentPostListResDto.builder()
+    public static GetPostListResDto fromPost(Post post) {
+        return GetPostListResDto.builder()
                 .postId(post.getPostId())
                 .title(post.getTitle())
                 .content(post.getContent())
