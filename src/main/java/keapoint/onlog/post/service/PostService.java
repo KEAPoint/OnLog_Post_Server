@@ -27,7 +27,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<GetPostListResDto> getRecentPosts(Pageable pageable) {
         // 수정일자를 기준으로 내림차순 정렬 조건을 적용한 Pageable 객체를 생성한다.
-        Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updated_at").descending());
+        Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updatedAt").descending());
 
         // 게시글을 조회하고 조회된 게시글들을 DTO로 변환하여 반환한다.
         return postRepository.findByStatusAndIsPublic(true, true, sortedByUpdatedDateDesc)
@@ -37,7 +37,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<GetPostListResDto> getRecentPostsByTopicName(String topicName, Pageable pageable) {
         // 수정일자를 기준으로 내림차순 정렬 조건을 적용한 Pageable 객체를 생성한다.
-        Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updated_at").descending());
+        Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updatedAt").descending());
 
         // 게시글을 조회하고 조회된 게시글들을 DTO로 변환하여 반환한다.
         return postRepository.findByStatusAndIsPublicAndCategoryTopicName(true, true, topicName, sortedByUpdatedDateDesc)
