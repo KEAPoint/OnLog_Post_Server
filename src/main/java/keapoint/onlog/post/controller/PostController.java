@@ -10,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -26,15 +23,22 @@ public class PostController {
     private final PostService postService;
 
     /**
-     * 모든 유효하고 공개된 게시글을 수정일자 내림차순으로 페이지네이션하여 반환한다.
+     * 최신 게시글 조회
      *
      * @param pageable 페이지네이션 정보를 담은 객체
-     * @return 모든 유효하고 공개된 게시글의 페이지네이션 결과
+     * @return 최신 게시글 정보
      */
     @GetMapping("")
-    public BaseResponse<Page<GetPostListResDto>> getPosts(Pageable pageable) {
+    public BaseResponse<Page<GetPostListResDto>> getPosts(
+            @RequestParam(value = "topic", required = false) String topicName,
+            Pageable pageable
+    ) {
         try {
-            return new BaseResponse<>(postService.getRecentPosts(pageable));
+            if (topicName != null && !topicName.isEmpty()) {
+                return new BaseResponse<>(postService.getRecentPostsByTopicName(topicName, pageable));
+            } else {
+                return new BaseResponse<>(postService.getRecentPosts(pageable));
+            }
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -44,6 +48,7 @@ public class PostController {
 
     /**
      * 게시글 조회
+     *
      * @param postId 게시글 식별자
      * @return 게시글 정보
      */

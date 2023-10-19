@@ -19,19 +19,6 @@ public class GetPostListResDto {
     private String category; // 게시글 카테고리
     private BlogDto blog; // 사용자 블로그
 
-    public static GetPostListResDto fromPost(Post post, BlogDto blog) {
-        return GetPostListResDto.builder()
-                .postId(post.getPostId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .summary(post.getSummary())
-                .thumbnailLink(post.getThumbnailLink())
-                .modified(post.getModified())
-                .category(post.getCategory().getName())
-                .blog(blog)
-                .build();
-    }
-
     public static GetPostListResDto fromPost(Post post) {
         return GetPostListResDto.builder()
                 .postId(post.getPostId())
