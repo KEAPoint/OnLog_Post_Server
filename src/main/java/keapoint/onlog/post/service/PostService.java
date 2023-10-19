@@ -42,24 +42,13 @@ public class PostService {
 
         post.hit();
 
-        List<String> hashtags = post.getPostHashtags().stream()
-                .map(hashtag -> hashtag.getHashtag().getName())
+        List<String> hashtags = post.getHashtagList().stream()
+                .map(Hashtag::getName)
                 .toList();
 
         BlogDto blog = BlogDto.fromBlog(post.getBlog());
 
-        return GetPostResDto.builder()
-                .postId(post.getPostId())
-                .postHits(post.getPostHits())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .summary(post.getSummary())
-                .thumbnailLink(post.getThumbnailLink())
-                .modified(post.getModified())
-                .category(post.getCategory().getName())
-                .hashtags(hashtags)
-                .comments(post.getComments())
-                .blog(blog)
-                .build();
+
+        return GetPostResDto.builder().post(post).hashtags(hashtags).blog(blog).build();
     }
 }
