@@ -4,7 +4,7 @@ import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.base.BaseResponse;
 import keapoint.onlog.post.dto.post.GetPostResDto;
-import keapoint.onlog.post.dto.post.GetRecentPostResDto;
+import keapoint.onlog.post.dto.post.GetRecentPostListResDto;
 import keapoint.onlog.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class PostController {
      * @return 모든 유효하고 공개된 게시글의 페이지네이션 결과
      */
     @GetMapping("")
-    public BaseResponse<Page<GetRecentPostResDto>> getPosts(Pageable pageable) {
+    public BaseResponse<Page<GetRecentPostListResDto>> getPosts(Pageable pageable) {
         try {
             return new BaseResponse<>(postService.getRecentPosts(pageable));
 

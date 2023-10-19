@@ -24,7 +24,7 @@ public class Blog extends BaseEntity {
     @Column(name = "blog_name", nullable = false, length = 32)
     private String blogName; // 사용자 블로그 이름
 
-    @Column(name = "blog_nickname", nullable = false, length = 32)
+    @Column(name = "blog_nickname", nullable = false, length = 32, unique = true)
     private String blogNickname; // 사용자 블로그 별명
 
     @Column(name = "blog_profile_img")
@@ -36,7 +36,7 @@ public class Blog extends BaseEntity {
     @Column(name = "blog_theme_img")
     private String blogThemeImg; // 사용자 블로그 테마 이미지
 
-    @OneToMany(mappedBy = "blog", orphanRemoval = true)
+    @OneToMany(mappedBy = "writer", orphanRemoval = true)
     private List<Post> postList = new ArrayList<>();
 
 }

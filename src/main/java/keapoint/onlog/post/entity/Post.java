@@ -43,22 +43,27 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category; // 게시글 카테고리
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostHashtag> postHashtags = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "Post_HashTag_Table",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "hashtag_id")
+    )
+    private List<Hashtag> hashtagList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>(); // 게시글 댓글
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "blog_id")
-    private Blog blog; // 사용자 블로그
+    private Blog writer; // 작성자
 
     public void setCategory(Category category) {
         this.category = category;
     }
 
-    public void setBlog(Blog blog) {
-        this.blog = blog;
+    public void setWriter(Blog blog) {
+        this.writer = blog;
     }
 
     /**
@@ -95,7 +100,7 @@ public class Post extends BaseEntity {
      */
     public void addPost(Blog blog) {
         blog.getPostList().add(this);
-        this.setBlog(blog);
+        this.setWriter(blog);
     }
 
     /**
@@ -105,7 +110,7 @@ public class Post extends BaseEntity {
      */
     public void removePost(Blog blog) {
         blog.getPostList().remove(this);
-        this.setBlog(null);
+        this.setWriter(null);
     }
 
 }
