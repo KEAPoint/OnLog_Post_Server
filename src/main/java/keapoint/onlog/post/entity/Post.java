@@ -43,8 +43,13 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category; // 게시글 카테고리
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostHashtag> postHashtags = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "Post_HashTag_Table",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "hashtag_id")
+    )
+    private List<Hashtag> hashtagList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>(); // 게시글 댓글

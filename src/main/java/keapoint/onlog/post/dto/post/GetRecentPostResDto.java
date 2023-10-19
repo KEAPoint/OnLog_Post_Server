@@ -1,6 +1,7 @@
 package keapoint.onlog.post.dto.post;
 
 import keapoint.onlog.post.dto.blog.BlogDto;
+import keapoint.onlog.post.entity.Post;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,4 +18,17 @@ public class GetRecentPostResDto {
     private Boolean modified; // 게시글 수정 여부
     private String category; // 게시글 카테고리
     private BlogDto blog; // 사용자 블로그
+
+    public GetRecentPostResDto fromPost(Post post) {
+        return GetRecentPostResDto.builder()
+                .postId(post.getPostId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .summary(post.getSummary())
+                .thumbnailLink(post.getThumbnailLink())
+                .modified(post.getModified())
+                .category(post.getCategory().getName())
+                .blog(new BlogDto().fromPost(post))
+                .build();
+    }
 }
