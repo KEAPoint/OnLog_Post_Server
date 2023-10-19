@@ -5,6 +5,9 @@ import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.base.BaseResponse;
 import keapoint.onlog.post.dto.post.GetPostResDto;
 import keapoint.onlog.post.dto.post.GetPostListResDto;
+import keapoint.onlog.post.dto.topic.TopicDto;
+import keapoint.onlog.post.entity.Topic;
+import keapoint.onlog.post.repository.TopicRepository;
 import keapoint.onlog.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -21,6 +25,7 @@ import java.util.UUID;
 public class PostController {
 
     private final PostService postService;
+    private final TopicRepository topicRepository;
 
     /**
      * 최신 게시글 조회
@@ -65,6 +70,29 @@ public class PostController {
 
         } catch (BaseException exception) {
             return new BaseResponse<>(exception);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    /**
+     * 게시글 주제 목록 조회
+     *
+     * @return 게시글 주제 목록
+     */
+    @GetMapping("/topics")
+    public BaseResponse<List<TopicDto>> getTopicList() {
+        try {
+            List<Topic> topics = topicRepository.findAll();
+
+            return new BaseResponse<>(topics.stream()
+                    .map(topic -> TopicDto.builder()
+                            .id(topic.getId())
+                            .name(topic.getName())
+                            .build())
+                    .toList());
 
         } catch (Exception e) {
             log.error(e.getMessage());
