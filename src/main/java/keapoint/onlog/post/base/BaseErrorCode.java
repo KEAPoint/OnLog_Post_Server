@@ -12,6 +12,7 @@ public enum BaseErrorCode {
      * 404 Not Found
      */
     POST_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND.value(), "존재하지 않는 게시글입니다."),
+    TOPIC_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND.value(), "존재하지 않는 주제입니다."),
     HASHTAG_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND.value(), "존재하지 않는 해시태그입니다."),
 
 
