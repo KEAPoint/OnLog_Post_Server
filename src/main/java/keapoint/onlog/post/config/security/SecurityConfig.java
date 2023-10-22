@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/v3/api-docs/**").permitAll() // Swagger는 인증 없이 허용
                         .requestMatchers("/swagger-ui/**").permitAll() // Swagger는 인증 없이 허용
+                        .anyRequest().permitAll() // Todo: 추후 인증된 사용자만 api 사용할 수 있게 수정
                 );
 
         return http.build();
