@@ -9,6 +9,18 @@ import org.springframework.http.HttpStatus;
 public enum BaseErrorCode {
 
     /**
+     * 400 Bad Request
+     */
+    EXPECTED_LIKE_STATE_EXCEPTION(HttpStatus.BAD_REQUEST.value(), "요청한 '좋아요' 상태와 현재 '좋아요' 상태가 일치하지 않습니다."),
+    INVALID_TOKEN_EXCEPTION(HttpStatus.BAD_REQUEST.value(), "유효하지 않은 토큰입니다."),
+
+    /**
+     * 401 Unauthorized
+     */
+    TOKEN_DECODING_EXCEPTION(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 토큰입니다."),
+    TOKEN_EXPIRED_EXCEPTION(HttpStatus.UNAUTHORIZED.value(), "토큰이 만료되었습니다."),
+
+    /**
      * 404 Not Found
      */
     POST_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND.value(), "존재하지 않는 게시글입니다."),

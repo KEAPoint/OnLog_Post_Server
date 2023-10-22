@@ -5,10 +5,14 @@ import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.base.BaseResponse;
 import keapoint.onlog.post.dto.post.GetPostResDto;
 import keapoint.onlog.post.dto.post.GetPostListResDto;
+import keapoint.onlog.post.dto.post.PostUpdateLikeReqDto;
+import keapoint.onlog.post.dto.post.PostUpdateLikeResDto;
 import keapoint.onlog.post.dto.topic.TopicDto;
 import keapoint.onlog.post.entity.Topic;
 import keapoint.onlog.post.repository.TopicRepository;
+import keapoint.onlog.post.service.PostLikeService;
 import keapoint.onlog.post.service.PostService;
+import keapoint.onlog.post.utils.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,6 +30,10 @@ public class PostController {
 
     private final PostService postService;
     private final TopicRepository topicRepository;
+
+    private final PostLikeService postLikeService;
+
+    private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * 최신 게시글 조회
@@ -97,6 +105,28 @@ public class PostController {
         } catch (Exception e) {
             log.error(e.getMessage());
             return new BaseResponse<>(new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    /**
+     * 게시글 좋아요 상태 변경
+     *
+     * @param likeDto 게시글 식별자와 target 게시글 좋아요 상태가 들어있는 객체
+     * @param token   사용자 token
+     * @return 성공적으로 반영 여부
+     */
+    @PostMapping("/likes")
+    public BaseResponse<PostUpdateLikeResDto> toggleLike(@RequestBody PostUpdateLikeReqDto likeDto, @RequestHeader("Authorization") String token) {
+        try {
+            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
+            return new BaseResponse<>(postLikeService.toggleLike(blogId, likeDto)); // 좋아요 추가/제거 처리 서비스 호출
+
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
         }
     }
 }
