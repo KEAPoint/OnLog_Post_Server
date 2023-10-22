@@ -24,6 +24,10 @@ public class Category {
     @OneToOne
     private Topic topic;
 
+    @ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+    @JoinColumn(name="blog_id")
+    private Blog categoryOwner; // 카테고리 소유 blog
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> posts;
 }
