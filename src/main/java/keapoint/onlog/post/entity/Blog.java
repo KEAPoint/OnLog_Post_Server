@@ -39,8 +39,11 @@ public class Blog extends BaseEntity {
     @OneToMany(mappedBy = "writer", orphanRemoval = true)
     private List<Post> postList = new ArrayList<>();
 
-    @OneToMany(mappedBy="categoryOwner", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "categoryOwner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Category> categories; // 블로그가 소유한 카테고리 리스트
+
+    @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comment> comments = new ArrayList<>();
 
 }
 
