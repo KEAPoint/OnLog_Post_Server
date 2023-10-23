@@ -3,7 +3,7 @@ package keapoint.onlog.post.service;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.dto.comment.CommentDto;
-import keapoint.onlog.post.dto.comment.PostCreateCommentDto;
+import keapoint.onlog.post.dto.comment.PostCreateCommentReqDto;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Comment;
 import keapoint.onlog.post.entity.Post;
@@ -29,7 +29,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
 
     @Transactional
-    public CommentDto createComment(UUID blogId, PostCreateCommentDto data) throws BaseException {
+    public CommentDto createComment(UUID blogId, PostCreateCommentReqDto data) throws BaseException {
         try {
             Blog writer = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));

@@ -4,7 +4,7 @@ import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.base.BaseResponse;
 import keapoint.onlog.post.dto.comment.CommentDto;
-import keapoint.onlog.post.dto.comment.PostCreateCommentDto;
+import keapoint.onlog.post.dto.comment.PostCreateCommentReqDto;
 import keapoint.onlog.post.service.CommentService;
 import keapoint.onlog.post.utils.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class CommentController {
 
     @PostMapping("")
     public BaseResponse<CommentDto> createComment(@RequestHeader("Authorization") String token,
-                                                  @RequestBody PostCreateCommentDto dto) {
+                                                  @RequestBody PostCreateCommentReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
             return new BaseResponse<>(commentService.createComment(blogId, dto));
