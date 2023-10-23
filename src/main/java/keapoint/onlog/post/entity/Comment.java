@@ -3,14 +3,17 @@ package keapoint.onlog.post.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import keapoint.onlog.post.base.BaseEntity;
-import lombok.Getter;
-import lombok.ToString;
+import keapoint.onlog.post.dto.comment.CommentDto;
+import lombok.*;
 
 import java.util.UUID;
 
 @Getter
 @Entity
+@Builder
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "comment")
 public class Comment extends BaseEntity {
 
@@ -26,24 +29,28 @@ public class Comment extends BaseEntity {
     private Boolean modified; // 댓글 수정 여부
 
     @Column(name = "comment_ref", nullable = false)
-    private int ref; // 그룹
+    private long ref; // 그룹
 
     @Column(name = "comment_ref_order", nullable = false)
-    private int refOrder; // 그룹 순서
+    private long refOrder; // 그룹 순서
 
     @Column(name = "comment_step", nullable = false)
-    private int step; // 댓글의 계층
+    private long step; // 댓글의 계층
 
-    @Column(name = "comment_parent_num", nullable = false)
+    @Column(name = "comment_parent_num")
     private UUID parentNum; // 부모댓글의 ID
 
     @Column(name = "comment_answer_num", nullable = false)
-    private int answerNum; // 해당댓글의 자식댓글의 수
+    private long answerNum; // 해당댓글의 자식댓글의 수
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
     private Post post; // 댓글이 달린 게시글
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="blog_id", nullable=false)
+    private Blog writer; // 댓글 작성자의 블로그
 
     public void setPost(Post post) {
         this.post = post;
@@ -67,5 +74,24 @@ public class Comment extends BaseEntity {
     public void removeComment(Comment comment) {
         post.getComments().remove(comment);
         this.setPost(null);
+    }
+
+    public void updateNumberOfChildComment() {
+        this.answerNum += 1;
+    }
+
+    public CommentDto toEntity() {
+        return CommentDto.builder()
+                .commentId(commentId)
+                .content(content)
+                .modified(modified)
+                .ref(ref)
+                .refOrder(refOrder)
+                .step(step)
+                .parentNum(parentNum)
+                .answerNum(answerNum)
+                .postId(post.getPostId())
+                .writerId(writer.getBlogId())
+                .build();
     }
 }
