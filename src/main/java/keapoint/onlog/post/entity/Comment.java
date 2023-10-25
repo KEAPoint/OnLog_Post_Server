@@ -72,11 +72,9 @@ public class Comment extends BaseEntity {
 
     /**
      * 댓글 삭제
-     *
-     * @param comment
      */
-    public void removeComment(Comment comment) {
-        post.getComments().remove(comment);
+    public void removeComment() {
+        post.getComments().remove(this);
         this.setPost(null);
     }
 

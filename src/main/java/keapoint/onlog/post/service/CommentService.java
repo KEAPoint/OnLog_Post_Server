@@ -144,7 +144,9 @@ public class CommentService {
                 throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
             }
 
-            commentRepository.delete(comment); // 댓글 삭제
+            // 댓글 삭제
+            comment.removeComment();
+            commentRepository.delete(comment);
 
             return new DeleteCommentResDto(true); // 결과 return
 
