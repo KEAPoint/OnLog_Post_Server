@@ -2,9 +2,7 @@ package keapoint.onlog.post.service;
 
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
-import keapoint.onlog.post.dto.comment.CommentDto;
-import keapoint.onlog.post.dto.comment.PostCreateCommentReqDto;
-import keapoint.onlog.post.dto.comment.PutUpdateCommentReqDto;
+import keapoint.onlog.post.dto.comment.*;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Comment;
 import keapoint.onlog.post.entity.Post;
@@ -135,5 +133,24 @@ public class CommentService {
             throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    public DeleteCommentResDto deleteComment(UUID blogId, DeleteCommentReqDto dto) throws BaseException {
+        try {
+            Comment comment = commentRepository.findById(dto.getCommentId())
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
+
+            if (!comment.getWriter().getBlogId().equals(blogId)) { // 댓글 작성자가 아니라면
+                throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
+            }
+
+            commentRepository.delete(comment); // 댓글 삭제
+
+            return new DeleteCommentResDto(true); // 결과 return
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 }
