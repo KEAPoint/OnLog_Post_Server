@@ -21,6 +21,11 @@ public enum BaseErrorCode {
     TOKEN_EXPIRED_EXCEPTION(HttpStatus.UNAUTHORIZED.value(), "토큰이 만료되었습니다."),
 
     /**
+     * Forbidden
+     */
+    PERMISSION_EXCEPTION(HttpStatus.FORBIDDEN.value(), "작성자만 수정 또는 삭제할 수 있습니다."),
+
+    /**
      * 404 Not Found
      */
     BLOG_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND.value(), "존재하지 않는 블로그입니다."),

@@ -49,11 +49,15 @@ public class Comment extends BaseEntity {
     private Post post; // 댓글이 달린 게시글
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="blog_id", nullable=false)
+    @JoinColumn(name = "blog_id", nullable = false)
     private Blog writer; // 댓글 작성자의 블로그
 
-    public void setPost(Post post) {
+    private void setPost(Post post) {
         this.post = post;
+    }
+
+    private void setContent(String content) {
+        this.content = content;
     }
 
     /**
@@ -80,7 +84,7 @@ public class Comment extends BaseEntity {
         this.answerNum += 1;
     }
 
-    public CommentDto toEntity() {
+    public CommentDto toDto() {
         return CommentDto.builder()
                 .commentId(commentId)
                 .content(content)
@@ -93,5 +97,9 @@ public class Comment extends BaseEntity {
                 .postId(post.getPostId())
                 .writerId(writer.getBlogId())
                 .build();
+    }
+
+    public void updateComment(String newContent) {
+        this.setContent(newContent);
     }
 }

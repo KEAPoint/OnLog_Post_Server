@@ -4,6 +4,7 @@ import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.dto.comment.CommentDto;
 import keapoint.onlog.post.dto.comment.PostCreateCommentReqDto;
+import keapoint.onlog.post.dto.comment.PutUpdateCommentReqDto;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Comment;
 import keapoint.onlog.post.entity.Post;
@@ -76,7 +77,7 @@ public class CommentService {
             commentRepository.save(comment);
             comment.addComment(post);
 
-            return comment.toEntity();
+            return comment.toDto();
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -113,5 +114,26 @@ public class CommentService {
             commentRepository.updateRefOrder(ref, refOrder);
             return refOrder + 1;
         }
+    }
+
+    @Transactional
+    public CommentDto updateComment(UUID blogId, PutUpdateCommentReqDto dto) throws BaseException {
+        try {
+            Comment comment = commentRepository.findById(dto.getCommentId())
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
+
+            if (!comment.getWriter().getBlogId().equals(blogId)) { // 댓글 작성자가 아니라면
+                throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
+            }
+
+            comment.updateComment(dto.getContent()); // 댓글 업데이트
+
+            return comment.toDto(); // 댓글 dto 반환
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
     }
 }
