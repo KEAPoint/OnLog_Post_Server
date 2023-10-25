@@ -1,1 +1,10 @@
+spring:
+  config:
+    import: classpath:secret.yml
 
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
