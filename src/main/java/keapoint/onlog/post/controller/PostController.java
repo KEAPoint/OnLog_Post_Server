@@ -3,10 +3,7 @@ package keapoint.onlog.post.controller;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.base.BaseResponse;
-import keapoint.onlog.post.dto.post.GetPostResDto;
-import keapoint.onlog.post.dto.post.GetPostListResDto;
-import keapoint.onlog.post.dto.post.PostUpdateLikeReqDto;
-import keapoint.onlog.post.dto.post.PostUpdateLikeResDto;
+import keapoint.onlog.post.dto.post.*;
 import keapoint.onlog.post.dto.topic.TopicDto;
 import keapoint.onlog.post.entity.Topic;
 import keapoint.onlog.post.repository.TopicRepository;
@@ -29,6 +26,7 @@ import java.util.UUID;
 public class PostController {
 
     private final PostService postService;
+
     private final TopicRepository topicRepository;
 
     private final PostLikeService postLikeService;
@@ -82,6 +80,29 @@ public class PostController {
         } catch (Exception e) {
             log.error(e.getMessage());
             return new BaseResponse<>(new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    /**
+     * 게시글 삭제
+     *
+     * @param token 사용자 access token
+     * @param dto   삭제하고자 하는 게시글 식별자가 들어있는 객체
+     * @return 게시글 삭제 성공 여부
+     */
+    @DeleteMapping("")
+    public BaseResponse<DeletePostResDto> deleteComment(@RequestHeader("Authorization") String token,
+                                                           @RequestBody DeletePostReqDto dto) {
+        try {
+            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
+            return new BaseResponse<>(postService.deletePost(blogId, dto));
+
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
         }
     }
 
