@@ -21,9 +21,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-#      # 2. Secret.yml 파일 셋팅
-#      - name: Set Secret yml file.
-#        run: touch ./src/main/resources/secret.yml && echo "${{ secrets.SECRETYML }}" > ./src/main/resources/secret.yml && cat ./src/main/resources/secret.yml
+      # 2. Secret.yml 파일 셋팅
+      - name: Set Secret yml file.
+        run: |
+          touch ./src/main/resources/secret.yml
+          echo "${{ secrets.SECRETYML }}" > ./src/main/resources/secret.yml
+          cat ./src/main/resources/secret.yml
 
       # 3. 권한 부여
       - name: Grant execute permission for gradlew
@@ -55,6 +58,17 @@ jobs:
           platforms: linux/amd64 # 타겟 플랫폼
           tags: ${{ secrets.DOCKERHUB_REPOSITORY }}
 
-      # 배포
+      # 8. 배포
+      - name: execute remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_SSH_HOST }}
+          username: ${{ secrets.REMOTE_SSH_USERNAME }}
+          password: ${{ secrets.REMOTE_SSH_PASSWORD }}
+          port: ${{ secrets.REMOTE_SSH_PORT }}
+          script: |
+            docker compose down
+            docker rmi ${{ secrets.DOCKERHUB_REPOSITORY }}
+            docker compose up -d
 
 # Reference: https://github.com/docker/build-push-action
