@@ -39,11 +39,11 @@ public class CommentService {
             long ref; // 그룹
             long refOrder; // 그룹 순서
             long step; // 댓글의 계층
-            UUID parentNum = data.getParentNum(); // 부모댓글의 ID
+            UUID parentNum = data.getParentCommentId(); // 부모댓글의 ID
             long answerNum = 0L; // 해당댓글의 자식댓글의 수. 댓글이 작성된 경우이므로 0
 
             if (parentNum != null) { // 부모 댓글이 있는 경우 (대댓글)
-                Comment parentComment = commentRepository.findById(data.getParentNum())
+                Comment parentComment = commentRepository.findById(data.getParentCommentId())
                         .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
 
                 ref = parentComment.getRef(); // 부모와 같은 그룹
