@@ -39,7 +39,7 @@ public class UserPostLike {
      * 게시글 좋아요 업데이트 (좋아요 X <-> 좋아요)
      */
     public void updateLike(Boolean target) throws BaseException {
-        if (this.isLiked != target) {
+        if (this.isLiked == target) {
             throw new BaseException(BaseErrorCode.EXPECTED_LIKE_STATE_EXCEPTION);
         } else {
             this.isLiked = target;
