@@ -33,6 +33,8 @@ public class PostLikeService {
      *
      * @param userId 사용자 ID (블로그 ID)
      * @param data   게시글 ID와 게시글 좋아요 target 상태가 들어있는 객체
+     * @return PostUpdateLikeResDto 좋아요 처리 결과를 포함하는 응답 객체
+     * @throws BaseException 사용자 정보 조회, 게시글 정보 조회, '좋아요' 정보 생성 및 저장 등에서 발생 가능한 예외
      */
     @Transactional
     public PostUpdateLikeResDto toggleLike(UUID userId, PostUpdateLikeReqDto data) throws BaseException {

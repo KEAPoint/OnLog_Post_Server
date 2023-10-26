@@ -3,6 +3,8 @@ package keapoint.onlog.post.service;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.dto.blog.BlogDto;
+import keapoint.onlog.post.dto.post.DeletePostReqDto;
+import keapoint.onlog.post.dto.post.DeletePostResDto;
 import keapoint.onlog.post.dto.post.GetPostResDto;
 import keapoint.onlog.post.dto.post.GetPostListResDto;
 import keapoint.onlog.post.entity.*;
@@ -10,6 +12,7 @@ import keapoint.onlog.post.repository.HashtagRepository;
 import keapoint.onlog.post.repository.PostRepository;
 import keapoint.onlog.post.repository.TopicRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -124,5 +128,31 @@ public class PostService {
         BlogDto blog = BlogDto.fromBlog(post.getWriter());
 
         return GetPostResDto.builder().post(post).hashtags(hashtags).blog(blog).build();
+    }
+
+    /**
+     * 게시글 삭제
+     *
+     * @param blogId 블로그 식별자
+     * @param dto    삭제하고자 하는 게시글 식별자가 들어있는 객체
+     * @return 게시글 삭제 성공 여부
+     */
+    public DeletePostResDto deletePost(UUID blogId, DeletePostReqDto dto) throws BaseException {
+        try {
+            Post post = postRepository.findById(dto.getPostId())
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
+
+            if (!post.getWriter().getBlogId().equals(blogId)) { // 게시글 작성자가 아니라면
+                throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
+            }
+
+            postRepository.delete(post); // 게시글 삭제
+
+            return new DeletePostResDto(true); // 결과 return
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 }

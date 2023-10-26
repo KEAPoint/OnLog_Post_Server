@@ -2,15 +2,15 @@ package keapoint.onlog.post.service;
 
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
-import keapoint.onlog.post.dto.comment.CommentDto;
-import keapoint.onlog.post.dto.comment.PostCreateCommentReqDto;
-import keapoint.onlog.post.dto.comment.PutUpdateCommentReqDto;
+import keapoint.onlog.post.dto.comment.*;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Comment;
 import keapoint.onlog.post.entity.Post;
+import keapoint.onlog.post.entity.UserCommentLike;
 import keapoint.onlog.post.repository.BlogRepository;
 import keapoint.onlog.post.repository.CommentRepository;
 import keapoint.onlog.post.repository.PostRepository;
+import keapoint.onlog.post.repository.UserCommentLikeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +29,8 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
 
+    private final UserCommentLikeRepository userCommentLikeRepository;
+
     @Transactional
     public CommentDto createComment(UUID blogId, PostCreateCommentReqDto data) throws BaseException {
         try {
@@ -41,11 +43,11 @@ public class CommentService {
             long ref; // 그룹
             long refOrder; // 그룹 순서
             long step; // 댓글의 계층
-            UUID parentNum = data.getParentNum(); // 부모댓글의 ID
+            UUID parentNum = data.getParentCommentId(); // 부모댓글의 ID
             long answerNum = 0L; // 해당댓글의 자식댓글의 수. 댓글이 작성된 경우이므로 0
 
             if (parentNum != null) { // 부모 댓글이 있는 경우 (대댓글)
-                Comment parentComment = commentRepository.findById(data.getParentNum())
+                Comment parentComment = commentRepository.findById(data.getParentCommentId())
                         .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
 
                 ref = parentComment.getRef(); // 부모와 같은 그룹
@@ -135,5 +137,59 @@ public class CommentService {
             throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    public DeleteCommentResDto deleteComment(UUID blogId, DeleteCommentReqDto dto) throws BaseException {
+        try {
+            Comment comment = commentRepository.findById(dto.getCommentId())
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
+
+            if (!comment.getWriter().getBlogId().equals(blogId)) { // 댓글 작성자가 아니라면
+                throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
+            }
+
+            // 댓글 삭제
+            comment.removeComment();
+            commentRepository.delete(comment);
+
+            return new DeleteCommentResDto(true); // 결과 return
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 댓글 좋아요 추가/제거 처리 서비스 로직
+     *
+     * @param userId 사용자 ID (블로그 ID)
+     * @param data   댓글 ID와 댓글 좋아요 target 상태가 들어있는 객체
+     */
+    @Transactional
+    public PostUpdateCommentLikeResDto toggleLike(UUID userId, PostUpdateCommentLikeReqDto data) throws BaseException {
+        try {
+            Blog blog = blogRepository.findById(userId).orElseThrow(); // 사용자 정보 조회
+            Comment comment = commentRepository.findById(data.getCommentId()).orElseThrow(); // 댓글 정보 조회
+
+            UserCommentLike userCommentLike = userCommentLikeRepository.findByBlogAndComment(blog, comment)
+                    .orElseGet(() -> {
+                        UserCommentLike newLike = UserCommentLike.builder()
+                                .blog(blog)
+                                .comment(comment)
+                                .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
+                                .build();
+
+                        return userCommentLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
+                    });
+
+            userCommentLike.updateLike(data.getTargetStatus());
+
+            return new PostUpdateCommentLikeResDto(true);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 }
