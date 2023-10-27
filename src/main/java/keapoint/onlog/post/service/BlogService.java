@@ -28,12 +28,20 @@ public class BlogService {
             if (blogRepository.findById(data.getBlogId()).isPresent())
                 throw new BaseException(BaseErrorCode.ALREADY_BLOG_EXISTS_EXCEPTION);
 
+            // 해당 nickname의 블로그가 있는 경우 예외를 터트린다.
+            if (blogRepository.findByBlogNickname(data.getBlogNickname()).isPresent())
+                throw new BaseException(BaseErrorCode.ALREADY_BLOG_NICKNAME_EXISTS_EXCEPTION);
+
             // 예외가 없는 경우 블로그를 생성한다.
             Blog blog = blogRepository.save(data.toEntity());
             log.info("생성된 블로그 정보: " + blog);
 
             // 생성 결과를 반환한다.
             return new PostCreateBlogResDto(true);
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
 
         } catch (Exception e) {
             log.error(e.getMessage());
