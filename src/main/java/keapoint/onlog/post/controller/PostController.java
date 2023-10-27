@@ -54,12 +54,12 @@ public class PostController {
                 return new BaseResponse<>(postService.getRecentPosts(pageable));
             }
 
-        } catch (BaseException exception) {
-            return new BaseResponse<>(exception);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
 
         } catch (Exception e) {
             log.error(e.getMessage());
-            return new BaseResponse<>(new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR));
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
         }
     }
 
@@ -74,12 +74,12 @@ public class PostController {
         try {
             return new BaseResponse<>(postService.getPost(postId));
 
-        } catch (BaseException exception) {
-            return new BaseResponse<>(exception);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
 
         } catch (Exception e) {
             log.error(e.getMessage());
-            return new BaseResponse<>(new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR));
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
         }
     }
 
