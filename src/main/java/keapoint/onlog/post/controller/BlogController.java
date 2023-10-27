@@ -1,5 +1,6 @@
 package keapoint.onlog.post.controller;
 
+import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.base.BaseResponse;
 import keapoint.onlog.post.dto.blog.PostCreateBlogReqDto;
@@ -25,8 +26,12 @@ public class BlogController {
         try {
             return new BaseResponse<>(blogService.createBlog(data));
 
-        } catch (BaseException exception) {
-            return new BaseResponse<>(exception);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
         }
     }
 }

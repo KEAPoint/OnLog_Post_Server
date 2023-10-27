@@ -36,13 +36,19 @@ public class PostService {
      * @return 최신 게시글
      */
     @Transactional(readOnly = true)
-    public Page<GetPostListResDto> getRecentPosts(Pageable pageable) {
-        // 수정일자를 기준으로 내림차순 정렬 조건을 적용한 Pageable 객체를 생성한다.
-        Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updatedAt").descending());
+    public Page<GetPostListResDto> getRecentPosts(Pageable pageable) throws BaseException {
+        try {
+            // 수정일자를 기준으로 내림차순 정렬 조건을 적용한 Pageable 객체를 생성한다.
+            Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updatedAt").descending());
 
-        // 게시글을 조회하고 조회된 게시글들을 DTO로 변환하여 반환한다.
-        return postRepository.findByStatusAndIsPublic(true, true, sortedByUpdatedDateDesc)
-                .map(GetPostListResDto::fromPost);
+            // 게시글을 조회하고 조회된 게시글들을 DTO로 변환하여 반환한다.
+            return postRepository.findByStatusAndIsPublic(true, true, sortedByUpdatedDateDesc)
+                    .map(GetPostListResDto::fromPost);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -55,25 +61,35 @@ public class PostService {
      */
     @Transactional(readOnly = true)
     public Page<GetPostListResDto> getRecentPostsByTopicName(String topicName, Pageable pageable) throws BaseException {
-        // 주제 이름으로 주제 엔티티를 조회한다.
-        Topic topic = topicRepository.findByName(topicName)
-                .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
+        try {
+            // 주제 이름으로 주제 엔티티를 조회한다.
+            Topic topic = topicRepository.findByName(topicName)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
 
-        // 수정일자를 기준으로 내림차순 정렬 조건을 적용한 Pageable 객체를 생성한다.
-        Pageable sortedByUpdatedDateDesc = PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                Sort.by("updatedAt").descending()
-        );
+            // 수정일자를 기준으로 내림차순 정렬 조건을 적용한 Pageable 객체를 생성한다.
+            Pageable sortedByUpdatedDateDesc = PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by("updatedAt").descending()
+            );
 
-        // 조회된 주제가 포함된 모든 게시글을 DTO로 변환한 후 리스트로 만든다.
-        List<GetPostListResDto> sortedPosts = postRepository.findByStatusAndIsPublicAndCategoryTopicName(true, true, topic.getName(), sortedByUpdatedDateDesc)
-                .stream()
-                .map(GetPostListResDto::fromPost)
-                .toList();
+            // 조회된 주제가 포함된 모든 게시글을 DTO로 변환한 후 리스트로 만든다.
+            List<GetPostListResDto> sortedPosts = postRepository.findByStatusAndIsPublicAndCategoryTopicName(true, true, topic.getName(), sortedByUpdatedDateDesc)
+                    .stream()
+                    .map(GetPostListResDto::fromPost)
+                    .toList();
 
-        // 변환된 게시글 리스트와 페이지 요청 정보를 사용하여 새로운 Page 객체를 생성하고 반환한다.
-        return new PageImpl<>(sortedPosts, sortedByUpdatedDateDesc, sortedPosts.size());
+            // 변환된 게시글 리스트와 페이지 요청 정보를 사용하여 새로운 Page 객체를 생성하고 반환한다.
+            return new PageImpl<>(sortedPosts, sortedByUpdatedDateDesc, sortedPosts.size());
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -86,26 +102,36 @@ public class PostService {
      */
     @Transactional(readOnly = true)
     public Page<GetPostListResDto> getPostsByHashtag(String hashtag, Pageable pageable) throws BaseException {
-        // 해시태그 이름으로 해시태그 엔티티를 조회한다.
-        Hashtag tag = hashtagRepository.findByName(hashtag)
-                .orElseThrow(() -> new BaseException(BaseErrorCode.HASHTAG_NOT_FOUND_EXCEPTION));
+        try {
+            // 해시태그 이름으로 해시태그 엔티티를 조회한다.
+            Hashtag tag = hashtagRepository.findByName(hashtag)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.HASHTAG_NOT_FOUND_EXCEPTION));
 
-        // 페이지 요청 정보에 정렬 조건을 추가하여 새로운 Pageable 객체를 생성한다.
-        // 이때 정렬 조건은 'updatedAt' 필드의 내림차순이다.
-        Pageable sortedByUpdatedDateDesc = PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                Sort.by("updatedAt").descending()
-        );
+            // 페이지 요청 정보에 정렬 조건을 추가하여 새로운 Pageable 객체를 생성한다.
+            // 이때 정렬 조건은 'updatedAt' 필드의 내림차순이다.
+            Pageable sortedByUpdatedDateDesc = PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by("updatedAt").descending()
+            );
 
-        // 조회된 해시태그가 포함된 모든 게시글을 DTO로 변환한 후 리스트로 만든다.
-        List<GetPostListResDto> sortedPosts = tag.getPostList()
-                .stream()
-                .map(GetPostListResDto::fromPost)
-                .toList();
+            // 조회된 해시태그가 포함된 모든 게시글을 DTO로 변환한 후 리스트로 만든다.
+            List<GetPostListResDto> sortedPosts = tag.getPostList()
+                    .stream()
+                    .map(GetPostListResDto::fromPost)
+                    .toList();
 
-        // 변환된 게시글 리스트와 페이지 요청 정보를 사용하여 새로운 Page 객체를 생성하고 반환한다.
-        return new PageImpl<>(sortedPosts, sortedByUpdatedDateDesc, sortedPosts.size());
+            // 변환된 게시글 리스트와 페이지 요청 정보를 사용하여 새로운 Page 객체를 생성하고 반환한다.
+            return new PageImpl<>(sortedPosts, sortedByUpdatedDateDesc, sortedPosts.size());
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -116,18 +142,28 @@ public class PostService {
      * @throws BaseException POST_NOT_FOUND_EXCEPTION
      */
     public GetPostResDto getPost(UUID postId) throws BaseException {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
+        try {
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
 
-        post.hit();
+            post.hit();
 
-        List<String> hashtags = post.getHashtagList().stream()
-                .map(Hashtag::getName)
-                .toList();
+            List<String> hashtags = post.getHashtagList().stream()
+                    .map(Hashtag::getName)
+                    .toList();
 
-        BlogDto blog = BlogDto.fromBlog(post.getWriter());
+            BlogDto blog = BlogDto.fromBlog(post.getWriter());
 
-        return GetPostResDto.builder().post(post).hashtags(hashtags).blog(blog).build();
+            return GetPostResDto.builder().post(post).hashtags(hashtags).blog(blog).build();
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -149,6 +185,10 @@ public class PostService {
             postRepository.delete(post); // 게시글 삭제
 
             return new DeletePostResDto(true); // 결과 return
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
 
         } catch (Exception e) {
             log.error(e.getMessage());
