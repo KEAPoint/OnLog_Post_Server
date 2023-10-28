@@ -79,7 +79,7 @@ public class CommentService {
             commentRepository.save(comment);
             comment.addComment(post);
 
-            return comment.toDto();
+            return new CommentDto(comment);
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -130,7 +130,7 @@ public class CommentService {
 
             comment.updateComment(dto.getContent()); // 댓글 업데이트
 
-            return comment.toDto(); // 댓글 dto 반환
+            return new CommentDto(comment); // 댓글 dto 반환
 
         } catch (Exception e) {
             log.error(e.getMessage());
