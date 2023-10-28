@@ -226,6 +226,57 @@ public class PostService {
         }
     }
 
+    public PostDto modifyPost(UUID blogId, PutModifyPostReqDto dto) throws BaseException {
+        try {
+            Post post = postRepository.findById(dto.getPostId())
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
+
+            // 게시글이 삭제되었는지 확인한다. 삭제된 경우 post not found exception을 던진다
+            if (post.getStatus().equals(false))
+                throw new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION);
+
+            // 게시글 작성자인지 확인한다.
+            if (!post.getWriter().getBlogId().equals(blogId))
+                throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION);
+
+            // 카테고리를 조회한다.
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
+
+            // 해당 카테고리 주인인지 확인한다.
+            if (!category.getCategoryOwner().getBlogId().equals(blogId))
+                throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
+
+            // 해시태그를 조회한다. 만약 해시태그가 없는 경우엔 만든다
+            List<Hashtag> hashtagList = dto.getHashtagList()
+                    .stream()
+                    .map(hashtag -> hashtagRepository.findByName(hashtag)
+                            .orElseGet(() -> {
+                                Hashtag newHashtag = new Hashtag(hashtag);
+                                return hashtagRepository.save(newHashtag);
+                            })
+                    )
+                    .toList();
+
+            // 게시글을 수정한다
+            post.modifyPost(dto, category, hashtagList);
+
+            // Todo: 양방향 연관관계 객체 필드 설정
+
+            // 수정된 게시글 정보를 반환한다.
+            return new PostDto(post);
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
     /**
      * 게시글 삭제
      *

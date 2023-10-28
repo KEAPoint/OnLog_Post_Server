@@ -2,6 +2,7 @@ package keapoint.onlog.post.entity;
 
 import jakarta.persistence.*;
 import keapoint.onlog.post.base.BaseEntity;
+import keapoint.onlog.post.dto.post.PutModifyPostReqDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -119,4 +120,13 @@ public class Post extends BaseEntity {
         this.setWriter(null);
     }
 
+    public void modifyPost(PutModifyPostReqDto dto, Category category, List<Hashtag> hashtagList) {
+        this.title = dto.getTitle();
+        this.content = dto.getContent();
+        this.summary = dto.getSummary();
+        this.thumbnailLink = dto.getThumbnailLink();
+        this.isPublic = dto.getIsPublic();
+        this.category = category;
+        this.hashtagList = hashtagList;
+    }
 }

@@ -81,8 +81,8 @@ public class PostController {
      * 게시글 작성 API
      */
     @PostMapping("")
-    public BaseResponse<PostDto> deleteComment(@RequestHeader("Authorization") String token,
-                                               @RequestBody PostWritePostReqDto dto) {
+    public BaseResponse<PostDto> writePost(@RequestHeader("Authorization") String token,
+                                           @RequestBody PostWritePostReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
             return new BaseResponse<>(postService.writePost(blogId, dto));
@@ -97,11 +97,30 @@ public class PostController {
     }
 
     /**
+     * 게시글 수정 API
+     */
+    @PutMapping("")
+    public BaseResponse<PostDto> modifyPost(@RequestHeader("Authorization") String token,
+                                            @RequestBody PutModifyPostReqDto dto) {
+        try {
+            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
+            return new BaseResponse<>(postService.modifyPost(blogId, dto));
+
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
+        }
+    }
+
+    /**
      * 게시글 삭제 API
      */
     @DeleteMapping("")
-    public BaseResponse<DeletePostResDto> deleteComment(@RequestHeader("Authorization") String token,
-                                                        @RequestBody DeletePostReqDto dto) {
+    public BaseResponse<DeletePostResDto> deletePost(@RequestHeader("Authorization") String token,
+                                                     @RequestBody DeletePostReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
             return new BaseResponse<>(postService.deletePost(blogId, dto));
