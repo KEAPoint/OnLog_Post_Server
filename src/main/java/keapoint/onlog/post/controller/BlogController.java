@@ -36,6 +36,21 @@ public class BlogController {
         }
     }
 
+    @GetMapping("/profile")
+    public BaseResponse<BlogDto> getMyProfile(@RequestHeader("Authorization") String token) {
+        try {
+            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
+            return new BaseResponse<>(blogService.getProfile(blogId));
+
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
+        }
+    }
+
     @PostMapping("/follow")
     public BaseResponse<PostFollowResDto> follow(@RequestHeader("Authorization") String token,
                                                  @RequestBody PostFollowReqDto data) {
