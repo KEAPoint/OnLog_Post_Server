@@ -9,8 +9,10 @@ import keapoint.onlog.post.utils.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.UUID;
+
 
 @Slf4j
 @RestController
@@ -22,6 +24,7 @@ public class BlogController {
 
     private final BlogService blogService;
 
+    @Operation(summary = "블로그 생성")
     @PostMapping("")
     public BaseResponse<PostCreateBlogResDto> createBlog(@RequestBody PostCreateBlogReqDto data) {
         try {
