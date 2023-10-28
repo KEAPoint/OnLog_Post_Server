@@ -2,8 +2,6 @@ package keapoint.onlog.post.service;
 
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
-import keapoint.onlog.post.dto.post.PostUpdateLikeReqDto;
-import keapoint.onlog.post.dto.post.PostUpdateLikeResDto;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Post;
 import keapoint.onlog.post.entity.UserPostLike;
@@ -31,16 +29,21 @@ public class PostLikeService {
     /**
      * 좋아요 추가/제거 처리 서비스 로직
      *
-     * @param userId 사용자 ID (블로그 ID)
-     * @param data   게시글 ID와 게시글 좋아요 target 상태가 들어있는 객체
-     * @return PostUpdateLikeResDto 좋아요 처리 결과를 포함하는 응답 객체
-     * @throws BaseException 사용자 정보 조회, 게시글 정보 조회, '좋아요' 정보 생성 및 저장 등에서 발생 가능한 예외
+     * @param blogId      사용자 블로그 식별자
+     * @param postId      게시글 식별자
+     * @param targetValue 게시글 좋아요/싫어요 여부
+     * @return 결과
      */
     @Transactional
-    public PostUpdateLikeResDto toggleLike(UUID userId, PostUpdateLikeReqDto data) throws BaseException {
+    public Boolean toggleLike(UUID blogId, UUID postId, Boolean targetValue) throws BaseException {
         try {
-            Blog blog = blogRepository.findById(userId).orElseThrow(); // 사용자 정보 조회
-            Post post = postRepository.findById(data.getPostId()).orElseThrow(); // 게시글 정보 조회
+            // 사용자 정보 조회
+            Blog blog = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
+            // 게시글 정보 조회
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
 
             UserPostLike userPost = likeRepository.findByBlogAndPost(blog, post)
                     .orElseGet(() -> {
@@ -53,9 +56,9 @@ public class PostLikeService {
                         return likeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
                     });
 
-            userPost.updateLike(data.getTargetStatus());
+            userPost.updateLike(targetValue);
 
-            return new PostUpdateLikeResDto(true);
+            return true;
 
         } catch (Exception e) {
             log.error(e.getMessage());

@@ -58,12 +58,12 @@ public class BlogService {
      * 블로그 팔로우 / 언팔로우
      *
      * @param blogId       내 블로그 식별자
-     * @param targetBlogId 팔로우 할 블로그 식별자
+     * @param targetBlogId 팔로우/팔로우 취소 할 블로그 식별자
      * @param targetValue  팔로우 할지 말지 여부
-     * @return 결과
+     * @return 성공 여부
      */
     @Transactional
-    public PostFollowResDto toggleFollow(UUID blogId, UUID targetBlogId, Boolean targetValue) throws BaseException {
+    public Boolean toggleFollow(UUID blogId, UUID targetBlogId, Boolean targetValue) throws BaseException {
         try {
             // 내 블로그 조회
             Blog me = blogRepository.findById(blogId)
@@ -79,7 +79,7 @@ public class BlogService {
                         Follow newFollow = Follow.builder()
                                 .me(me)
                                 .target(target)
-                                .isFollowing(false)
+                                .isFollowing(false) // 기존에 팔로우 한 기록이 없으면 팔로우X 상태
                                 .build();
 
                         return followRepository.save(newFollow); // 새로운 팔로우 정보 생성 및 저장
@@ -89,7 +89,7 @@ public class BlogService {
             follow.updateFollow(targetValue);
 
             // 결과 return
-            return new PostFollowResDto(true);
+            return true;
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());

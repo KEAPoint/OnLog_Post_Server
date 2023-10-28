@@ -41,7 +41,7 @@ public class BlogController {
                                                  @RequestBody PostFollowReqDto data) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(blogService.toggleFollow(blogId, data.getTargetBlogId(), true));
+            return new BaseResponse<>(new PostFollowResDto(blogService.toggleFollow(blogId, data.getTargetBlogId(), true)));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -53,11 +53,11 @@ public class BlogController {
     }
 
     @DeleteMapping("/follow")
-    public BaseResponse<PostFollowResDto> unFollow(@RequestHeader("Authorization") String token,
-                                                   @RequestBody DeleteFollowReqDto data) {
+    public BaseResponse<DeleteFollowResDto> unFollow(@RequestHeader("Authorization") String token,
+                                                     @RequestBody DeleteFollowReqDto data) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(blogService.toggleFollow(blogId, data.getTargetBlogId(), false));
+            return new BaseResponse<>(new DeleteFollowResDto(blogService.toggleFollow(blogId, data.getTargetBlogId(), false)));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

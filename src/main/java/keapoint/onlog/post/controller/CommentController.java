@@ -71,15 +71,13 @@ public class CommentController {
         }
     }
 
-    @PostMapping("/{commentId}/like")
-    public BaseResponse<PostUpdateCommentLikeResDto> likeComment(@RequestHeader("Authorization") String token,
-                                                                 @PathVariable UUID commentId) {
+    @PostMapping("/like")
+    public BaseResponse<PostCommentLikeResDto> cancelLikeComment(@RequestHeader("Authorization") String token,
+                                                                 @RequestBody PostCommentLikeReqDto dto) {
 
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            PostUpdateCommentLikeReqDto dto = new PostUpdateCommentLikeReqDto(commentId, true); // 댓글 좋아요 객체 생성
-
-            return new BaseResponse<>(commentService.toggleLike(blogId, dto));
+            return new BaseResponse<>(new PostCommentLikeResDto(commentService.toggleLike(blogId, dto.getCommentId(), true)));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -91,15 +89,13 @@ public class CommentController {
 
     }
 
-    @DeleteMapping("/{commentId}/like")
-    public BaseResponse<PostUpdateCommentLikeResDto> unlikeComment(@RequestHeader("Authorization") String token,
-                                                                 @PathVariable UUID commentId) {
+    @DeleteMapping("/like")
+    public BaseResponse<DeleteCommentLikeResDto> cancelLikeComment(@RequestHeader("Authorization") String token,
+                                                                   @RequestBody DeleteCommentLikeReqDto dto) {
 
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            PostUpdateCommentLikeReqDto dto = new PostUpdateCommentLikeReqDto(commentId, false); // 댓글 좋아요 취소 객체 생성
-
-            return new BaseResponse<>(commentService.toggleLike(blogId, dto));
+            return new BaseResponse<>(new DeleteCommentLikeResDto(commentService.toggleLike(blogId, dto.getCommentId(), false)));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

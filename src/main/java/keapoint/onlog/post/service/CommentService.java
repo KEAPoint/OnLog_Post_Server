@@ -163,15 +163,23 @@ public class CommentService {
     /**
      * 댓글 좋아요 추가/제거 처리 서비스 로직
      *
-     * @param userId 사용자 ID (블로그 ID)
-     * @param data   댓글 ID와 댓글 좋아요 target 상태가 들어있는 객체
+     * @param blogId      사용자 블로그 식별자
+     * @param commentId   좋아요/좋아요 취소 할 댓글 식별자
+     * @param targetValue 좋아요 할지 말지 여부
+     * @return 성공 여부
      */
     @Transactional
-    public PostUpdateCommentLikeResDto toggleLike(UUID userId, PostUpdateCommentLikeReqDto data) throws BaseException {
+    public Boolean toggleLike(UUID blogId, UUID commentId, Boolean targetValue) throws BaseException {
         try {
-            Blog blog = blogRepository.findById(userId).orElseThrow(); // 사용자 정보 조회
-            Comment comment = commentRepository.findById(data.getCommentId()).orElseThrow(); // 댓글 정보 조회
+            // 사용자 정보 조회
+            Blog blog = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
 
+            // 댓글 정보 조회
+            Comment comment = commentRepository.findById(commentId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
+
+            // 댓글 좋아요 정보 조회
             UserCommentLike userCommentLike = userCommentLikeRepository.findByBlogAndComment(blog, comment)
                     .orElseGet(() -> {
                         UserCommentLike newLike = UserCommentLike.builder()
@@ -183,9 +191,11 @@ public class CommentService {
                         return userCommentLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
                     });
 
-            userCommentLike.updateLike(data.getTargetStatus());
+            // 댓글 좋아요 정보 업데이트
+            userCommentLike.updateLike(targetValue);
 
-            return new PostUpdateCommentLikeResDto(true);
+            // 결과 리턴
+            return true;
 
         } catch (Exception e) {
             log.error(e.getMessage());

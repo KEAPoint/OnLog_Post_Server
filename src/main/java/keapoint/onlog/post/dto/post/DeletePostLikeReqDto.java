@@ -7,11 +7,6 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
-public class PostUpdateLikeReqDto {
+public class DeletePostLikeReqDto {
     private UUID postId;
-    private boolean targetStatus;
-
-    public boolean getTargetStatus() {
-        return targetStatus;
-    }
 }
