@@ -61,12 +61,31 @@ public class PostController {
     }
 
     /**
-     * 게시글 조회 API
+     * 특정 게시글 조회 API
      */
     @GetMapping("/{postId}")
     public BaseResponse<GetPostResDto> getPost(@PathVariable UUID postId) {
         try {
             return new BaseResponse<>(postService.getPost(postId));
+
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
+        }
+    }
+
+    /**
+     * 게시글 작성 API
+     */
+    @PostMapping("")
+    public BaseResponse<PostDto> deleteComment(@RequestHeader("Authorization") String token,
+                                               @RequestBody PostWritePostReqDto dto) {
+        try {
+            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
+            return new BaseResponse<>(postService.writePost(blogId, dto));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

@@ -3,7 +3,6 @@ package keapoint.onlog.post.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import keapoint.onlog.post.base.BaseEntity;
-import keapoint.onlog.post.dto.comment.CommentDto;
 import lombok.*;
 
 import java.util.UUID;
@@ -80,21 +79,6 @@ public class Comment extends BaseEntity {
 
     public void updateNumberOfChildComment() {
         this.answerNum += 1;
-    }
-
-    public CommentDto toDto() {
-        return CommentDto.builder()
-                .commentId(commentId)
-                .content(content)
-                .modified(modified)
-                .ref(ref)
-                .refOrder(refOrder)
-                .step(step)
-                .parentNum(parentNum)
-                .answerNum(answerNum)
-                .postId(post.getPostId())
-                .writerId(writer.getBlogId())
-                .build();
     }
 
     public void updateComment(String newContent) {

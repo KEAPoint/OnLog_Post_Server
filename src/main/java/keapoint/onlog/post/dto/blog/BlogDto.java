@@ -20,17 +20,6 @@ public class BlogDto {
     private String blogIntro; // 사용자 블로그 한 줄 소개
     private String blogThemeImg; // 사용자 블로그 테마 이미지
 
-    public static BlogDto fromBlog(Blog blog) {
-        return BlogDto.builder()
-                .blogId(blog.getBlogId())
-                .blogName(blog.getBlogName())
-                .blogNickname(blog.getBlogNickname())
-                .blogProfileImg(blog.getBlogProfileImg())
-                .blogIntro(blog.getBlogIntro())
-                .blogThemeImg(blog.getBlogThemeImg())
-                .build();
-    }
-
     public BlogDto(Blog blog) {
         this.blogId = blog.getBlogId();
         this.blogName = blog.getBlogName();

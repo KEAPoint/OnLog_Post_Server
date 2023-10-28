@@ -2,7 +2,10 @@ package keapoint.onlog.post.entity;
 
 import jakarta.persistence.*;
 import keapoint.onlog.post.base.BaseEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +13,9 @@ import java.util.UUID;
 
 @Getter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "post")
 public class Post extends BaseEntity {
 

@@ -22,9 +22,10 @@ public enum BaseErrorCode {
     TOKEN_EXPIRED_EXCEPTION(HttpStatus.UNAUTHORIZED.value(), "토큰이 만료되었습니다."),
 
     /**
-     * Forbidden
+     * 403 Forbidden
      */
     PERMISSION_EXCEPTION(HttpStatus.FORBIDDEN.value(), "작성자만 수정 또는 삭제할 수 있습니다."),
+    UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION(HttpStatus.FORBIDDEN.value(), "해당 카테고리에 대한 권한이 없습니다."),
 
     /**
      * 404 Not Found
@@ -34,6 +35,7 @@ public enum BaseErrorCode {
     TOPIC_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND.value(), "존재하지 않는 주제입니다."),
     HASHTAG_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND.value(), "존재하지 않는 해시태그입니다."),
     COMMENT_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND.value(), "존재하지 않는 댓글입니다."),
+    CATEGORY_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND.value(), "존재하지 않는 카테고리입니다."),
 
     /**
      * 409 Conflict
