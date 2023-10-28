@@ -54,6 +54,25 @@ public class BlogService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public BlogDto getProfile(UUID blogId) throws BaseException {
+        try {
+            // 블로그 조회
+            Blog blog = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
+            return new BlogDto(blog);
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * 블로그 팔로우 / 언팔로우
      *
