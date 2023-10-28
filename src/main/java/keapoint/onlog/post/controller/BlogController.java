@@ -53,7 +53,7 @@ public class BlogController {
             return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
         }
     }
-
+    @Operation(summary = "블로그 팔로우")
     @PostMapping("/follow")
     public BaseResponse<PostFollowResDto> follow(@RequestHeader("Authorization") String token,
                                                  @RequestBody PostFollowReqDto data) {
