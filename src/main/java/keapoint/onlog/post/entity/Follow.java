@@ -1,10 +1,18 @@
 package keapoint.onlog.post.entity;
 
 import jakarta.persistence.*;
+import keapoint.onlog.post.base.BaseErrorCode;
+import keapoint.onlog.post.base.BaseException;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "follow")
 public class Follow {
 
@@ -13,10 +21,24 @@ public class Follow {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "follower_id", referencedColumnName = "blog_id")
-    private Blog follower;
+    @JoinColumn(name = "blog_id", referencedColumnName = "blog_id")
+    private Blog me;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "following_id", referencedColumnName = "blog_id")
-    private Blog following;
+    @JoinColumn(name = "follow_id", referencedColumnName = "blog_id")
+    private Blog target;
+
+    @Column(nullable = false)
+    private boolean isFollowing; // 해당 블로그를 팔로잉 하고 있는지 여부
+
+    /**
+     * 팔로우 업데이트 (팔로우 X <-> 팔로우)
+     */
+    public void updateFollow(Boolean targetValue) throws BaseException {
+        if (this.isFollowing == targetValue) {
+            throw new BaseException(BaseErrorCode.EXPECTED_FOLLOWING_STATE_EXCEPTION);
+        } else {
+            this.isFollowing = targetValue;
+        }
+    }
 }

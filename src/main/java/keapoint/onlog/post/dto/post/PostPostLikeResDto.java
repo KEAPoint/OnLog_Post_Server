@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class PostUpdateLikeResDto {
+public class PostPostLikeResDto {
     private boolean isSuccess;
 }

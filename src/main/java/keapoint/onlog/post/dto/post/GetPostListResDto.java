@@ -28,7 +28,7 @@ public class GetPostListResDto {
                 .thumbnailLink(post.getThumbnailLink())
                 .modified(post.getModified())
                 .category(post.getCategory().getName())
-                .blog(BlogDto.fromBlog(post.getWriter()))
+                .blog(new BlogDto(post.getWriter()))
                 .build();
     }
 }
