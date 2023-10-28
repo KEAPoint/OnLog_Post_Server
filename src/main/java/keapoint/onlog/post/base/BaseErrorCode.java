@@ -13,6 +13,7 @@ public enum BaseErrorCode {
      */
     EXPECTED_LIKE_STATE_EXCEPTION(HttpStatus.BAD_REQUEST.value(), "요청한 '좋아요' 상태와 현재 '좋아요' 상태가 일치하지 않습니다."),
     INVALID_TOKEN_EXCEPTION(HttpStatus.BAD_REQUEST.value(), "유효하지 않은 토큰입니다."),
+    EXPECTED_FOLLOWING_STATE_EXCEPTION(HttpStatus.CONFLICT.value(), "요청한 '팔로우' 상태와 현재 '팔로우' 상태가 일치하지 않습니다."),
 
     /**
      * 401 Unauthorized
