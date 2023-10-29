@@ -41,7 +41,7 @@ public class PostService {
 
             // 게시글을 조회하고 조회된 게시글들을 DTO로 변환하여 반환한다.
             return postRepository.findByStatusAndIsPublic(true, true, sortedByUpdatedDateDesc)
-                    .map(GetPostListResDto::fromPost);
+                    .map(GetPostListResDto::new);
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -73,7 +73,7 @@ public class PostService {
             // 조회된 주제가 포함된 모든 게시글을 DTO로 변환한 후 리스트로 만든다.
             List<GetPostListResDto> sortedPosts = postRepository.findByStatusAndIsPublicAndCategoryTopicName(true, true, topic.getName(), sortedByUpdatedDateDesc)
                     .stream()
-                    .map(GetPostListResDto::fromPost)
+                    .map(GetPostListResDto::new)
                     .toList();
 
             // 변환된 게시글 리스트와 페이지 요청 정보를 사용하여 새로운 Page 객체를 생성하고 반환한다.
@@ -114,7 +114,7 @@ public class PostService {
             // 조회된 해시태그가 포함된 모든 게시글을 DTO로 변환한 후 리스트로 만든다.
             List<GetPostListResDto> sortedPosts = tag.getPostList()
                     .stream()
-                    .map(GetPostListResDto::fromPost)
+                    .map(GetPostListResDto::new)
                     .toList();
 
             // 변환된 게시글 리스트와 페이지 요청 정보를 사용하여 새로운 Page 객체를 생성하고 반환한다.

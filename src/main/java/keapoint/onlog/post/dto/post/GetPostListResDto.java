@@ -8,7 +8,6 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-@Builder
 public class GetPostListResDto {
     private UUID postId; // 게시글 식별자
     private String title; // 게시글 제목
@@ -19,16 +18,14 @@ public class GetPostListResDto {
     private String category; // 게시글 카테고리
     private BlogDto blog; // 사용자 블로그
 
-    public static GetPostListResDto fromPost(Post post) {
-        return GetPostListResDto.builder()
-                .postId(post.getPostId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .summary(post.getSummary())
-                .thumbnailLink(post.getThumbnailLink())
-                .modified(post.getModified())
-                .category(post.getCategory().getName())
-                .blog(new BlogDto(post.getWriter()))
-                .build();
+    public GetPostListResDto(Post post) {
+        this.postId = post.getPostId();
+        this.title = post.getTitle();
+        this.content = post.getContent();
+        this.summary = post.getSummary();
+        this.thumbnailLink = post.getThumbnailLink();
+        this.modified = post.getModified();
+        this.category = post.getCategory().getName();
+        this.blog = new BlogDto(post.getWriter());
     }
 }
