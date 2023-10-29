@@ -85,6 +85,9 @@ public class CommentController {
             return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
         }
     }
+
+    // 좋아요 관련 메소드
+
     @Operation(summary="댓글에 좋아요 추가",description="사용자가 특정 댓글에 좋아요를 남깁니다.")
     @ApiResponses(value={
             @ApiResponse(responseCode="200",description="정상 처리"),
