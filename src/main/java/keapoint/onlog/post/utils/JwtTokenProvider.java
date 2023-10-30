@@ -38,22 +38,36 @@ public class JwtTokenProvider {
     /**
      * 사용자의 식별자를 추출하는 method
      *
-     * @param token 사용자 token
+     * @param bearerToken 사용자 token
      * @return 사용자 식별자
      */
-    public String extractIdx(String token) throws BaseException {
+    public String extractIdx(String bearerToken) throws BaseException {
         try {
+            log.info("요청 token 정보: " + bearerToken);
+            String token = getTokenFromBearer(bearerToken);
+            log.info("추출된 token 정보: " + token);
+
             Jws<Claims> claimsJws = Jwts.parserBuilder()
                     .setSigningKey(jwtKey.getBytes())
                     .build()
                     .parseClaimsJws(token);
 
-            return claimsJws.getBody().get("memberIdx", String.class);
+            String memberIdx = claimsJws.getBody().get("memberIdx", String.class);
+            log.info("요청 사용자 정보: " + memberIdx);
+
+            return memberIdx;
 
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new BaseException(BaseErrorCode.INVALID_TOKEN_EXCEPTION);
         }
+    }
+
+    private static String getTokenFromBearer(String bearerToken) {
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring("Bearer ".length());
+        }
+        return bearerToken;
     }
 
 
