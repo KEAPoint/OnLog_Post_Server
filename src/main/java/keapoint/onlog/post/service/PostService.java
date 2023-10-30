@@ -41,7 +41,7 @@ public class PostService {
 
             // 게시글을 조회하고 조회된 게시글들을 DTO로 변환하여 반환한다.
             return postRepository.findByStatusAndIsPublic(true, true, sortedByUpdatedDateDesc)
-                    .map(GetPostListResDto::fromPost);
+                    .map(GetPostListResDto::new);
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -73,7 +73,7 @@ public class PostService {
             // 조회된 주제가 포함된 모든 게시글을 DTO로 변환한 후 리스트로 만든다.
             List<GetPostListResDto> sortedPosts = postRepository.findByStatusAndIsPublicAndCategoryTopicName(true, true, topic.getName(), sortedByUpdatedDateDesc)
                     .stream()
-                    .map(GetPostListResDto::fromPost)
+                    .map(GetPostListResDto::new)
                     .toList();
 
             // 변환된 게시글 리스트와 페이지 요청 정보를 사용하여 새로운 Page 객체를 생성하고 반환한다.
@@ -114,7 +114,7 @@ public class PostService {
             // 조회된 해시태그가 포함된 모든 게시글을 DTO로 변환한 후 리스트로 만든다.
             List<GetPostListResDto> sortedPosts = tag.getPostList()
                     .stream()
-                    .map(GetPostListResDto::fromPost)
+                    .map(GetPostListResDto::new)
                     .toList();
 
             // 변환된 게시글 리스트와 페이지 요청 정보를 사용하여 새로운 Page 객체를 생성하고 반환한다.
@@ -225,6 +225,57 @@ public class PostService {
             throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
+
+    public PostDto modifyPost(UUID blogId, PutModifyPostReqDto dto) throws BaseException {
+        try {
+            Post post = postRepository.findById(dto.getPostId())
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
+
+            // 게시글이 삭제되었는지 확인한다. 삭제된 경우 post not found exception을 던진다
+            if (post.getStatus().equals(false))
+                throw new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION);
+
+            // 게시글 작성자인지 확인한다.
+            if (!post.getWriter().getBlogId().equals(blogId))
+                throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION);
+
+            // 카테고리를 조회한다.
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
+
+            // 해당 카테고리 주인인지 확인한다.
+            if (!category.getCategoryOwner().getBlogId().equals(blogId))
+                throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
+
+            // 해시태그를 조회한다. 만약 해시태그가 없는 경우엔 만든다
+            List<Hashtag> hashtagList = dto.getHashtagList()
+                    .stream()
+                    .map(hashtag -> hashtagRepository.findByName(hashtag)
+                            .orElseGet(() -> {
+                                Hashtag newHashtag = new Hashtag(hashtag);
+                                return hashtagRepository.save(newHashtag);
+                            })
+                    )
+                    .toList();
+
+            // 게시글을 수정한다
+            post.modifyPost(dto, category, hashtagList);
+
+            // Todo: 양방향 연관관계 객체 필드 설정
+
+            // 수정된 게시글 정보를 반환한다.
+            return new PostDto(post);
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     /**
      * 게시글 삭제
