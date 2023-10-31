@@ -146,7 +146,15 @@ class BlogServiceUnitTest {
     }
 
     @Test
-    void getProfile() {
+    void 블로그_프로필_조회_실패_존재하지_않는_블로그_조회() {
+        // given: 사용자가 블로그 프로필 조회 요청을 했을 떄
+        UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
+
+        // when: 존재하지 않는 블로그를 조회하고자 한다면
+        BaseException thrownException = assertThrows(BaseException.class, () -> blogService.getProfile(blogId));
+
+        // then: BLOG_NOT_FOUND_EXCEPTION 예외가 터져야 한다.
+        assertEquals(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION, thrownException.getErrorCode());
     }
 
     @Test
