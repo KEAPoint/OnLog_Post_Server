@@ -28,4 +28,11 @@ public class BaseResponse<T> {
         this.code = exception.errorCode.getStatus();
         this.message = exception.errorCode.getMessage();
     }
+
+    public BaseResponse() {
+        this.isSuccess = true;
+        this.code = 200;
+        this.message = "요청에 성공하였습니다.";
+    }
+
 }

@@ -65,4 +65,42 @@ public class CategoryService {
             throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
+    public CategoryDto updateCategory(Long categoryId, PostCreateCategoryReqDto dto) throws BaseException {
+        try {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
+
+            // 카테고리 이름 변경 전 이미 같은 이름의 카테고리가 있는지 확인
+            if (categoryRepository.findByNameAndCategoryOwner(dto.getName(), category.getCategoryOwner()).isPresent())
+                throw new BaseException(BaseErrorCode.ALREADY_CATEGORY_EXISTS_EXCEPTION);
+
+            category.setName(dto.getName());
+            categoryRepository.save(category);
+            log.info("수정된 카테고리: " + category);
+
+
+            return new CategoryDto(category);
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public void deleteCategory(Long categoryId) throws BaseException {
+        try {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
+            categoryRepository.delete(category);
+            log.info("삭제된 카테고리: " + category);
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

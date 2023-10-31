@@ -41,5 +41,44 @@ public class CategoryController {
             return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
         }
     }
+    /**
+     * 카테고리 수정 API
+     */
+    @PutMapping("/{categoryId}")
+    public BaseResponse<CategoryDto> updateCategory(@RequestHeader("Authorization") String token,
+                                                    @PathVariable Long categoryId,
+                                                    @RequestBody PostCreateCategoryReqDto dto) {
+        try {
+            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
+            return new BaseResponse<>(categoryService.updateCategory(categoryId, dto));
+
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
+        }
+    }
+
+    /**
+     * 카테고리 삭제 API
+     */
+    @DeleteMapping("/{categoryId}")
+    public BaseResponse<Void> deleteCategory(@RequestHeader("Authorization") String token,
+                                             @PathVariable Long categoryId) {
+        try {
+            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
+            categoryService.deleteCategory(categoryId);
+            return new BaseResponse<>();
+
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
+        }
+    }
 
 }
