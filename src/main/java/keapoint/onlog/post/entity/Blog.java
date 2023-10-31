@@ -25,7 +25,7 @@ public class Blog extends BaseEntity {
     private String blogName; // 사용자 블로그 이름
 
     @Column(name = "blog_nickname", nullable = false, length = 32, unique = true)
-    private String blogNickname; // 사용자 블로그 별명
+    private String blogNickname; // 사용자 블로그 별명 (닉네임)
 
     @Column(name = "blog_profile_img")
     private String blogProfileImg; // 사용자 블로그 프로필
