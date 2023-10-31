@@ -42,6 +42,7 @@ public enum BaseErrorCode {
      */
     ALREADY_BLOG_EXISTS_EXCEPTION(HttpStatus.CONFLICT.value(), "해당 ID를 가진 블로그가 이미 존재합니다."),
     ALREADY_BLOG_NICKNAME_EXISTS_EXCEPTION(HttpStatus.CONFLICT.value(), "해당 닉네임을 가진 블로그가 이미 존재합니다."),
+    ALREADY_CATEGORY_EXISTS_EXCEPTION(HttpStatus.CONFLICT.value(), "해당 카테고리가 이미 존재합니다."),
 
     /**
      * 500 : INTERNAL SERVER ERROR
