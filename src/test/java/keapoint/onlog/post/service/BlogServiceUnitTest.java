@@ -128,16 +128,21 @@ class BlogServiceUnitTest {
                 .build();
 
         // then: ALREADY_BLOG_NICKNAME_EXISTS_EXCEPTION 예외가 발생해야 한다.
-        BaseException thrownException = assertThrows(BaseException.class, () -> {
-            blogService.createBlog(newReqDto);
-        });
+        BaseException thrownException = assertThrows(BaseException.class, () -> blogService.createBlog(newReqDto));
 
         assertEquals(BaseErrorCode.ALREADY_BLOG_NICKNAME_EXISTS_EXCEPTION, thrownException.getErrorCode());
     }
 
-
     @Test
-    void deleteBlog() {
+    void 블로그_탈퇴_실패_존재하지_않은_블로그_탈퇴() {
+        // given: 사용자가 블로그 탈퇴 요청을 했을 때
+        UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
+
+        // when: 존재하지 않는 블로그를 탈퇴하고자 한다면
+        BaseException thrownException = assertThrows(BaseException.class, () -> blogService.deleteBlog(blogId));
+
+        // then: BLOG_NOT_FOUND_EXCEPTION 예외가 터져야 한다.
+        assertEquals(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION, thrownException.getErrorCode());
     }
 
     @Test
