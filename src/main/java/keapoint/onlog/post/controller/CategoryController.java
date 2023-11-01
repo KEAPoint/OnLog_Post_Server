@@ -64,6 +64,9 @@ public class CategoryController {
         }
     }
 
+    /**
+     * 카테고리 삭제 API
+     */
     @DeleteMapping
     public BaseResponse<CategoryDto> deleteCategory(@RequestHeader("Authorization") String token,
                                                     @RequestBody CategoryDeleteReqDto dto) {

@@ -67,42 +67,58 @@ public class CategoryService {
             throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // 카테고리 수정 API
     public CategoryDto updateCategory(CategoryUpdateReqDto dto) throws BaseException {
         try {
+            // 카테고리 조회
             Category category = categoryRepository.findById(dto.getId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
 
+            // 사용자가 해당 이름으로 카테고리를 가지고 있는지 조회
             if (categoryRepository.findByNameAndCategoryOwner(dto.getName(), category.getCategoryOwner()).isPresent())
                 throw new BaseException(BaseErrorCode.ALREADY_CATEGORY_EXISTS_EXCEPTION);
 
+            // 카테고리 이름 수정
             category.updateCategory(dto.getName());
 
             log.info("수정된 카테고리: " + category);
 
+            // 수정된 카테고리 반환
             return new CategoryDto(category);
+
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
             throw e;
+
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
+    // 카테고리 삭제 API
     public CategoryDto deleteCategory(CategoryDeleteReqDto dto) throws BaseException {
         Category category = null;
         try {
+            // 카테고리 조회
             category = categoryRepository.findById(dto.getId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
+
+            // 카테고리 삭제
             categoryRepository.delete(category);
             log.info("삭제된 카테고리: " + category);
+
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
             throw e;
+
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
         }
+
+        // 삭제된 카테고리 반환
         return new CategoryDto(category);
     }
 }
