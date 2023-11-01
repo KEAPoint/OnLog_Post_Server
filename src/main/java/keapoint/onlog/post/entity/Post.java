@@ -50,6 +50,9 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category; // 게시글 카테고리
 
+    @OneToOne
+    private Topic topic; // 게시글 주제
+
     @ManyToMany
     @JoinTable(
             name = "Post_HashTag_Table",

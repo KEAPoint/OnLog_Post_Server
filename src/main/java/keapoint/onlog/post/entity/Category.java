@@ -24,9 +24,6 @@ public class Category {
     @Column(name = "category_order", nullable = false)
     private int order;
 
-    @OneToOne
-    private Topic topic;
-
     @ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
     @JoinColumn(name="blog_id")
     private Blog categoryOwner; // 카테고리 소유 blog

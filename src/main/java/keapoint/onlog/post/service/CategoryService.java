@@ -47,7 +47,6 @@ public class CategoryService {
             Category newCategory = Category.builder()
                     .name(dto.getName())
                     .order(order)
-                    .topic(topic)
                     .categoryOwner(blog)
                     .build();
 
