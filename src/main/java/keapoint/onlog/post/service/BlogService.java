@@ -24,13 +24,13 @@ public class BlogService {
     private final FollowRepository followRepository;
 
     @Transactional
-    public PostCreateBlogResDto createBlog(PostCreateBlogReqDto data) throws BaseException {
+    public BlogDto createBlog(UUID blogId, PostCreateBlogReqDto data) throws BaseException {
         try {
             // 로깅
             log.info("블로그 생성 요청 정보: " + data.toString());
 
             // 해당 id를 기반으로 이미 블로그가 있는 경우 예외를 터트린다.
-            if (blogRepository.findById(data.getBlogId()).isPresent())
+            if (blogRepository.findById(blogId).isPresent())
                 throw new BaseException(BaseErrorCode.ALREADY_BLOG_EXISTS_EXCEPTION);
 
             // 해당 nickname의 블로그가 있는 경우 예외를 터트린다.
@@ -38,11 +38,37 @@ public class BlogService {
                 throw new BaseException(BaseErrorCode.ALREADY_BLOG_NICKNAME_EXISTS_EXCEPTION);
 
             // 예외가 없는 경우 블로그를 생성한다.
-            Blog blog = blogRepository.save(data.toEntity());
+            Blog blog = blogRepository.save(data.toEntity(blogId));
             log.info("생성된 블로그 정보: " + blog);
 
             // 생성 결과를 반환한다.
-            return new PostCreateBlogResDto(true);
+            return new BlogDto(blog);
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Transactional
+    public BlogDto updateBlog(UUID blogId, PutUpdateBlogReqDto data) throws BaseException {
+        try {
+            // 로깅
+            log.info("블로그 수정 요청 정보: " + data.toString());
+
+            // 블로그 조회, 수정 할 블로그 정보가 없다면 예외를 터트린다.
+            Blog blog = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
+            // 블로그 정보 업데이트
+            blog.updateUserProfile(data);
+
+            // 수정된 블로그 정보를 반환한다.
+            return new BlogDto(blog);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());

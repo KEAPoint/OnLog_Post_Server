@@ -71,7 +71,7 @@ public class PostService {
             );
 
             // 조회된 주제가 포함된 모든 게시글을 DTO로 변환한 후 리스트로 만든다.
-            List<GetPostListResDto> sortedPosts = postRepository.findByStatusAndIsPublicAndCategoryTopicName(true, true, topic.getName(), sortedByUpdatedDateDesc)
+            List<GetPostListResDto> sortedPosts = postRepository.findByStatusAndIsPublicAndTopicName(true, true, topic.getName(), sortedByUpdatedDateDesc)
                     .stream()
                     .map(GetPostListResDto::new)
                     .toList();

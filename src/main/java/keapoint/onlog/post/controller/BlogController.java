@@ -33,9 +33,27 @@ public class BlogController {
             @ApiResponse(responseCode = "200", description = "블로그 생성 성공", content = @Content(schema = @Schema(implementation = BaseResponse.class))),
     })
     @PostMapping("")
-    public BaseResponse<PostCreateBlogResDto> createBlog(@RequestBody PostCreateBlogReqDto data) {
+    public BaseResponse<BlogDto> createBlog(@RequestHeader("Authorization") String token,
+                                            @RequestBody PostCreateBlogReqDto data) {
         try {
-            return new BaseResponse<>(blogService.createBlog(data));
+            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
+            return new BaseResponse<>(blogService.createBlog(blogId, data));
+
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
+        }
+    }
+
+    @PutMapping("")
+    public BaseResponse<BlogDto> updateBlog(@RequestHeader("Authorization") String token,
+                                            @RequestBody PutUpdateBlogReqDto data) {
+        try {
+            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
+            return new BaseResponse<>(blogService.updateBlog(blogId, data));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
