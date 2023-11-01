@@ -14,6 +14,5 @@ public class CategoryDto {
         this.id = category.getId();
         this.name = category.getName();
         this.order = category.getOrder();
-        this.topic = category.getTopic().getName();
     }
 }

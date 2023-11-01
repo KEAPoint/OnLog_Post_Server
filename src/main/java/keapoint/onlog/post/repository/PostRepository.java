@@ -29,5 +29,5 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
      * @param pageable  페이지 요청 정보 (페이지 번호, 페이지 크기 등)
      * @return 주어진 상태와 공개 여부에 따른 게시글의 페이지네이션 결과
      */
-    Page<Post> findByStatusAndIsPublicAndCategoryTopicName(Boolean status, Boolean isPublic, String topicName, Pageable pageable);
+    Page<Post> findByStatusAndIsPublicAndTopicName(Boolean status, Boolean isPublic, String topicName, Pageable pageable);
 }
