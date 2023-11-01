@@ -34,10 +34,26 @@ public class BlogController {
     })
     @PostMapping("")
     public BaseResponse<BlogDto> createBlog(@RequestHeader("Authorization") String token,
-                                                         @RequestBody PostCreateBlogReqDto data) {
+                                            @RequestBody PostCreateBlogReqDto data) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
             return new BaseResponse<>(blogService.createBlog(blogId, data));
+
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
+        }
+    }
+
+    @PutMapping("")
+    public BaseResponse<BlogDto> updateBlog(@RequestHeader("Authorization") String token,
+                                            @RequestBody PutUpdateBlogReqDto data) {
+        try {
+            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
+            return new BaseResponse<>(blogService.updateBlog(blogId, data));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

@@ -2,6 +2,7 @@ package keapoint.onlog.post.entity;
 
 import jakarta.persistence.*;
 import keapoint.onlog.post.base.BaseEntity;
+import keapoint.onlog.post.dto.blog.PutUpdateBlogReqDto;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -45,5 +46,10 @@ public class Blog extends BaseEntity {
     @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 
-}
+    public void updateUserProfile(PutUpdateBlogReqDto data) {
+        this.blogName = data.getBlogName();
+        this.blogIntro = data.getBlogIntro();
+        this.blogProfileImg = data.getBlogProfileImg();
+    }
 
+}
