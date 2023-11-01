@@ -54,6 +54,33 @@ public class BlogService {
         }
     }
 
+    @Transactional
+    public BlogDto deleteBlog(UUID blogId) throws BaseException {
+        try {
+            // 로깅
+            log.info("블로그 탈퇴 요청 정보: " + blogId);
+
+            // 블로그 조회, 탈퇴 할 블로그 정보가 없다면 예외를 터트린다.
+            Blog blog = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
+            // 블로그 탈퇴를 진행한다.
+            blogRepository.delete(blog);
+
+            // 탈퇴 된 블로그 정보를 반환한다.
+            return new BlogDto(blog);
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
     @Transactional(readOnly = true)
     public BlogDto getProfile(UUID blogId) throws BaseException {
         try {
