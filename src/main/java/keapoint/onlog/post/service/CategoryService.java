@@ -29,6 +29,14 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
+    /**
+     * 새 카테고리를 생성합니다.
+     *
+     * @param blogId 카테고리를 생성할 블로그의 ID
+     * @param dto 카테고리 생성 요청 데이터
+     * @return 생성된 카테고리 정보
+     * @throws BaseException 블로그 또는 토픽을 찾을 수 없거나, 이미 같은 이름의 카테고리가 존재하는 경우 발생
+     */
     public CategoryDto createCategory(UUID blogId, PostCreateCategoryReqDto dto) throws BaseException {
         try {
             // 사용자 조회
@@ -68,6 +76,13 @@ public class CategoryService {
         }
     }
 
+    /**
+     * 기존 카테고리를 수정합니다.
+     *
+     * @param dto 카테고리 수정 요청 데이터
+     * @return 수정된 카테고리 정보
+     * @throws BaseException 카테고리를 찾을 수 없거나, 이미 같은 이름의 카테고리가 존재하는 경우 발생
+     */
     // 카테고리 수정 API
     public CategoryDto updateCategory(CategoryUpdateReqDto dto) throws BaseException {
         try {
@@ -97,7 +112,13 @@ public class CategoryService {
         }
     }
 
-    // 카테고리 삭제 API
+    /**
+     * 기존 카테고리를 삭제합니다.
+     *
+     * @param dto 카테고리 삭제 요청 데이터
+     * @return 삭제된 카테고리 정보
+     * @throws BaseException 카테고리를 찾을 수 없는 경우 발생
+     */
     public CategoryDto deleteCategory(CategoryDeleteReqDto dto) throws BaseException {
         Category category = null;
         try {
