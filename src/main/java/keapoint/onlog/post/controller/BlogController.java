@@ -79,9 +79,7 @@ public class BlogController {
             return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
         }
     }
-    /**
-     * 카테고리 수정 API
-     */
+
     @Operation(summary = "팔로우 설정", description = "특정 블로그를 팔로우합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "팔로우 설정 성공", content = @Content(schema = @Schema(implementation = BaseResponse.class)))

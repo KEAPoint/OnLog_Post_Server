@@ -13,6 +13,8 @@ import keapoint.onlog.post.repository.TopicRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import keapoint.onlog.post.dto.category.CategoryUpdateReqDto;
+import keapoint.onlog.post.dto.category.CategoryDeleteReqDto;
 
 import java.util.UUID;
 
@@ -65,19 +67,17 @@ public class CategoryService {
             throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
-    public CategoryDto updateCategory(Long categoryId, PostCreateCategoryReqDto dto) throws BaseException {
+    public CategoryDto updateCategory(CategoryUpdateReqDto dto) throws BaseException {
         try {
-            Category category = categoryRepository.findById(categoryId)
+            Category category = categoryRepository.findById(dto.getId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
 
-            // 카테고리 이름 변경 전 이미 같은 이름의 카테고리가 있는지 확인
             if (categoryRepository.findByNameAndCategoryOwner(dto.getName(), category.getCategoryOwner()).isPresent())
                 throw new BaseException(BaseErrorCode.ALREADY_CATEGORY_EXISTS_EXCEPTION);
 
-            category.setName(dto.getName());
-            categoryRepository.save(category);
-            log.info("수정된 카테고리: " + category);
+            category.updateCategory(dto.getName());
 
+            log.info("수정된 카테고리: " + category);
 
             return new CategoryDto(category);
         } catch (BaseException e) {
@@ -89,9 +89,10 @@ public class CategoryService {
         }
     }
 
-    public void deleteCategory(Long categoryId) throws BaseException {
+    public CategoryDto deleteCategory(CategoryDeleteReqDto dto) throws BaseException {
+        Category category = null;
         try {
-            Category category = categoryRepository.findById(categoryId)
+            category = categoryRepository.findById(dto.getId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
             categoryRepository.delete(category);
             log.info("삭제된 카테고리: " + category);
@@ -102,5 +103,6 @@ public class CategoryService {
             log.error(e.getMessage());
             throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
         }
+        return new CategoryDto(category);
     }
 }
