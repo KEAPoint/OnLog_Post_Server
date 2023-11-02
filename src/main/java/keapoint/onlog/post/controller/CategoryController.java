@@ -1,5 +1,6 @@
 package keapoint.onlog.post.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.base.BaseResponse;
@@ -26,9 +27,7 @@ public class CategoryController {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    /**
-     * 카테고리 생성 API
-     */
+    @Operation(summary = "카테고리 생성", description = "새로운 카테고리를 생성합니다.")
     @PostMapping("")
     public BaseResponse<CategoryDto> createCategory(@RequestHeader("Authorization") String token,
                                                     @RequestBody PostCreateCategoryReqDto dto) {
@@ -45,9 +44,7 @@ public class CategoryController {
         }
     }
 
-    /**
-     * 카테고리 수정 API
-     */
+    @Operation(summary = "카테고리 수정", description = "카테고리 이름을 수정합니다.")
     @PutMapping("")
     public BaseResponse<CategoryDto> updateCategory(@RequestHeader("Authorization") String token,
                                                     @RequestBody PutCategoryUpdateReqDto dto) {
@@ -64,9 +61,7 @@ public class CategoryController {
         }
     }
 
-    /**
-     * 카테고리 삭제 API
-     */
+    @Operation(summary = "카테고리 삭제", description = "카테고리를 삭제합니다.")
     @DeleteMapping("")
     public BaseResponse<CategoryDto> deleteCategory(@RequestHeader("Authorization") String token,
                                                     @RequestBody DeleteCategoryReqDto dto) {

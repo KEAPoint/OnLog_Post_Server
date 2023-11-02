@@ -20,6 +20,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CommentService {
 
@@ -31,7 +32,6 @@ public class CommentService {
 
     private final UserCommentLikeRepository userCommentLikeRepository;
 
-    @Transactional
     public CommentDto createComment(UUID blogId, PostCreateCommentReqDto data) throws BaseException {
         try {
             Blog writer = blogRepository.findById(blogId)
@@ -139,7 +139,7 @@ public class CommentService {
 
     }
 
-    public DeleteCommentResDto deleteComment(UUID blogId, DeleteCommentReqDto dto) throws BaseException {
+    public CommentDto deleteComment(UUID blogId, DeleteCommentReqDto dto) throws BaseException {
         try {
             Comment comment = commentRepository.findById(dto.getCommentId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
@@ -152,7 +152,7 @@ public class CommentService {
             comment.removeComment();
             commentRepository.delete(comment);
 
-            return new DeleteCommentResDto(true); // 결과 return
+            return new CommentDto(comment); // 결과 return
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -168,7 +168,6 @@ public class CommentService {
      * @param targetValue 좋아요 할지 말지 여부
      * @return 성공 여부
      */
-    @Transactional
     public Boolean toggleLike(UUID blogId, UUID commentId, Boolean targetValue) throws BaseException {
         try {
             // 사용자 정보 조회

@@ -2,7 +2,6 @@ package keapoint.onlog.post.service;
 
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
-import keapoint.onlog.post.dto.blog.BlogDto;
 import keapoint.onlog.post.dto.post.*;
 import keapoint.onlog.post.entity.*;
 import keapoint.onlog.post.repository.*;
@@ -97,7 +96,7 @@ public class PostService {
      * @return 해시태그별 최신 게시글
      */
     @Transactional(readOnly = true)
-    public Page<GetPostListResDto> getPostsByHashtag(String hashtag, Pageable pageable) throws BaseException {
+    public Page<GetPostListResDto> getRecentPostsByHashtag(String hashtag, Pageable pageable) throws BaseException {
         try {
             // 해시태그 이름으로 해시태그 엔티티를 조회한다.
             Hashtag tag = hashtagRepository.findByName(hashtag)
@@ -136,20 +135,14 @@ public class PostService {
      * @param postId 게시글 식별자
      * @return 게시글
      */
-    public GetPostResDto getPost(UUID postId) throws BaseException {
+    public PostDto getPost(UUID postId) throws BaseException {
         try {
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
 
             post.hit();
 
-            List<String> hashtags = post.getHashtagList().stream()
-                    .map(Hashtag::getName)
-                    .toList();
-
-            BlogDto blog = new BlogDto(post.getWriter());
-
-            return GetPostResDto.builder().post(post).hashtags(hashtags).blog(blog).build();
+            return new PostDto(post);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
@@ -284,7 +277,7 @@ public class PostService {
      * @param dto    삭제하고자 하는 게시글 식별자가 들어있는 객체
      * @return 게시글 삭제 성공 여부
      */
-    public DeletePostResDto deletePost(UUID blogId, DeletePostReqDto dto) throws BaseException {
+    public PostDto deletePost(UUID blogId, DeletePostReqDto dto) throws BaseException {
         try {
             Post post = postRepository.findById(dto.getPostId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
@@ -295,7 +288,7 @@ public class PostService {
 
             postRepository.delete(post); // 게시글 삭제
 
-            return new DeletePostResDto(true); // 결과 return
+            return new PostDto(post); // 결과 return
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());

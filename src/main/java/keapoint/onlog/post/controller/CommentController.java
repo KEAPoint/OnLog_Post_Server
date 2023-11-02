@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import java.util.UUID;
 
@@ -25,10 +23,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @Operation(summary = "새 댓글 생성", description = "새로운 댓글을 생성합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "정상 처리")
-    })
+    @Operation(summary = "댓글 작성", description = "게시글에 댓글을 작성합니다.")
     @PostMapping("")
     public BaseResponse<CommentDto> createComment(@RequestHeader("Authorization") String token,
                                                   @RequestBody PostCreateCommentReqDto dto) {
@@ -45,10 +40,7 @@ public class CommentController {
         }
     }
 
-    @Operation(summary = "댓글 수정", description = "기존의 댓글 내용을 수정합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "정상 처리")
-    })
+    @Operation(summary = "댓글 수정", description = "사용자가 작성한 댓글의 내용을 수정합니다.")
     @PutMapping("")
     public BaseResponse<CommentDto> updateComment(@RequestHeader("Authorization") String token,
                                                   @RequestBody PutUpdateCommentReqDto dto) {
@@ -65,12 +57,9 @@ public class CommentController {
         }
     }
 
-    @Operation(summary = "댓글 삭제", description = "특정 댓글을 삭제합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "정상 처리")
-    })
+    @Operation(summary = "댓글 삭제", description = "사용자가 작성한 댓글을 삭제합니다.")
     @DeleteMapping("")
-    public BaseResponse<DeleteCommentResDto> deleteComment(@RequestHeader("Authorization") String token,
+    public BaseResponse<CommentDto> deleteComment(@RequestHeader("Authorization") String token,
                                                            @RequestBody DeleteCommentReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
@@ -85,10 +74,7 @@ public class CommentController {
         }
     }
 
-    @Operation(summary = "댓글에 좋아요 추가", description = "사용자가 특정 댓글에 좋아요를 남깁니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "정상 처리"),
-    })
+    @Operation(summary = "댓글 좋아요", description = "사용자가 특정 댓글에 좋아요를 남깁니다.")
     @PostMapping("/like")
     public BaseResponse<PostCommentLikeResDto> cancelLikeComment(@RequestHeader("Authorization") String token,
                                                                  @RequestBody PostCommentLikeReqDto dto) {
@@ -106,10 +92,7 @@ public class CommentController {
 
     }
 
-    @Operation(summary = "댓글에 달린 좋아요 취소 ", description = "사용자가 특정 댓그에 남긴 좋아요를 취소합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "정상 처리"),
-    })
+    @Operation(summary = "댓글 좋아요 취소", description = "사용자가 특정 댓글에 남긴 좋아요를 취소합니다.")
     @DeleteMapping("/like")
     public BaseResponse<DeleteCommentLikeResDto> cancelLikeComment(@RequestHeader("Authorization") String token,
                                                                    @RequestBody DeleteCommentLikeReqDto dto) {
