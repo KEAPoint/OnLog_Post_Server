@@ -36,14 +36,14 @@ public class PostController {
 
     @Operation(summary = "(카드) 최근 게시글 조회", description = "주제나 해시태그에 따른 게시글을 조회합니다.")
     @GetMapping("")
-    public BaseResponse<Page<GetPostListResDto>> getPosts(
+    public BaseResponse<Page<PostDto>> getPosts(
             @RequestParam(value = "topic", required = false) String topicName,
             @RequestParam(value = "hashtag", required = false) String hashtag,
             Pageable pageable
     ) {
         try {
             if (topicName != null && !topicName.isEmpty()) {
-                return new BaseResponse<>(postService.getRecentPostsByTopicName(topicName, pageable));
+                return new BaseResponse<>(postService.getRecentPostsByTopic(topicName, pageable));
             } else if (hashtag != null && !hashtag.isEmpty()) {
                 return new BaseResponse<>(postService.getRecentPostsByHashtag(hashtag, pageable));
             } else {
