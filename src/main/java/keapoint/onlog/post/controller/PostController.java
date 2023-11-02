@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 import java.util.UUID;
@@ -72,10 +70,9 @@ public class PostController {
     /**
      * 특정 게시글 조회 API
      */
-
     @Operation(summary = "특정 게시글 조회", description = "ID에 따른 특정 게시글을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description ="정상 처리")
+            @ApiResponse(responseCode = "200", description = "정상 처리")
     })
     @GetMapping("/{postId}")
     public BaseResponse<GetPostResDto> getPost(@PathVariable UUID postId) {
@@ -132,7 +129,6 @@ public class PostController {
     /**
      * 게시글 삭제 API
      */
-
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "정상 처리")
@@ -156,10 +152,9 @@ public class PostController {
     /**
      * 게시글 주제 목록 조회 API
      */
-
     @Operation(summary = "게시글 주제 목록 조회", description = "게시글 주제 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description ="정상 처리")
+            @ApiResponse(responseCode = "200", description = "정상 처리")
     })
     @GetMapping("/topics")
     public BaseResponse<List<TopicDto>> getTopicList() {
@@ -182,14 +177,13 @@ public class PostController {
     /**
      * 게시글 좋아요 API
      */
-    @Operation(summary="게시글 좋아요 추가",description="사용자가 특정 게시글에 좋아요를 남깁니다.")
-    @ApiResponses(value={
-        @ApiResponse(responseCode="200",description="정상 처리"),
+    @Operation(summary = "게시글 좋아요 추가", description = "사용자가 특정 게시글에 좋아요를 남깁니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상 처리"),
     })
     @PostMapping("/like")
     public BaseResponse<PostPostLikeResDto> likePost(@RequestHeader("Authorization") String token,
-                                                     @RequestBody PostPostLikeReqDto dto
-    ) {
+                                                     @RequestBody PostPostLikeReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
             return new BaseResponse<>(new PostPostLikeResDto(postLikeService.toggleLike(blogId, dto.getPostId(), true))); // 좋아요 추가 처리 서비스 호출
@@ -207,9 +201,9 @@ public class PostController {
      * 게시글 좋아요 취소 API
      */
 
-    @Operation(summary="게시글에 달린 좋아요 취소 ",description ="사용자가 특정 게시물에 남긴 좋아요를 취소합니다.")
-    @ApiResponses(value={
-        @ApiResponse(responseCode="200" ,description= "정상 처리"),
+    @Operation(summary = "게시글 좋아요 취소", description = "사용자가 특정 게시물에 남긴 좋아요를 취소합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상 처리"),
     })
     @DeleteMapping("/like")
     public BaseResponse<DeletePostLikeResDto> unlikePost(@RequestHeader("Authorization") String token,
