@@ -10,8 +10,8 @@ import keapoint.onlog.post.utils.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import keapoint.onlog.post.dto.category.CategoryUpdateReqDto;
-import keapoint.onlog.post.dto.category.CategoryDeleteReqDto;
+import keapoint.onlog.post.dto.category.PutCategoryUpdateReqDto;
+import keapoint.onlog.post.dto.category.DeleteCategoryReqDto;
 
 
 import java.util.UUID;
@@ -48,12 +48,12 @@ public class CategoryController {
     /**
      * 카테고리 수정 API
      */
-    @PutMapping
+    @PutMapping("")
     public BaseResponse<CategoryDto> updateCategory(@RequestHeader("Authorization") String token,
-                                                    @RequestBody CategoryUpdateReqDto dto) {
+                                                    @RequestBody PutCategoryUpdateReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(categoryService.updateCategory(dto));
+            return new BaseResponse<>(categoryService.updateCategory(blogId, dto));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -67,12 +67,12 @@ public class CategoryController {
     /**
      * 카테고리 삭제 API
      */
-    @DeleteMapping
+    @DeleteMapping("")
     public BaseResponse<CategoryDto> deleteCategory(@RequestHeader("Authorization") String token,
-                                                    @RequestBody CategoryDeleteReqDto dto) {
+                                                    @RequestBody DeleteCategoryReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(categoryService.deleteCategory(dto));
+            return new BaseResponse<>(categoryService.deleteCategory(blogId, dto));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

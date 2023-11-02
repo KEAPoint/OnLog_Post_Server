@@ -3,7 +3,6 @@ package keapoint.onlog.post.dto.category;
 import lombok.Data;
 
 @Data
-public class CategoryUpdateReqDto {
+public class DeleteCategoryReqDto {
     private Long id;
-    private String name;
 }
