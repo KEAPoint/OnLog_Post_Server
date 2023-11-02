@@ -3,6 +3,7 @@ package keapoint.onlog.post.dto.comment;
 import keapoint.onlog.post.entity.Comment;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -13,8 +14,9 @@ public class CommentDto {
     private long ref; // 그룹
     private long refOrder; // 그룹 순서
     private long step; // 댓글의 계층
-    private UUID parentNum; // 부모댓글의 ID
+    private UUID parentCommentId; // 부모댓글의 ID
     private long answerNum; // 해당댓글의 자식댓글의 수
+    private LocalDateTime createdAt; // 댓글 작성 시간
     private UUID postId; // 댓글이 달린 게시글 식별자
     private UUID writerId; // 댓글 작성자의 블로그 식별자
 
@@ -25,8 +27,9 @@ public class CommentDto {
         this.ref = comment.getRef();
         this.refOrder = comment.getRefOrder();
         this.step = comment.getStep();
-        this.parentNum = comment.getParentNum();
+        this.parentCommentId = comment.getParentNum();
         this.answerNum = comment.getAnswerNum();
+        this.createdAt = comment.getCreatedAt();
         this.postId = comment.getPost().getPostId();
         this.writerId = comment.getWriter().getBlogId();
     }

@@ -4,6 +4,7 @@ import keapoint.onlog.post.dto.blog.BlogDto;
 import keapoint.onlog.post.dto.category.CategoryDto;
 import keapoint.onlog.post.dto.comment.CommentDto;
 import keapoint.onlog.post.dto.hashtag.HashtagDto;
+import keapoint.onlog.post.dto.topic.TopicDto;
 import keapoint.onlog.post.entity.Post;
 import lombok.Data;
 
@@ -21,6 +22,7 @@ public class PostDto {
     private String thumbnailLink; // 게시글 thumbnail 사진 위치
     private Boolean isPublic; // 게시글 공개 여부
     private Boolean modified; // 게시글 수정 여부
+    private TopicDto topic; // 게시글 주제
     private CategoryDto category; // 게시글 카테고리
     private List<HashtagDto> hashtagList; // 해시태그 리스트
     private List<CommentDto> comments; // 게시글 댓글
@@ -36,6 +38,7 @@ public class PostDto {
         this.thumbnailLink = post.getThumbnailLink();
         this.isPublic = post.getIsPublic();
         this.modified = post.getModified();
+        this.topic = new TopicDto(post.getTopic());
         this.category = new CategoryDto(post.getCategory());
         this.hashtagList = post.getHashtagList().stream()
                 .map(HashtagDto::new)
