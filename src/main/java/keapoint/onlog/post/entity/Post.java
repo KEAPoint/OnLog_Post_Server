@@ -2,6 +2,7 @@ package keapoint.onlog.post.entity;
 
 import jakarta.persistence.*;
 import keapoint.onlog.post.base.BaseEntity;
+import keapoint.onlog.post.dto.post.PostWritePostReqDto;
 import keapoint.onlog.post.dto.post.PutModifyPostReqDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -80,7 +81,38 @@ public class Post extends BaseEntity {
         this.postHits += 1; // 방문 횟수 1 증가
     }
 
-    public void modifyPost(PutModifyPostReqDto dto, Category category, List<Hashtag> hashtagList) {
+    /**
+     * 게시글 작성
+     *
+     * @param dto         게시글 작성 요청 DTO
+     * @param writer      게시글을 작성하는 사용자
+     * @param category    게시글의 카테고리
+     * @param topic       게시글의 주제
+     * @param hashtagList 게시글의 해시태그 리스트
+     */
+    public Post(PostWritePostReqDto dto, Blog writer, Category category, Topic topic, List<Hashtag> hashtagList) {
+        this.title = dto.getTitle();
+        this.content = dto.getContent();
+        this.summary = dto.getSummary();
+        this.thumbnailLink = dto.getThumbnailLink();
+        this.isPublic = dto.getIsPublic();
+
+        // 연관관계 설정
+        writer.addNewPost(this);
+        assignCategory(category);
+        assignTopic(topic);
+        hashtagList.forEach(this::addHashtag);
+    }
+
+    /**
+     * 게시글 수정
+     *
+     * @param dto         게시글 수정 요청 DTO
+     * @param category    수정된 게시글의 카테고리
+     * @param topic       수정된 게시글의 주제
+     * @param hashtagList 수정된 게시글의 해시태그 리스트
+     */
+    public void modifyPost(PutModifyPostReqDto dto, Category category, Topic topic, List<Hashtag> hashtagList) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.summary = dto.getSummary();
@@ -88,6 +120,28 @@ public class Post extends BaseEntity {
         this.isPublic = dto.getIsPublic();
         this.category = category;
         this.hashtagList = hashtagList;
+
+        this.modified = true; // 게시글이 수정되었음을 표시
+
+        // 기존 연관관계 제거
+        removeCategory();
+        removeAssignedTopic();
+        this.hashtagList.forEach(this::removeHashtag);
+
+        // 연관관계 설정
+        assignCategory(category);
+        assignTopic(topic);
+        hashtagList.forEach(this::addHashtag);
+    }
+
+    /**
+     * 게시글 삭제
+     */
+    public void deletePost() {
+        writer.removeExistingPost(this);
+        removeCategory();
+        removeAssignedTopic();
+        this.hashtagList.forEach(this::removeHashtag);
     }
 
     /**

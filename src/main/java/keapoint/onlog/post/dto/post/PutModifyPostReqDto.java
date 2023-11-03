@@ -15,4 +15,5 @@ public class PutModifyPostReqDto {
     private Boolean isPublic; // 게시글 공개 여부
     private Long categoryId; // 게시글 카테고리
     private List<String> hashtagList; // 게시글 hashtag
+    private Long topicId; // 게시글 주제 식별자
 }
