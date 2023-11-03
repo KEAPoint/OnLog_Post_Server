@@ -74,6 +74,22 @@ public class PostController {
         }
     }
 
+    @Operation(summary = "비공개 게시글 조회", description = "나의 비공개 게시글을 조회합니다.")
+    @GetMapping("/private")
+    public BaseResponse<Page<PostDto>> getPrivatePosts(@RequestHeader("Authorization") String token, Pageable pageable) {
+        try {
+            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
+            return new BaseResponse<>(postService.getPrivatePosts(blogId, pageable));
+
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
+        }
+    }
+
     @Operation(summary = "게시글 작성", description = "게시글을 작성합니다.")
     @PostMapping("")
     public BaseResponse<PostDto> writePost(@RequestHeader("Authorization") String token,
