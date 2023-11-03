@@ -137,6 +137,41 @@ public class PostService {
     }
 
     /**
+     * 비공개 게시글 조회
+     *
+     * @param blogId   비공개 게시글을 조회하고자 하는 블로그 식별자
+     * @param pageable 페이지 요청 정보 (페이지 번호, 페이지 크기 등)
+     * @return 비공개 게시글
+     */
+    public Page<PostDto> getPrivatePosts(UUID blogId, Pageable pageable) throws BaseException {
+        try {
+            // 블로그 식별자를 기반으로 내 블로그를 조회한다.
+            Blog writer = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
+            // 페이지 요청 정보에 정렬 조건을 추가하여 새로운 Pageable 객체를 생성한다.
+            // 이때 정렬 조건은 'updatedAt' 필드의 내림차순이다.
+            Pageable sortedByUpdatedDateDesc = PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by("updatedAt").descending()
+            );
+
+            // 조회된 비공개 게시글을 DTO로 변환하여 반환한다.
+            return postRepository.findByWriterAndStatusAndIsPublic(writer, true, false, sortedByUpdatedDateDesc)
+                    .map(PostDto::new);
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
      * 게시글 작성
      *
      * @param blogId 블로그 식별자

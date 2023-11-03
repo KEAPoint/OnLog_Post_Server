@@ -35,13 +35,14 @@ class BlogServiceIntegrationTest {
         UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
 
         PostCreateBlogReqDto reqDto = PostCreateBlogReqDto.builder()
+                .blogId(blogId) // 사용자 블로그 식별자
                 .blogName("Hani Tech World") // 사용자 블로그 이름
                 .blogNickname("hanitech") // 사용자 블로그 별명. 닉네임
                 .blogIntro("Hani Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.") // 사용자 블로그 한 줄 소개
                 .blogProfileImg("http://haniTechProfileImageUrl.com") // 사용자 프로필 이미지
                 .build();
 
-        blogService.createBlog(blogId, reqDto);
+        blogService.createBlog(reqDto);
         blogService.deleteBlog(blogId);
 
         // when: 조회하려고 하면
