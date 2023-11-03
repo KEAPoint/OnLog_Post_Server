@@ -49,6 +49,7 @@ public class Blog extends BaseEntity {
 
     public void updateUserProfile(PutUpdateBlogReqDto data) {
         this.blogName = data.getBlogName();
+        this.blogNickname = data.getBlogNickname();
         this.blogIntro = data.getBlogIntro();
         this.blogProfileImg = data.getBlogProfileImg();
     }
