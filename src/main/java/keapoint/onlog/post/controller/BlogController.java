@@ -26,11 +26,9 @@ public class BlogController {
 
     @Operation(summary = "블로그 생성", description = "새로운 블로그를 생성합니다.")
     @PostMapping("")
-    public BaseResponse<BlogDto> createBlog(@RequestHeader("Authorization") String token,
-                                            @RequestBody PostCreateBlogReqDto data) {
+    public BaseResponse<BlogDto> createBlog(@RequestBody PostCreateBlogReqDto data) {
         try {
-            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(blogService.createBlog(blogId, data));
+            return new BaseResponse<>(blogService.createBlog(data));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
