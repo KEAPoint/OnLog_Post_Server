@@ -43,20 +43,12 @@ public class CategoryService {
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
 
             // 사용자가 해당 이름으로 카테고리를 만든 적 있는지 조회
-            if (categoryRepository.findByNameAndCategoryOwner(dto.getName(), blog).isPresent()) // 이미 사용자가 해당 이름으로 카테고리를 가지고 있는 경우
+            if (blog.getCategories().stream().anyMatch(category -> category.getName().equals(dto.getName()))) // 이미 사용자가 해당 이름으로 카테고리를 가지고 있는 경우
                 throw new BaseException(BaseErrorCode.ALREADY_CATEGORY_EXISTS_EXCEPTION);
-
-            // 토픽 조회
-            Topic topic = topicRepository.findById(dto.getTopicId())
-                    .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
-
-            // order 필드 세팅
-            int order = categoryRepository.countByCategoryOwner(blog) + 1;
 
             Category newCategory = Category.builder()
                     .name(dto.getName())
-                    .order(order)
-                    .categoryOwner(blog)
+                    .order(blog.getCategories().size() + 1) // 생성된 카테고리 순서는 가장 마지막
                     .build();
 
             Category category = categoryRepository.save(newCategory);

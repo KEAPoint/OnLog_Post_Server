@@ -11,7 +11,6 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -180,13 +179,21 @@ public class PostService {
      */
     public PostDto writePost(UUID blogId, PostWritePostReqDto dto) throws BaseException {
         try {
+            // 게시글을 작성하고자 하는 사용자를 조회한다.
+            Blog writer = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
             // 카테고리를 조회한다.
             Category category = categoryRepository.findById(dto.getCategoryId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
 
             // 해당 카테고리 주인인지 확인한다.
-            if (!category.getCategoryOwner().getBlogId().equals(blogId))
+            if (writer.getCategories().contains(category))
                 throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
+
+            // 주제를 조회한다.
+            Topic topic = topicRepository.findById(dto.getTopicId())
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
 
             // 해시태그를 조회한다. 만약 해시태그가 없는 경우엔 만든다
             List<Hashtag> hashtagList = dto.getHashtagList()
@@ -199,29 +206,12 @@ public class PostService {
                     )
                     .toList();
 
-            // 게시글 작성자의 블로그를 조회한다
-            Blog writer = blogRepository.findById(blogId)
-                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
-
             // 게시글을 만든다
-            Post post = Post.builder()
-                    .postHits(0L)
-                    .title(dto.getTitle())
-                    .content(dto.getContent())
-                    .summary(dto.getSummary())
-                    .thumbnailLink(dto.getThumbnailLink())
-                    .isPublic(dto.getIsPublic())
-                    .modified(false)
-                    .category(category)
-                    .hashtagList(hashtagList)
-                    .comments(new ArrayList<>())
-                    .writer(writer)
-                    .build();
+            Post post = new Post(dto, writer, category, topic, hashtagList);
 
             // DB에 저장한다.
             Post savedPost = postRepository.save(post);
-
-            // Todo: 양방향 연관관계 객체 필드 설정
+            log.info("생성된 게시글: " + savedPost.getPostId());
 
             // 생성된 게시글 정보를 반환한다.
             return new PostDto(savedPost);
@@ -238,6 +228,11 @@ public class PostService {
 
     public PostDto modifyPost(UUID blogId, PutModifyPostReqDto dto) throws BaseException {
         try {
+            // 게시글을 수정하고자 하는 사용자를 조회한다.
+            Blog writer = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
+            // 수정하고자 하는 게시글을 조회한다.
             Post post = postRepository.findById(dto.getPostId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
 
@@ -254,8 +249,12 @@ public class PostService {
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
 
             // 해당 카테고리 주인인지 확인한다.
-            if (!category.getCategoryOwner().getBlogId().equals(blogId))
+            if (writer.getCategories().contains(category))
                 throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
+
+            // 주제를 조회한다.
+            Topic topic = topicRepository.findById(dto.getTopicId())
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
 
             // 해시태그를 조회한다. 만약 해시태그가 없는 경우엔 만든다
             List<Hashtag> hashtagList = dto.getHashtagList()
@@ -269,9 +268,7 @@ public class PostService {
                     .toList();
 
             // 게시글을 수정한다
-            post.modifyPost(dto, category, hashtagList);
-
-            // Todo: 양방향 연관관계 객체 필드 설정
+            post.modifyPost(dto, category, topic, hashtagList);
 
             // 수정된 게시글 정보를 반환한다.
             return new PostDto(post);
@@ -303,7 +300,11 @@ public class PostService {
                 throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
             }
 
-            postRepository.delete(post); // 게시글 삭제
+            // 게시글을 삭제한다.
+            post.deletePost();
+
+            // DB에서 게시글 삭제한다.
+            postRepository.delete(post);
 
             return new PostDto(post); // 결과 return
 
