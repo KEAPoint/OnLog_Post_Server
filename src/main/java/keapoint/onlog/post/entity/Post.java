@@ -50,7 +50,8 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category; // 게시글 카테고리
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "topic_id")
     private Topic topic; // 게시글 주제
 
     @ManyToMany
@@ -68,11 +69,7 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "blog_id")
     private Blog writer; // 작성자
 
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public void setWriter(Blog blog) {
+    protected void setWriter(Blog blog) {
         this.writer = blog;
     }
 
@@ -83,46 +80,6 @@ public class Post extends BaseEntity {
         this.postHits += 1; // 방문 횟수 1 증가
     }
 
-    /**
-     * 카테고리 추가
-     *
-     * @param category
-     */
-    public void addCategory(Category category) {
-        category.getPosts().add(this);
-        this.setCategory(category);
-    }
-
-    /**
-     * 카테고리 삭제
-     *
-     * @param category
-     */
-    public void removeCategory(Category category) {
-        category.getPosts().remove(this);
-        this.setCategory(null);
-    }
-
-    /**
-     * 게시글 추가
-     *
-     * @param blog 사용자 blog
-     */
-    public void addPost(Blog blog) {
-        blog.getPostList().add(this);
-        this.setWriter(blog);
-    }
-
-    /**
-     * 게시글 제거
-     *
-     * @param blog 사용자 blog
-     */
-    public void removePost(Blog blog) {
-        blog.getPostList().remove(this);
-        this.setWriter(null);
-    }
-
     public void modifyPost(PutModifyPostReqDto dto, Category category, List<Hashtag> hashtagList) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
@@ -131,5 +88,65 @@ public class Post extends BaseEntity {
         this.isPublic = dto.getIsPublic();
         this.category = category;
         this.hashtagList = hashtagList;
+    }
+
+    /**
+     * 게시글 카테고리 설정 (연관관계 편의 메소드)
+     *
+     * @param category 사용자 카테고리
+     */
+    public void assignCategory(Category category) {
+        this.category = category;
+        category.getPosts().add(this);
+    }
+
+    /**
+     * 게시글 카테고리 삭제 (연관관계 편의 메소드)
+     */
+    public void removeCategory() {
+        if (this.category != null) {
+            this.category.getPosts().remove(this);
+        }
+        this.category = null;
+    }
+
+    /**
+     * 게시글 해시태그 설정 (연관관계 편의 메소드)
+     *
+     * @param hashtag 해시태그
+     */
+    public void addHashtag(Hashtag hashtag) {
+        this.hashtagList.add(hashtag);
+        hashtag.getPostList().add(this);
+    }
+
+    /**
+     * 게시글 해시태그 삭제 (연관관계 편의 메소드)
+     *
+     * @param hashtag 해시태그
+     */
+    public void removeHashtag(Hashtag hashtag) {
+        hashtag.getPostList().remove(this);
+        this.hashtagList.remove(hashtag);
+    }
+
+    /**
+     * 게시글 주제 설정 (연관관계 편의 메소드)
+     *
+     * @param topic 주제
+     */
+    public void assignTopic(Topic topic) {
+        this.topic = topic;
+        topic.getPosts().add(this);
+    }
+
+    /**
+     * 게시글 주제 삭제 (연관관계 편의 메소드)
+     */
+    public void removeAssignedTopic() {
+        if (this.topic != null) {
+            this.topic.getPosts().remove(this);
+        }
+        this.topic = null;
     }
 }

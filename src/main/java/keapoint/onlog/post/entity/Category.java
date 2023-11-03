@@ -3,6 +3,7 @@ package keapoint.onlog.post.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -24,10 +25,6 @@ public class Category {
     @Column(name = "category_order", nullable = false)
     private int order;
 
-    @ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-    @JoinColumn(name="blog_id")
-    private Blog categoryOwner; // 카테고리 소유 blog
-
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Post> posts;
+    private List<Post> posts = new ArrayList<>();
 }
