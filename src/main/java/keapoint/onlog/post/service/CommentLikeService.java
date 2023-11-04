@@ -22,17 +22,15 @@ import java.util.UUID;
 public class CommentLikeService {
 
     private final BlogRepository blogRepository;
-
     private final CommentRepository commentRepository;
-
     private final UserCommentLikeRepository userCommentLikeRepository;
 
     /**
-     * 댓글 좋아요 추가/제거 처리 서비스 로직
+     * 댓글 좋아요, 좋아요 취소
      *
-     * @param blogId      사용자 블로그 식별자
+     * @param blogId      좋아요/좋아요 취소를 원하는 블로그 식별자
      * @param commentId   좋아요/좋아요 취소 할 댓글 식별자
-     * @param targetValue 좋아요 할지 말지 여부
+     * @param targetValue 댓글 좋아요/좋아요 취소 여부
      * @return 성공 여부
      */
     public Boolean toggleLike(UUID blogId, UUID commentId, Boolean targetValue) throws BaseException {

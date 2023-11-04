@@ -13,23 +13,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import keapoint.onlog.post.dto.category.PutCategoryUpdateReqDto;
 import keapoint.onlog.post.dto.category.DeleteCategoryReqDto;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CategoryService {
 
     private final BlogRepository blogRepository;
-
     private final CategoryRepository categoryRepository;
 
     /**
-     * 특정 유저의 카테고리 정보를 조회하는 메소드
+     * 카테고리 조회
      *
-     * @param blogId 조회하고자 하는 블로그 id
+     * @param blogId 조회하고자 하는 블로그 식별자
      * @return 특정 유저의 카테고리 정보
      */
     public List<CategoryDto> getCategories(UUID blogId) throws BaseException {
@@ -53,10 +54,10 @@ public class CategoryService {
     }
 
     /**
-     * 새 카테고리를 생성하는 메소드
+     * 카테고리 생성
      *
-     * @param blogId 카테고리를 생성할 블로그의 ID
-     * @param dto    카테고리 생성 요청 데이터
+     * @param blogId 카테고리 생성을 원하는 블로그 식별자
+     * @param dto    생성하고자 하는 카테고리 정보
      * @return 생성된 카테고리 정보
      */
     public CategoryDto createCategory(UUID blogId, PostCreateCategoryReqDto dto) throws BaseException {
@@ -90,13 +91,12 @@ public class CategoryService {
     }
 
     /**
-     * 기존 카테고리를 수정하는 메소드
+     * 카테고리 수정
      *
-     * @param blogId 사용자의 블로그 식별자
-     * @param dto    카테고리 수정 요청 데이터
+     * @param blogId 카테고리 수정을 원하는 블로그 식별자
+     * @param dto    수정하고자 하는 카테고리 정보
      * @return 수정된 카테고리 정보
      */
-    // 카테고리 수정 API
     public CategoryDto updateCategory(UUID blogId, PutCategoryUpdateReqDto dto) throws BaseException {
         try {
             // 사용자 조회
@@ -130,10 +130,10 @@ public class CategoryService {
     }
 
     /**
-     * 기존 카테고리를 삭제하는 메소드
+     * 카테고리 삭제
      *
-     * @param blogId 사용자의 블로그 식별자
-     * @param dto    카테고리 삭제 요청 데이터
+     * @param blogId 카테고리 삭제를 원하는 블로그 식별자
+     * @param dto    삭제하고자 하는 카테고리 정보
      * @return 삭제된 카테고리 정보
      */
     public CategoryDto deleteCategory(UUID blogId, DeleteCategoryReqDto dto) throws BaseException {

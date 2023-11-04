@@ -16,14 +16,19 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class BlogService {
 
     private final BlogRepository blogRepository;
-
     private final FollowRepository followRepository;
 
-    @Transactional
+    /**
+     * 블로그 생성
+     *
+     * @param data 생성하고자 하는 블로그 정보
+     * @return 생성된 블로그 정보
+     */
     public BlogDto createBlog(PostCreateBlogReqDto data) throws BaseException {
         try {
             // 로깅
@@ -54,7 +59,13 @@ public class BlogService {
         }
     }
 
-    @Transactional
+    /**
+     * 블로그 수정
+     *
+     * @param blogId 수정하고자 하는 블로그 식별자
+     * @param data   수정하고자 하는 블로그 내용
+     * @return 수정된 블로그 정보
+     */
     public BlogDto updateBlog(UUID blogId, PutUpdateBlogReqDto data) throws BaseException {
         try {
             // 로깅
@@ -80,7 +91,12 @@ public class BlogService {
         }
     }
 
-    @Transactional
+    /**
+     * 블로그 탈퇴
+     *
+     * @param blogId 탈퇴를 원하는 블로그 식별자
+     * @return 탈퇴된 블로그 정보
+     */
     public BlogDto deleteBlog(UUID blogId) throws BaseException {
         try {
             // 로깅
@@ -107,6 +123,12 @@ public class BlogService {
 
     }
 
+    /**
+     * 블로그 프로필 조회
+     *
+     * @param blogId 프로필 조회를 하고자 하는 블로그 식별자
+     * @return 블로그 프로필 정보
+     */
     @Transactional(readOnly = true)
     public BlogDto getProfile(UUID blogId) throws BaseException {
         try {
@@ -134,7 +156,6 @@ public class BlogService {
      * @param targetValue  팔로우 할지 말지 여부
      * @return 성공 여부
      */
-    @Transactional
     public Boolean toggleFollow(UUID blogId, UUID targetBlogId, Boolean targetValue) throws BaseException {
         try {
             // 내 블로그 조회

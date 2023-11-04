@@ -17,6 +17,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PostLikeService {
 
@@ -27,14 +28,13 @@ public class PostLikeService {
     private final UserPostLikeRepository likeRepository;
 
     /**
-     * 좋아요 추가/제거 처리 서비스 로직
+     * 게시글 좋아요, 좋아요 취소
      *
-     * @param blogId      사용자 블로그 식별자
-     * @param postId      게시글 식별자
-     * @param targetValue 게시글 좋아요/싫어요 여부
-     * @return 결과
+     * @param blogId      좋아요/좋아요 취소를 원하는 블로그 식별자
+     * @param postId      좋아요/좋아요 취소 할 게시글 식별자
+     * @param targetValue 게시글 좋아요/좋아요 취소 여부
+     * @return 성공 여부
      */
-    @Transactional
     public Boolean toggleLike(UUID blogId, UUID postId, Boolean targetValue) throws BaseException {
         try {
             // 사용자 정보 조회
