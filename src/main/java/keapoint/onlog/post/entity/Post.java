@@ -47,6 +47,9 @@ public class Post extends BaseEntity {
     @Column(name = "post_modified", nullable = false)
     private Boolean modified; // 게시글 수정 여부
 
+    @Column(name = "post_likes_count", nullable = false)
+    private Long likesCount; // 게시글 좋아요 갯수
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id")
     private Category category; // 게시글 카테고리
@@ -79,6 +82,20 @@ public class Post extends BaseEntity {
      */
     public void hit() {
         this.postHits += 1; // 방문 횟수 1 증가
+    }
+
+    /**
+     * 게시글 좋아요
+     */
+    public void postLike() {
+        this.likesCount += 1;
+    }
+
+    /**
+     * 게시글 좋아요 취소
+     */
+    public void postUnlike() {
+        this.likesCount -= 1;
     }
 
     /**

@@ -42,6 +42,9 @@ public class Comment extends BaseEntity {
     @Column(name = "comment_answer_num", nullable = false)
     private long answerNum; // 해당댓글의 자식댓글의 수
 
+    @Column(name = "comment_likes_count", nullable = false)
+    private Long likesCount; // 댓글 좋아요 갯수
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
@@ -53,10 +56,24 @@ public class Comment extends BaseEntity {
 
     private void setPost(Post post) {
         this.post = post;
-    }   
+    }
 
     private void setContent(String content) {
         this.content = content;
+    }
+
+    /**
+     * 댓글 좋아요
+     */
+    public void commentLike() {
+        this.likesCount += 1;
+    }
+
+    /**
+     * 댓글 좋아요 취소
+     */
+    public void commentUnlike() {
+        this.likesCount -= 1;
     }
 
     /**

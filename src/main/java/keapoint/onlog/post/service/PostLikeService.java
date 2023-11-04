@@ -58,6 +58,12 @@ public class PostLikeService {
 
             userPost.updateLike(targetValue);
 
+            if (targetValue) { // 게시글 좋아요라면
+                post.postLike(); // 게시글 좋아요 개수 늘려주고
+            } else { // 게시글 좋아요 취소라면
+                post.postUnlike(); // 게시글 좋아요 개수 줄여준다.
+            }
+
             return true;
 
         } catch (Exception e) {

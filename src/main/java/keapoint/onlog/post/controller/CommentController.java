@@ -4,6 +4,7 @@ import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.base.BaseResponse;
 import keapoint.onlog.post.dto.comment.*;
+import keapoint.onlog.post.service.CommentLikeService;
 import keapoint.onlog.post.service.CommentService;
 import keapoint.onlog.post.utils.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ public class CommentController {
     private final JwtTokenProvider jwtTokenProvider;
 
     private final CommentService commentService;
+
+    private final CommentLikeService commentLikeService;
 
     @Operation(summary = "댓글 작성", description = "게시글에 댓글을 작성합니다.")
     @PostMapping("")
@@ -80,7 +83,7 @@ public class CommentController {
                                                                  @RequestBody PostCommentLikeReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(new PostCommentLikeResDto(commentService.toggleLike(blogId, dto.getCommentId(), true)));
+            return new BaseResponse<>(new PostCommentLikeResDto(commentLikeService.toggleLike(blogId, dto.getCommentId(), true)));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -98,7 +101,7 @@ public class CommentController {
                                                                    @RequestBody DeleteCommentLikeReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(new DeleteCommentLikeResDto(commentService.toggleLike(blogId, dto.getCommentId(), false)));
+            return new BaseResponse<>(new DeleteCommentLikeResDto(commentLikeService.toggleLike(blogId, dto.getCommentId(), false)));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
