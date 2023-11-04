@@ -54,14 +54,6 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "blog_id", nullable = false)
     private Blog writer; // 댓글 작성자의 블로그
 
-    private void setPost(Post post) {
-        this.post = post;
-    }
-
-    private void setContent(String content) {
-        this.content = content;
-    }
-
     /**
      * 댓글 좋아요
      */
@@ -76,29 +68,11 @@ public class Comment extends BaseEntity {
         this.likesCount -= 1;
     }
 
-    /**
-     * 댓글 작성
-     *
-     * @param post
-     */
-    public void addComment(Post post) {
-        post.getComments().add(this);
-        this.setPost(post);
-    }
-
-    /**
-     * 댓글 삭제
-     */
-    public void removeComment() {
-        post.getComments().remove(this);
-        this.setPost(null);
-    }
-
     public void updateNumberOfChildComment() {
         this.answerNum += 1;
     }
 
     public void updateComment(String newContent) {
-        this.setContent(newContent);
+        this.content = newContent;
     }
 }

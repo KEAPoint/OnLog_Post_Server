@@ -73,7 +73,6 @@ public class CommentService {
 
             // 댓글 저장
             commentRepository.save(comment);
-            comment.addComment(post);
 
             return new CommentDto(comment);
 
@@ -145,7 +144,6 @@ public class CommentService {
             }
 
             // 댓글 삭제
-            comment.removeComment();
             commentRepository.delete(comment);
 
             return new CommentDto(comment); // 결과 return
