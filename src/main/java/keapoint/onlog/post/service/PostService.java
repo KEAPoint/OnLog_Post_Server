@@ -5,9 +5,11 @@ import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.dto.post.*;
 import keapoint.onlog.post.entity.*;
 import keapoint.onlog.post.repository.*;
+import keapoint.onlog.post.specification.PostSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,31 +41,12 @@ public class PostService {
         try {
             Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updatedAt").descending());
 
-            if (topicName != null && !topicName.isEmpty()) {
-                Topic topic = topicRepository.findByName(topicName)
-                        .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
+            Specification<Post> specification = Specification.where(PostSpecification.withTopicName(topicName))
+                    .and(PostSpecification.withHashtag(hashtag))
+                    .and(PostSpecification.withCategoryId(categoryId));
 
-                return postRepository.findByStatusAndIsPublicAndTopic(true, true, topic, sortedByUpdatedDateDesc)
-                        .map(PostDto::new);
-
-            } else if (hashtag != null && !hashtag.isEmpty()) {
-                return postRepository.findByStatusAndIsPublicAndHashtag(true, true, hashtag, sortedByUpdatedDateDesc)
-                        .map(PostDto::new);
-
-            } else if (categoryId != null) {
-                Category category = categoryRepository.findById(categoryId)
-                        .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
-
-                return postRepository.findByStatusAndIsPublicAndCategory(true, true, category, sortedByUpdatedDateDesc)
-                        .map(PostDto::new);
-
-            } else {
-                return postRepository.findByStatusAndIsPublic(true, true, sortedByUpdatedDateDesc)
-                        .map(PostDto::new);
-            }
-        } catch (BaseException e) {
-            log.error(e.getErrorCode().getMessage());
-            throw e;
+            return postRepository.findAll(specification, sortedByUpdatedDateDesc)
+                    .map(PostDto::new);
 
         } catch (Exception e) {
             log.error(e.getMessage());
