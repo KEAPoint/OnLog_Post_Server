@@ -24,9 +24,7 @@ import java.util.UUID;
 public class CategoryService {
 
     private final BlogRepository blogRepository;
-
     private final TopicRepository topicRepository;
-
     private final CategoryRepository categoryRepository;
 
     /**
@@ -152,4 +150,15 @@ public class CategoryService {
             throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
-}
+
+    public CategoryDto findCategoryById(UUID blogId, Long categoryId) throws BaseException {
+        Blog blog = blogRepository.findById(blogId)
+                .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
+        Category category = categoryRepository.findByIdAndCategoryOwner(categoryId, blog)
+                .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
+
+        return CategoryDto.fromEntity(category);
+    }
+
+    }
