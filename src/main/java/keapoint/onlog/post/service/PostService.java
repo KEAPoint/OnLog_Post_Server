@@ -30,20 +30,29 @@ public class PostService {
     /**
      * 최신 게시글 조회
      *
+     * @param myBlogId   내 블로그 식별자
      * @param topicName  주제 이름
      * @param hashtag    검색할 해시태그 이름
+     * @param blogId     조회할 블로그 식별자
      * @param categoryId 카테고리 식별자
+     * @param isPublic   게시글 공개 여부
      * @param pageable   페이지 요청 정보 (페이지 번호, 페이지 크기 등)
      * @return 최신 게시글
      */
     @Transactional(readOnly = true)
-    public Page<PostDto> getRecentPosts(String topicName, String hashtag, Long categoryId, Pageable pageable) throws BaseException {
+    public Page<PostDto> getRecentPosts(UUID myBlogId, String topicName, String hashtag, UUID blogId, Long categoryId, Boolean isPublic, Pageable pageable) throws BaseException {
         try {
+            if (!myBlogId.equals(blogId) && Boolean.FALSE.equals(isPublic)) // 조회하는 비공개 게시글이 내 블로그가 아닌 경우
+                throw new BaseException(BaseErrorCode.ACCESS_DENIED_EXCEPTION); // ACCESS_DENIED_EXCEPTION을 터트린다.
+
             Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updatedAt").descending());
 
-            Specification<Post> specification = Specification.where(PostSpecification.withTopicName(topicName))
+            Specification<Post> specification = Specification.where(PostSpecification.withStatusTrue())
+                    .and(PostSpecification.withTopicName(topicName))
                     .and(PostSpecification.withHashtag(hashtag))
-                    .and(PostSpecification.withCategoryId(categoryId));
+                    .and(PostSpecification.withBlogId(blogId))
+                    .and(PostSpecification.withCategoryId(categoryId))
+                    .and(PostSpecification.withIsPublic(isPublic));
 
             return postRepository.findAll(specification, sortedByUpdatedDateDesc)
                     .map(PostDto::new);
