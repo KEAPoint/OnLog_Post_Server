@@ -3,6 +3,7 @@ package keapoint.onlog.post.service;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.dto.blog.*;
+import keapoint.onlog.post.dto.blog.follow.BlogFollowDto;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Follow;
 import keapoint.onlog.post.repository.BlogRepository;
@@ -156,7 +157,7 @@ public class BlogService {
      * @param targetValue  팔로우 할지 말지 여부
      * @return 성공 여부
      */
-    public Boolean toggleFollow(UUID blogId, UUID targetBlogId, Boolean targetValue) throws BaseException {
+    public BlogFollowDto toggleFollow(UUID blogId, UUID targetBlogId, Boolean targetValue) throws BaseException {
         try {
             // 내 블로그 조회
             Blog me = blogRepository.findById(blogId)
@@ -182,7 +183,7 @@ public class BlogService {
             follow.updateFollow(targetValue);
 
             // 결과 return
-            return true;
+            return new BlogFollowDto(follow);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
