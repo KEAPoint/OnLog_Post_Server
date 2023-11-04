@@ -34,16 +34,20 @@ public class PostController {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Operation(summary = "(카드) 최근 게시글 조회", description = "주제나 해시태그, 카테고리에 따른 게시글을 조회합니다.")
+    @Operation(summary = "(카드) 최근 게시글 조회", description = "조건에 따른 게시글을 조회합니다.")
     @GetMapping("")
     public BaseResponse<Page<PostDto>> getPosts(
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "topic", required = false) String topicName,
             @RequestParam(value = "hashtag", required = false) String hashtag,
+            @RequestParam(value = "blog_id", required = false) UUID blogId,
             @RequestParam(value = "category_id", required = false) Long categoryId,
+            @RequestParam(value = "is_public", required = false) Boolean isPublic,
             Pageable pageable
     ) {
         try {
-            return new BaseResponse<>(postService.getRecentPosts(topicName, hashtag, categoryId, pageable));
+            UUID myBlogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
+            return new BaseResponse<>(postService.getRecentPosts(myBlogId, topicName, hashtag, blogId, categoryId, isPublic, pageable));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

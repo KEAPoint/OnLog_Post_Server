@@ -24,6 +24,7 @@ public enum BaseErrorCode {
     /**
      * 403 Forbidden
      */
+    ACCESS_DENIED_EXCEPTION(HttpStatus.FORBIDDEN.value(), "타인의 비공개 게시글은 조회할 수 없습니다."),
     PERMISSION_EXCEPTION(HttpStatus.FORBIDDEN.value(), "작성자만 수정 또는 삭제할 수 있습니다."),
     UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION(HttpStatus.FORBIDDEN.value(), "해당 카테고리에 대한 권한이 없습니다."),
 
