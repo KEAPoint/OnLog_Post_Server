@@ -54,7 +54,7 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category; // 게시글 카테고리
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "topic_id")
     private Topic topic; // 게시글 주제
 
@@ -66,7 +66,7 @@ public class Post extends BaseEntity {
     )
     private List<Hashtag> hashtagList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>(); // 게시글 댓글
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -219,5 +219,24 @@ public class Post extends BaseEntity {
             this.topic.getPosts().remove(this);
         }
         this.topic = null;
+    }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "postId=" + postId +
+                ", postHits=" + postHits +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", summary='" + summary + '\'' +
+                ", thumbnailLink='" + thumbnailLink + '\'' +
+                ", isPublic=" + isPublic +
+                ", modified=" + modified +
+                ", likesCount=" + likesCount +
+                ", category=" + category +
+                ", topic=" + topic +
+                ", hashtagList=" + hashtagList +
+                ", writer=" + writer.getBlogId() +
+                '}';
     }
 }

@@ -3,12 +3,9 @@ package keapoint.onlog.post.entity;
 import jakarta.persistence.*;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
 @Entity
 @Builder
 @AllArgsConstructor
@@ -40,5 +37,15 @@ public class Follow {
         } else {
             this.isFollowing = targetValue;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Follow{" +
+                "id=" + id +
+                ", me=" + me.getBlogId() +
+                ", target=" + target.getBlogId() +
+                ", isFollowing=" + isFollowing +
+                '}';
     }
 }

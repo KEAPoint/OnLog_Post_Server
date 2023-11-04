@@ -18,11 +18,11 @@ public class UserPostLike {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "blog_id", referencedColumnName = "blog_id")
+    @JoinColumn(name = "blog_id")
     private Blog blog; // 내 블로그
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "post_id", referencedColumnName = "post_id")
+    @JoinColumn(name = "post_id")
     private Post post; // 게시글
 
     @Column(nullable = false)
@@ -37,6 +37,16 @@ public class UserPostLike {
         } else {
             this.isLiked = target;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "UserPostLike{" +
+                "id=" + id +
+                ", blog=" + blog.getBlogId() +
+                ", post=" + post.getPostId() +
+                ", isLiked=" + isLiked +
+                '}';
     }
 }
 

@@ -12,7 +12,6 @@ import java.util.UUID;
 @Getter
 @Entity
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "blog")
@@ -22,29 +21,29 @@ public class Blog extends BaseEntity {
     @Column(name = "blog_id", nullable = false)
     private UUID blogId; // 사용자 블로그 id
 
-    @Column(name = "blog_name", nullable = false, length = 32)
+    @Column(name = "blog_name", nullable = false, length = 36)
     private String blogName; // 사용자 블로그 이름
 
-    @Column(name = "blog_nickname", nullable = false, length = 32, unique = true)
+    @Column(name = "blog_nickname", nullable = false, length = 36, unique = true)
     private String blogNickname; // 사용자 블로그 별명 (닉네임)
 
     @Column(name = "blog_profile_img")
     private String blogProfileImg; // 사용자 블로그 프로필
 
-    @Column(name = "blog_intro")
+    @Column(name = "blog_intro", length = 70)
     private String blogIntro; // 사용자 블로그 한 줄 소개
 
     @Column(name = "blog_theme_img")
     private String blogThemeImg; // 사용자 블로그 테마 이미지
 
-    @OneToMany(mappedBy = "writer", orphanRemoval = true)
+    @OneToMany(mappedBy = "writer")
     private List<Post> postList = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany
     @JoinColumn(name = "blog_id")
     private List<Category> categories; // 블로그가 소유한 카테고리 리스트
 
-    @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "writer")
     private List<Comment> comments = new ArrayList<>();
 
     public void updateUserProfile(PutUpdateBlogReqDto data) {
@@ -74,4 +73,15 @@ public class Blog extends BaseEntity {
         post.setWriter(null); // 게시글의 작성자 정보를 제거
     }
 
+    @Override
+    public String toString() {
+        return "Blog{" +
+                "blogId=" + blogId +
+                ", blogName='" + blogName + '\'' +
+                ", blogNickname='" + blogNickname + '\'' +
+                ", blogProfileImg='" + blogProfileImg + '\'' +
+                ", blogIntro='" + blogIntro + '\'' +
+                ", blogThemeImg='" + blogThemeImg + '\'' +
+                '}';
+    }
 }

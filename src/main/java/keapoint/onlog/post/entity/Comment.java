@@ -10,7 +10,6 @@ import java.util.UUID;
 @Getter
 @Entity
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "comment")
@@ -50,7 +49,7 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "post_id")
     private Post post; // 댓글이 달린 게시글
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "blog_id", nullable = false)
     private Blog writer; // 댓글 작성자의 블로그
 
@@ -72,7 +71,29 @@ public class Comment extends BaseEntity {
         this.answerNum += 1;
     }
 
+    /**
+     * 댓글 수정
+     *
+     * @param newContent 수정하고자 하는 댓글 내용
+     */
     public void updateComment(String newContent) {
         this.content = newContent;
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "commentId=" + commentId +
+                ", content='" + content + '\'' +
+                ", modified=" + modified +
+                ", ref=" + ref +
+                ", refOrder=" + refOrder +
+                ", step=" + step +
+                ", parentNum=" + parentNum +
+                ", answerNum=" + answerNum +
+                ", likesCount=" + likesCount +
+                ", post=" + post.getPostId() +
+                ", writer=" + writer.getBlogId() +
+                '}';
     }
 }

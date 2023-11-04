@@ -18,11 +18,11 @@ public class UserCommentLike {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "blog_id", referencedColumnName = "blog_id")
+    @JoinColumn(name = "blog_id")
     private Blog blog;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "comment_id", referencedColumnName = "comment_id")
+    @JoinColumn(name = "comment_id")
     private Comment comment;
 
     @Column(nullable = false)
@@ -39,4 +39,13 @@ public class UserCommentLike {
         }
     }
 
+    @Override
+    public String toString() {
+        return "UserCommentLike{" +
+                "id=" + id +
+                ", blog=" + blog.getBlogId() +
+                ", comment=" + comment.getCommentId() +
+                ", isLiked=" + isLiked +
+                '}';
+    }
 }
