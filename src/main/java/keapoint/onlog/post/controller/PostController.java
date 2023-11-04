@@ -36,7 +36,7 @@ public class PostController {
 
     @Operation(summary = "(카드) 최근 게시글 조회", description = "조건에 따른 게시글을 조회합니다.")
     @GetMapping("")
-    public BaseResponse<Page<PostDto>> getPosts(
+    public BaseResponse<Page<PostSummaryDto>> getPosts(
             @RequestHeader("Authorization") String token,
             @RequestParam(value = "topic", required = false) String topicName,
             @RequestParam(value = "hashtag", required = false) String hashtag,
@@ -75,7 +75,7 @@ public class PostController {
 
     @Operation(summary = "비공개 게시글 조회", description = "나의 비공개 게시글을 조회합니다.")
     @GetMapping("/private")
-    public BaseResponse<Page<PostDto>> getPrivatePosts(@RequestHeader("Authorization") String token, Pageable pageable) {
+    public BaseResponse<Page<PostSummaryDto>> getPrivatePosts(@RequestHeader("Authorization") String token, Pageable pageable) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
             return new BaseResponse<>(postService.getPrivatePosts(blogId, pageable));

@@ -40,7 +40,7 @@ public class PostService {
      * @return 최신 게시글
      */
     @Transactional(readOnly = true)
-    public Page<PostDto> getRecentPosts(UUID myBlogId, String topicName, String hashtag, UUID blogId, Long categoryId, Boolean isPublic, Pageable pageable) throws BaseException {
+    public Page<PostSummaryDto> getRecentPosts(UUID myBlogId, String topicName, String hashtag, UUID blogId, Long categoryId, Boolean isPublic, Pageable pageable) throws BaseException {
         try {
             if (!myBlogId.equals(blogId) && Boolean.FALSE.equals(isPublic)) // 조회하는 비공개 게시글이 내 블로그가 아닌 경우
                 throw new BaseException(BaseErrorCode.ACCESS_DENIED_EXCEPTION); // ACCESS_DENIED_EXCEPTION을 터트린다.
@@ -55,7 +55,7 @@ public class PostService {
                     .and(PostSpecification.withIsPublic(isPublic));
 
             return postRepository.findAll(specification, sortedByUpdatedDateDesc)
-                    .map(PostDto::new);
+                    .map(PostSummaryDto::new);
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -95,7 +95,7 @@ public class PostService {
      * @param pageable 페이지 요청 정보 (페이지 번호, 페이지 크기 등)
      * @return 비공개 게시글
      */
-    public Page<PostDto> getPrivatePosts(UUID blogId, Pageable pageable) throws BaseException {
+    public Page<PostSummaryDto> getPrivatePosts(UUID blogId, Pageable pageable) throws BaseException {
         try {
             // 블로그 식별자를 기반으로 내 블로그를 조회한다.
             Blog writer = blogRepository.findById(blogId)
@@ -111,7 +111,7 @@ public class PostService {
 
             // 조회된 비공개 게시글을 DTO로 변환하여 반환한다.
             return postRepository.findByWriterAndStatusAndIsPublic(writer, true, false, sortedByUpdatedDateDesc)
-                    .map(PostDto::new);
+                    .map(PostSummaryDto::new);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
