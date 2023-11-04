@@ -28,13 +28,14 @@ public class PostService {
     /**
      * 최신 게시글 조회
      *
-     * @param topicName 주제 이름
-     * @param hashtag   검색할 해시태그 이름
-     * @param pageable  페이지 요청 정보 (페이지 번호, 페이지 크기 등)
+     * @param topicName  주제 이름
+     * @param hashtag    검색할 해시태그 이름
+     * @param categoryId 카테고리 식별자
+     * @param pageable   페이지 요청 정보 (페이지 번호, 페이지 크기 등)
      * @return 최신 게시글
      */
     @Transactional(readOnly = true)
-    public Page<PostDto> getRecentPosts(String topicName, String hashtag, Pageable pageable) throws BaseException {
+    public Page<PostDto> getRecentPosts(String topicName, String hashtag, Long categoryId, Pageable pageable) throws BaseException {
         try {
             Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updatedAt").descending());
 
@@ -42,11 +43,18 @@ public class PostService {
                 Topic topic = topicRepository.findByName(topicName)
                         .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
 
-                return postRepository.findByStatusAndIsPublicAndTopicName(true, true, topic.getName(), sortedByUpdatedDateDesc)
+                return postRepository.findByStatusAndIsPublicAndTopic(true, true, topic, sortedByUpdatedDateDesc)
                         .map(PostDto::new);
 
             } else if (hashtag != null && !hashtag.isEmpty()) {
                 return postRepository.findByStatusAndIsPublicAndHashtag(true, true, hashtag, sortedByUpdatedDateDesc)
+                        .map(PostDto::new);
+
+            } else if (categoryId != null) {
+                Category category = categoryRepository.findById(categoryId)
+                        .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
+
+                return postRepository.findByStatusAndIsPublicAndCategory(true, true, category, sortedByUpdatedDateDesc)
                         .map(PostDto::new);
 
             } else {

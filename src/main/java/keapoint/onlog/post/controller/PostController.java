@@ -39,10 +39,11 @@ public class PostController {
     public BaseResponse<Page<PostDto>> getPosts(
             @RequestParam(value = "topic", required = false) String topicName,
             @RequestParam(value = "hashtag", required = false) String hashtag,
+            @RequestParam(value = "category_id", required = false) Long categoryId,
             Pageable pageable
     ) {
         try {
-            return new BaseResponse<>(postService.getRecentPosts(topicName, hashtag, pageable));
+            return new BaseResponse<>(postService.getRecentPosts(topicName, hashtag, categoryId, pageable));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
