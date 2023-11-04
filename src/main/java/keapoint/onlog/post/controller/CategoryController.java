@@ -15,6 +15,7 @@ import keapoint.onlog.post.dto.category.PutCategoryUpdateReqDto;
 import keapoint.onlog.post.dto.category.DeleteCategoryReqDto;
 
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -26,6 +27,21 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    @Operation(summary = "카테고리 조회", description = "특정 유저의 카테고리를 조회합니다.")
+    @GetMapping("")
+    public BaseResponse<List<CategoryDto>> getCategories(@RequestParam("blog_id") UUID blogId) {
+        try {
+            return new BaseResponse<>(categoryService.getCategories(blogId));
+
+        } catch (BaseException e) {
+            return new BaseResponse<>(e);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new BaseResponse<>(new BaseException(BaseErrorCode.UNEXPECTED_ERROR));
+        }
+    }
 
     @Operation(summary = "카테고리 생성", description = "새로운 카테고리를 생성합니다.")
     @PostMapping("")
