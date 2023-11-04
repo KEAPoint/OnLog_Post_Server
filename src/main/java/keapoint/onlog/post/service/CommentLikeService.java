@@ -2,6 +2,7 @@ package keapoint.onlog.post.service;
 
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
+import keapoint.onlog.post.dto.comment.like.CommentLikeDto;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Comment;
 import keapoint.onlog.post.entity.UserCommentLike;
@@ -33,7 +34,7 @@ public class CommentLikeService {
      * @param targetValue 댓글 좋아요/좋아요 취소 여부
      * @return 성공 여부
      */
-    public Boolean toggleLike(UUID blogId, UUID commentId, Boolean targetValue) throws BaseException {
+    public CommentLikeDto toggleLike(UUID blogId, UUID commentId, Boolean targetValue) throws BaseException {
         try {
             // 사용자 정보 조회
             Blog blog = blogRepository.findById(blogId)
@@ -65,7 +66,7 @@ public class CommentLikeService {
             }
 
             // 결과 리턴
-            return true;
+            return new CommentLikeDto(userCommentLike);
 
         } catch (Exception e) {
             log.error(e.getMessage());

@@ -5,7 +5,7 @@ import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import lombok.*;
 
-@Data
+@Getter
 @Entity
 @Builder
 @NoArgsConstructor
@@ -27,13 +27,6 @@ public class UserPostLike {
 
     @Column(nullable = false)
     private boolean isLiked; // 사용자가 해당 게시물에 대해 '좋아요' 상태인지 나타내는 플래그
-
-    @Builder
-    public UserPostLike(Blog blog, Post post, boolean isLiked) {
-        this.blog = blog;
-        this.post = post;
-        this.isLiked = isLiked;
-    }
 
     /**
      * 게시글 좋아요 업데이트 (좋아요 X <-> 좋아요)
