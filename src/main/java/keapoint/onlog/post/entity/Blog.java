@@ -40,7 +40,8 @@ public class Blog extends BaseEntity {
     @OneToMany(mappedBy = "writer", orphanRemoval = true)
     private List<Post> postList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "categoryOwner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "blog_id")
     private List<Category> categories; // 블로그가 소유한 카테고리 리스트
 
     @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -51,6 +52,26 @@ public class Blog extends BaseEntity {
         this.blogNickname = data.getBlogNickname();
         this.blogIntro = data.getBlogIntro();
         this.blogProfileImg = data.getBlogProfileImg();
+    }
+
+    /**
+     * 게시글 추가 (연관관계 편의 메소드)
+     *
+     * @param post 게시글
+     */
+    public void addNewPost(Post post) {
+        this.postList.add(post); // 현재 블로그의 게시글 목록에 게시글을 추가
+        post.setWriter(this); // 게시글의 작성자를 현재 블로그로 설정
+    }
+
+    /**
+     * 게시글 삭제 (연관관계 편의 메소드)
+     *
+     * @param post 게시글
+     */
+    public void removeExistingPost(Post post) {
+        this.postList.remove(post); // 현재 블로그의 게시글 목록에서 게시글을 제거
+        post.setWriter(null); // 게시글의 작성자 정보를 제거
     }
 
 }

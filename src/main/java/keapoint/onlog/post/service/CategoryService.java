@@ -6,16 +6,15 @@ import keapoint.onlog.post.dto.category.CategoryDto;
 import keapoint.onlog.post.dto.category.PostCreateCategoryReqDto;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Category;
-import keapoint.onlog.post.entity.Topic;
 import keapoint.onlog.post.repository.BlogRepository;
 import keapoint.onlog.post.repository.CategoryRepository;
-import keapoint.onlog.post.repository.TopicRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import keapoint.onlog.post.dto.category.PutCategoryUpdateReqDto;
 import keapoint.onlog.post.dto.category.DeleteCategoryReqDto;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -25,9 +24,33 @@ public class CategoryService {
 
     private final BlogRepository blogRepository;
 
-    private final TopicRepository topicRepository;
-
     private final CategoryRepository categoryRepository;
+
+    /**
+     * 특정 유저의 카테고리 정보를 조회하는 메소드
+     *
+     * @param blogId 조회하고자 하는 블로그 id
+     * @return 특정 유저의 카테고리 정보
+     */
+    public List<CategoryDto> getCategories(UUID blogId) throws BaseException {
+        try {
+            // 사용자 조회
+            Blog blog = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
+            return blog.getCategories().stream()
+                    .map(CategoryDto::new)
+                    .toList();
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     /**
      * 새 카테고리를 생성하는 메소드
@@ -43,20 +66,12 @@ public class CategoryService {
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
 
             // 사용자가 해당 이름으로 카테고리를 만든 적 있는지 조회
-            if (categoryRepository.findByNameAndCategoryOwner(dto.getName(), blog).isPresent()) // 이미 사용자가 해당 이름으로 카테고리를 가지고 있는 경우
+            if (blog.getCategories().stream().anyMatch(category -> category.getName().equals(dto.getName()))) // 이미 사용자가 해당 이름으로 카테고리를 가지고 있는 경우
                 throw new BaseException(BaseErrorCode.ALREADY_CATEGORY_EXISTS_EXCEPTION);
-
-            // 토픽 조회
-            Topic topic = topicRepository.findById(dto.getTopicId())
-                    .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
-
-            // order 필드 세팅
-            int order = categoryRepository.countByCategoryOwner(blog) + 1;
 
             Category newCategory = Category.builder()
                     .name(dto.getName())
-                    .order(order)
-                    .categoryOwner(blog)
+                    .order(blog.getCategories().size() + 1) // 생성된 카테고리 순서는 가장 마지막
                     .build();
 
             Category category = categoryRepository.save(newCategory);

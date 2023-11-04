@@ -5,13 +5,14 @@ import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.dto.post.*;
 import keapoint.onlog.post.entity.*;
 import keapoint.onlog.post.repository.*;
+import keapoint.onlog.post.specification.PostSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,80 +30,22 @@ public class PostService {
     /**
      * 최신 게시글 조회
      *
-     * @param pageable 페이지 요청 정보 (페이지 번호, 페이지 크기 등)
+     * @param topicName  주제 이름
+     * @param hashtag    검색할 해시태그 이름
+     * @param categoryId 카테고리 식별자
+     * @param pageable   페이지 요청 정보 (페이지 번호, 페이지 크기 등)
      * @return 최신 게시글
      */
     @Transactional(readOnly = true)
-    public Page<PostDto> getRecentPosts(Pageable pageable) throws BaseException {
+    public Page<PostDto> getRecentPosts(String topicName, String hashtag, Long categoryId, Pageable pageable) throws BaseException {
         try {
-            // 수정일자를 기준으로 내림차순 정렬 조건을 적용한 Pageable 객체를 생성한다.
             Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updatedAt").descending());
 
-            // 게시글을 조회하고 조회된 게시글들을 DTO로 변환하여 반환한다.
-            return postRepository.findByStatusAndIsPublic(true, true, sortedByUpdatedDateDesc)
-                    .map(PostDto::new);
+            Specification<Post> specification = Specification.where(PostSpecification.withTopicName(topicName))
+                    .and(PostSpecification.withHashtag(hashtag))
+                    .and(PostSpecification.withCategoryId(categoryId));
 
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 주제별 최신 게시글 조회
-     *
-     * @param topicName 주제 이름
-     * @param pageable  페이지 요청 정보 (페이지 번호, 페이지 크기 등)
-     * @return 주제별 최신 게시글
-     */
-    @Transactional(readOnly = true)
-    public Page<PostDto> getRecentPostsByTopic(String topicName, Pageable pageable) throws BaseException {
-        try {
-            // 주제 이름으로 주제 엔티티를 조회한다.
-            Topic topic = topicRepository.findByName(topicName)
-                    .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
-
-            // 수정일자를 기준으로 내림차순 정렬 조건을 적용한 Pageable 객체를 생성한다.
-            Pageable sortedByUpdatedDateDesc = PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    Sort.by("updatedAt").descending()
-            );
-
-            // 조회된 주제가 포함된 모든 게시글을 DTO로 변환하여 반환한다.
-            return postRepository.findByStatusAndIsPublicAndTopicName(true, true, topic.getName(), sortedByUpdatedDateDesc)
-                    .map(PostDto::new);
-
-        } catch (BaseException e) {
-            log.error(e.getErrorCode().getMessage());
-            throw e;
-
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 해시태그별 최신 게시글 조회
-     *
-     * @param hashtag  검색할 해시태그 이름
-     * @param pageable 페이지 요청 정보 (페이지 번호, 페이지 크기 등)
-     * @return 해시태그별 최신 게시글
-     */
-    @Transactional(readOnly = true)
-    public Page<PostDto> getRecentPostsByHashtag(String hashtag, Pageable pageable) throws BaseException {
-        try {
-            // 페이지 요청 정보에 정렬 조건을 추가하여 새로운 Pageable 객체를 생성한다.
-            // 이때 정렬 조건은 'updatedAt' 필드의 내림차순이다.
-            Pageable sortedByUpdatedDateDesc = PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    Sort.by("updatedAt").descending()
-            );
-
-            // 조회된 해시태그가 포함된 모든 게시글을 DTO로 변환하여 반환한다.
-            return postRepository.findByStatusAndIsPublicAndHashtag(true, true, hashtag, sortedByUpdatedDateDesc)
+            return postRepository.findAll(specification, sortedByUpdatedDateDesc)
                     .map(PostDto::new);
 
         } catch (Exception e) {
@@ -180,13 +123,21 @@ public class PostService {
      */
     public PostDto writePost(UUID blogId, PostWritePostReqDto dto) throws BaseException {
         try {
+            // 게시글을 작성하고자 하는 사용자를 조회한다.
+            Blog writer = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
             // 카테고리를 조회한다.
             Category category = categoryRepository.findById(dto.getCategoryId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
 
             // 해당 카테고리 주인인지 확인한다.
-            if (!category.getCategoryOwner().getBlogId().equals(blogId))
+            if (writer.getCategories().contains(category))
                 throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
+
+            // 주제를 조회한다.
+            Topic topic = topicRepository.findById(dto.getTopicId())
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
 
             // 해시태그를 조회한다. 만약 해시태그가 없는 경우엔 만든다
             List<Hashtag> hashtagList = dto.getHashtagList()
@@ -199,29 +150,12 @@ public class PostService {
                     )
                     .toList();
 
-            // 게시글 작성자의 블로그를 조회한다
-            Blog writer = blogRepository.findById(blogId)
-                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
-
             // 게시글을 만든다
-            Post post = Post.builder()
-                    .postHits(0L)
-                    .title(dto.getTitle())
-                    .content(dto.getContent())
-                    .summary(dto.getSummary())
-                    .thumbnailLink(dto.getThumbnailLink())
-                    .isPublic(dto.getIsPublic())
-                    .modified(false)
-                    .category(category)
-                    .hashtagList(hashtagList)
-                    .comments(new ArrayList<>())
-                    .writer(writer)
-                    .build();
+            Post post = new Post(dto, writer, category, topic, hashtagList);
 
             // DB에 저장한다.
             Post savedPost = postRepository.save(post);
-
-            // Todo: 양방향 연관관계 객체 필드 설정
+            log.info("생성된 게시글: " + savedPost.getPostId());
 
             // 생성된 게시글 정보를 반환한다.
             return new PostDto(savedPost);
@@ -238,6 +172,11 @@ public class PostService {
 
     public PostDto modifyPost(UUID blogId, PutModifyPostReqDto dto) throws BaseException {
         try {
+            // 게시글을 수정하고자 하는 사용자를 조회한다.
+            Blog writer = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
+            // 수정하고자 하는 게시글을 조회한다.
             Post post = postRepository.findById(dto.getPostId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
 
@@ -254,8 +193,12 @@ public class PostService {
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
 
             // 해당 카테고리 주인인지 확인한다.
-            if (!category.getCategoryOwner().getBlogId().equals(blogId))
+            if (writer.getCategories().contains(category))
                 throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
+
+            // 주제를 조회한다.
+            Topic topic = topicRepository.findById(dto.getTopicId())
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
 
             // 해시태그를 조회한다. 만약 해시태그가 없는 경우엔 만든다
             List<Hashtag> hashtagList = dto.getHashtagList()
@@ -269,9 +212,7 @@ public class PostService {
                     .toList();
 
             // 게시글을 수정한다
-            post.modifyPost(dto, category, hashtagList);
-
-            // Todo: 양방향 연관관계 객체 필드 설정
+            post.modifyPost(dto, category, topic, hashtagList);
 
             // 수정된 게시글 정보를 반환한다.
             return new PostDto(post);
@@ -303,7 +244,11 @@ public class PostService {
                 throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
             }
 
-            postRepository.delete(post); // 게시글 삭제
+            // 게시글을 삭제한다.
+            post.deletePost();
+
+            // DB에서 게시글 삭제한다.
+            postRepository.delete(post);
 
             return new PostDto(post); // 결과 return
 

@@ -34,21 +34,16 @@ public class PostController {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Operation(summary = "(카드) 최근 게시글 조회", description = "주제나 해시태그에 따른 게시글을 조회합니다.")
+    @Operation(summary = "(카드) 최근 게시글 조회", description = "주제나 해시태그, 카테고리에 따른 게시글을 조회합니다.")
     @GetMapping("")
     public BaseResponse<Page<PostDto>> getPosts(
             @RequestParam(value = "topic", required = false) String topicName,
             @RequestParam(value = "hashtag", required = false) String hashtag,
+            @RequestParam(value = "category_id", required = false) Long categoryId,
             Pageable pageable
     ) {
         try {
-            if (topicName != null && !topicName.isEmpty()) {
-                return new BaseResponse<>(postService.getRecentPostsByTopic(topicName, pageable));
-            } else if (hashtag != null && !hashtag.isEmpty()) {
-                return new BaseResponse<>(postService.getRecentPostsByHashtag(hashtag, pageable));
-            } else {
-                return new BaseResponse<>(postService.getRecentPosts(pageable));
-            }
+            return new BaseResponse<>(postService.getRecentPosts(topicName, hashtag, categoryId, pageable));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
