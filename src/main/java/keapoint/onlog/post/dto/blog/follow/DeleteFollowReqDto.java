@@ -1,4 +1,4 @@
-package keapoint.onlog.post.dto.blog;
+package keapoint.onlog.post.dto.blog.follow;
 
 import lombok.Data;
 

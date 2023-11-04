@@ -1,6 +1,7 @@
 package keapoint.onlog.post.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.base.BaseResponse;
@@ -20,12 +21,12 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
+@Tag(name = "Category")
 @RequiredArgsConstructor
 @RequestMapping("/blog/categories")
 public class CategoryController {
 
     private final CategoryService categoryService;
-
     private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "카테고리 조회", description = "특정 유저의 카테고리를 조회합니다.")

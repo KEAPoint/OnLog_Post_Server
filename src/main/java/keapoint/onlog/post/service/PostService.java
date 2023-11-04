@@ -30,23 +30,32 @@ public class PostService {
     /**
      * 최신 게시글 조회
      *
-     * @param topicName  주제 이름
-     * @param hashtag    검색할 해시태그 이름
-     * @param categoryId 카테고리 식별자
+     * @param myBlogId   내 블로그 식별자
+     * @param topicName  (필터 1) 주제
+     * @param hashtag    (필터 2) 해시태그
+     * @param blogId     (필터 3) 블로그
+     * @param categoryId (필터 4) 카테고리
+     * @param isPublic   (필터 5) 게시글 공개 여부
      * @param pageable   페이지 요청 정보 (페이지 번호, 페이지 크기 등)
      * @return 최신 게시글
      */
     @Transactional(readOnly = true)
-    public Page<PostDto> getRecentPosts(String topicName, String hashtag, Long categoryId, Pageable pageable) throws BaseException {
+    public Page<PostSummaryDto> getRecentPosts(UUID myBlogId, String topicName, String hashtag, UUID blogId, Long categoryId, Boolean isPublic, Pageable pageable) throws BaseException {
         try {
+            if (!myBlogId.equals(blogId) && Boolean.FALSE.equals(isPublic)) // 조회하는 비공개 게시글이 내 블로그가 아닌 경우
+                throw new BaseException(BaseErrorCode.ACCESS_DENIED_EXCEPTION); // ACCESS_DENIED_EXCEPTION을 터트린다.
+
             Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updatedAt").descending());
 
-            Specification<Post> specification = Specification.where(PostSpecification.withTopicName(topicName))
+            Specification<Post> specification = Specification.where(PostSpecification.withStatusTrue())
+                    .and(PostSpecification.withTopicName(topicName))
                     .and(PostSpecification.withHashtag(hashtag))
-                    .and(PostSpecification.withCategoryId(categoryId));
+                    .and(PostSpecification.withBlogId(blogId))
+                    .and(PostSpecification.withCategoryId(categoryId))
+                    .and(PostSpecification.withIsPublic(isPublic));
 
             return postRepository.findAll(specification, sortedByUpdatedDateDesc)
-                    .map(PostDto::new);
+                    .map(PostSummaryDto::new);
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -55,19 +64,19 @@ public class PostService {
     }
 
     /**
-     * 특정 게시글 조회
+     * 게시글 조회
      *
-     * @param postId 게시글 식별자
-     * @return 게시글
+     * @param postId 조회하고자 하는 게시글 식별자
+     * @return 조회된 게시글 정보
      */
-    public PostDto getPost(UUID postId) throws BaseException {
+    public PostWithRelatedPostsDto getPost(UUID postId) throws BaseException {
         try {
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
 
             post.hit();
 
-            return new PostDto(post);
+            return new PostWithRelatedPostsDto(post);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
@@ -84,9 +93,9 @@ public class PostService {
      *
      * @param blogId   비공개 게시글을 조회하고자 하는 블로그 식별자
      * @param pageable 페이지 요청 정보 (페이지 번호, 페이지 크기 등)
-     * @return 비공개 게시글
+     * @return 조회된 비공개 게시글
      */
-    public Page<PostDto> getPrivatePosts(UUID blogId, Pageable pageable) throws BaseException {
+    public Page<PostSummaryDto> getPrivatePosts(UUID blogId, Pageable pageable) throws BaseException {
         try {
             // 블로그 식별자를 기반으로 내 블로그를 조회한다.
             Blog writer = blogRepository.findById(blogId)
@@ -102,7 +111,7 @@ public class PostService {
 
             // 조회된 비공개 게시글을 DTO로 변환하여 반환한다.
             return postRepository.findByWriterAndStatusAndIsPublic(writer, true, false, sortedByUpdatedDateDesc)
-                    .map(PostDto::new);
+                    .map(PostSummaryDto::new);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
@@ -117,9 +126,9 @@ public class PostService {
     /**
      * 게시글 작성
      *
-     * @param blogId 블로그 식별자
+     * @param blogId 게시글 작성을 원하는 블로그 식별자
      * @param dto    작성하고자 하는 게시글 정보
-     * @return 게시글
+     * @return 작성된 게시글 정보
      */
     public PostDto writePost(UUID blogId, PostWritePostReqDto dto) throws BaseException {
         try {
@@ -170,6 +179,13 @@ public class PostService {
         }
     }
 
+    /**
+     * 게시글 수정
+     *
+     * @param blogId 게시글 수정을 원하는 블로그 식별자
+     * @param dto    수정하고자 하는 게시글 정보
+     * @return 수정된 게시글 정보
+     */
     public PostDto modifyPost(UUID blogId, PutModifyPostReqDto dto) throws BaseException {
         try {
             // 게시글을 수정하고자 하는 사용자를 조회한다.
@@ -231,9 +247,9 @@ public class PostService {
     /**
      * 게시글 삭제
      *
-     * @param blogId 블로그 식별자
-     * @param dto    삭제하고자 하는 게시글 식별자가 들어있는 객체
-     * @return 게시글 삭제 성공 여부
+     * @param blogId 게시글 삭제를 원하는 블로그 식별자
+     * @param dto    삭제하고자 하는 게시글 정보
+     * @return 삭제된 게시글 정보
      */
     public PostDto deletePost(UUID blogId, DeletePostReqDto dto) throws BaseException {
         try {

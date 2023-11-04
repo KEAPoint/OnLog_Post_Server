@@ -19,16 +19,25 @@ public class Category {
     @Column(name = "category_id", nullable = false)
     private Long id;
 
-    @Column(name = "category_name", nullable = false, length = 20)
+    @Column(name = "category_name", nullable = false, length = 16)
     private String name;
 
     @Column(name = "category_order", nullable = false)
     private int order;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category")
     private List<Post> posts = new ArrayList<>();
 
     public void updateCategory(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Category{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", order=" + order +
+                '}';
     }
 }

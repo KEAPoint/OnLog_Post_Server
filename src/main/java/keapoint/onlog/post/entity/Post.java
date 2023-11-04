@@ -47,11 +47,14 @@ public class Post extends BaseEntity {
     @Column(name = "post_modified", nullable = false)
     private Boolean modified; // 게시글 수정 여부
 
+    @Column(name = "post_likes_count", nullable = false)
+    private Long likesCount; // 게시글 좋아요 갯수
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id")
     private Category category; // 게시글 카테고리
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "topic_id")
     private Topic topic; // 게시글 주제
 
@@ -63,7 +66,7 @@ public class Post extends BaseEntity {
     )
     private List<Hashtag> hashtagList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>(); // 게시글 댓글
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -79,6 +82,20 @@ public class Post extends BaseEntity {
      */
     public void hit() {
         this.postHits += 1; // 방문 횟수 1 증가
+    }
+
+    /**
+     * 게시글 좋아요
+     */
+    public void postLike() {
+        this.likesCount += 1;
+    }
+
+    /**
+     * 게시글 좋아요 취소
+     */
+    public void postUnlike() {
+        this.likesCount -= 1;
     }
 
     /**
@@ -202,5 +219,24 @@ public class Post extends BaseEntity {
             this.topic.getPosts().remove(this);
         }
         this.topic = null;
+    }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "postId=" + postId +
+                ", postHits=" + postHits +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", summary='" + summary + '\'' +
+                ", thumbnailLink='" + thumbnailLink + '\'' +
+                ", isPublic=" + isPublic +
+                ", modified=" + modified +
+                ", likesCount=" + likesCount +
+                ", category=" + category +
+                ", topic=" + topic +
+                ", hashtagList=" + hashtagList +
+                ", writer=" + writer.getBlogId() +
+                '}';
     }
 }

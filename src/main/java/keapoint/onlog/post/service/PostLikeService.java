@@ -2,6 +2,7 @@ package keapoint.onlog.post.service;
 
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
+import keapoint.onlog.post.dto.post.like.PostLikeDto;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Post;
 import keapoint.onlog.post.entity.UserPostLike;
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PostLikeService {
 
@@ -27,15 +29,14 @@ public class PostLikeService {
     private final UserPostLikeRepository likeRepository;
 
     /**
-     * 좋아요 추가/제거 처리 서비스 로직
+     * 게시글 좋아요, 좋아요 취소
      *
-     * @param blogId      사용자 블로그 식별자
-     * @param postId      게시글 식별자
-     * @param targetValue 게시글 좋아요/싫어요 여부
-     * @return 결과
+     * @param blogId      좋아요/좋아요 취소를 원하는 블로그 식별자
+     * @param postId      좋아요/좋아요 취소 할 게시글 식별자
+     * @param targetValue 게시글 좋아요/좋아요 취소 여부
+     * @return 성공 여부
      */
-    @Transactional
-    public Boolean toggleLike(UUID blogId, UUID postId, Boolean targetValue) throws BaseException {
+    public PostLikeDto toggleLike(UUID blogId, UUID postId, Boolean targetValue) throws BaseException {
         try {
             // 사용자 정보 조회
             Blog blog = blogRepository.findById(blogId)
@@ -58,7 +59,13 @@ public class PostLikeService {
 
             userPost.updateLike(targetValue);
 
-            return true;
+            if (targetValue) { // 게시글 좋아요라면
+                post.postLike(); // 게시글 좋아요 개수 늘려주고
+            } else { // 게시글 좋아요 취소라면
+                post.postUnlike(); // 게시글 좋아요 개수 줄여준다.
+            }
+
+            return new PostLikeDto(userPost);
 
         } catch (Exception e) {
             log.error(e.getMessage());

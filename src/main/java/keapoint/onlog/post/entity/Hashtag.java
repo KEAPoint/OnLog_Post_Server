@@ -2,13 +2,13 @@ package keapoint.onlog.post.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,5 +29,13 @@ public class Hashtag {
     public Hashtag(String name) {
         this.name = name;
         this.postList = new ArrayList<>();
+    }
+
+    @Override
+    public String toString() {
+        return "Hashtag{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

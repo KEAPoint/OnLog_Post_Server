@@ -6,11 +6,9 @@ import keapoint.onlog.post.dto.comment.*;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Comment;
 import keapoint.onlog.post.entity.Post;
-import keapoint.onlog.post.entity.UserCommentLike;
 import keapoint.onlog.post.repository.BlogRepository;
 import keapoint.onlog.post.repository.CommentRepository;
 import keapoint.onlog.post.repository.PostRepository;
-import keapoint.onlog.post.repository.UserCommentLikeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,13 +23,16 @@ import java.util.UUID;
 public class CommentService {
 
     private final BlogRepository blogRepository;
-
     private final PostRepository postRepository;
-
     private final CommentRepository commentRepository;
 
-    private final UserCommentLikeRepository userCommentLikeRepository;
-
+    /**
+     * 댓글 작성
+     *
+     * @param blogId 댓글을 작성 할 블로그 식별자
+     * @param data   작성 할 댓글 정보
+     * @return 댓글 정보
+     */
     public CommentDto createComment(UUID blogId, PostCreateCommentReqDto data) throws BaseException {
         try {
             Blog writer = blogRepository.findById(blogId)
@@ -77,7 +78,6 @@ public class CommentService {
 
             // 댓글 저장
             commentRepository.save(comment);
-            comment.addComment(post);
 
             return new CommentDto(comment);
 
@@ -118,7 +118,13 @@ public class CommentService {
         }
     }
 
-    @Transactional
+    /**
+     * 댓글 수정
+     *
+     * @param blogId 댓글 수정을 원하는 블로그 식별자
+     * @param dto    수정하고자 하는 댓글 정보
+     * @return 수정된 댓글 정보
+     */
     public CommentDto updateComment(UUID blogId, PutUpdateCommentReqDto dto) throws BaseException {
         try {
             Comment comment = commentRepository.findById(dto.getCommentId())
@@ -139,6 +145,13 @@ public class CommentService {
 
     }
 
+    /**
+     * 댓글 삭제
+     *
+     * @param blogId 댓글 삭제를 원하는 블로그 식별자
+     * @param dto    삭제하고자 하는 댓글 정보
+     * @return 삭제된 댓글 정보
+     */
     public CommentDto deleteComment(UUID blogId, DeleteCommentReqDto dto) throws BaseException {
         try {
             Comment comment = commentRepository.findById(dto.getCommentId())
@@ -149,7 +162,6 @@ public class CommentService {
             }
 
             // 댓글 삭제
-            comment.removeComment();
             commentRepository.delete(comment);
 
             return new CommentDto(comment); // 결과 return
@@ -160,45 +172,4 @@ public class CommentService {
         }
     }
 
-    /**
-     * 댓글 좋아요 추가/제거 처리 서비스 로직
-     *
-     * @param blogId      사용자 블로그 식별자
-     * @param commentId   좋아요/좋아요 취소 할 댓글 식별자
-     * @param targetValue 좋아요 할지 말지 여부
-     * @return 성공 여부
-     */
-    public Boolean toggleLike(UUID blogId, UUID commentId, Boolean targetValue) throws BaseException {
-        try {
-            // 사용자 정보 조회
-            Blog blog = blogRepository.findById(blogId)
-                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
-
-            // 댓글 정보 조회
-            Comment comment = commentRepository.findById(commentId)
-                    .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
-
-            // 댓글 좋아요 정보 조회
-            UserCommentLike userCommentLike = userCommentLikeRepository.findByBlogAndComment(blog, comment)
-                    .orElseGet(() -> {
-                        UserCommentLike newLike = UserCommentLike.builder()
-                                .blog(blog)
-                                .comment(comment)
-                                .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
-                                .build();
-
-                        return userCommentLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
-                    });
-
-            // 댓글 좋아요 정보 업데이트
-            userCommentLike.updateLike(targetValue);
-
-            // 결과 리턴
-            return true;
-
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
-        }
-    }
 }
