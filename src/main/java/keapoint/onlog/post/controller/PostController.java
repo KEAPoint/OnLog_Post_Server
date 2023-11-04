@@ -42,13 +42,7 @@ public class PostController {
             Pageable pageable
     ) {
         try {
-            if (topicName != null && !topicName.isEmpty()) {
-                return new BaseResponse<>(postService.getRecentPostsByTopic(topicName, pageable));
-            } else if (hashtag != null && !hashtag.isEmpty()) {
-                return new BaseResponse<>(postService.getRecentPostsByHashtag(hashtag, pageable));
-            } else {
-                return new BaseResponse<>(postService.getRecentPosts(pageable));
-            }
+            return new BaseResponse<>(postService.getRecentPosts(topicName, hashtag, pageable));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

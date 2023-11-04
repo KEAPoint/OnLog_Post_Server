@@ -28,81 +28,34 @@ public class PostService {
     /**
      * 최신 게시글 조회
      *
-     * @param pageable 페이지 요청 정보 (페이지 번호, 페이지 크기 등)
+     * @param topicName 주제 이름
+     * @param hashtag   검색할 해시태그 이름
+     * @param pageable  페이지 요청 정보 (페이지 번호, 페이지 크기 등)
      * @return 최신 게시글
      */
     @Transactional(readOnly = true)
-    public Page<PostDto> getRecentPosts(Pageable pageable) throws BaseException {
+    public Page<PostDto> getRecentPosts(String topicName, String hashtag, Pageable pageable) throws BaseException {
         try {
-            // 수정일자를 기준으로 내림차순 정렬 조건을 적용한 Pageable 객체를 생성한다.
             Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updatedAt").descending());
 
-            // 게시글을 조회하고 조회된 게시글들을 DTO로 변환하여 반환한다.
-            return postRepository.findByStatusAndIsPublic(true, true, sortedByUpdatedDateDesc)
-                    .map(PostDto::new);
+            if (topicName != null && !topicName.isEmpty()) {
+                Topic topic = topicRepository.findByName(topicName)
+                        .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
 
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
-        }
-    }
+                return postRepository.findByStatusAndIsPublicAndTopicName(true, true, topic.getName(), sortedByUpdatedDateDesc)
+                        .map(PostDto::new);
 
-    /**
-     * 주제별 최신 게시글 조회
-     *
-     * @param topicName 주제 이름
-     * @param pageable  페이지 요청 정보 (페이지 번호, 페이지 크기 등)
-     * @return 주제별 최신 게시글
-     */
-    @Transactional(readOnly = true)
-    public Page<PostDto> getRecentPostsByTopic(String topicName, Pageable pageable) throws BaseException {
-        try {
-            // 주제 이름으로 주제 엔티티를 조회한다.
-            Topic topic = topicRepository.findByName(topicName)
-                    .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
+            } else if (hashtag != null && !hashtag.isEmpty()) {
+                return postRepository.findByStatusAndIsPublicAndHashtag(true, true, hashtag, sortedByUpdatedDateDesc)
+                        .map(PostDto::new);
 
-            // 수정일자를 기준으로 내림차순 정렬 조건을 적용한 Pageable 객체를 생성한다.
-            Pageable sortedByUpdatedDateDesc = PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    Sort.by("updatedAt").descending()
-            );
-
-            // 조회된 주제가 포함된 모든 게시글을 DTO로 변환하여 반환한다.
-            return postRepository.findByStatusAndIsPublicAndTopicName(true, true, topic.getName(), sortedByUpdatedDateDesc)
-                    .map(PostDto::new);
-
+            } else {
+                return postRepository.findByStatusAndIsPublic(true, true, sortedByUpdatedDateDesc)
+                        .map(PostDto::new);
+            }
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
             throw e;
-
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * 해시태그별 최신 게시글 조회
-     *
-     * @param hashtag  검색할 해시태그 이름
-     * @param pageable 페이지 요청 정보 (페이지 번호, 페이지 크기 등)
-     * @return 해시태그별 최신 게시글
-     */
-    @Transactional(readOnly = true)
-    public Page<PostDto> getRecentPostsByHashtag(String hashtag, Pageable pageable) throws BaseException {
-        try {
-            // 페이지 요청 정보에 정렬 조건을 추가하여 새로운 Pageable 객체를 생성한다.
-            // 이때 정렬 조건은 'updatedAt' 필드의 내림차순이다.
-            Pageable sortedByUpdatedDateDesc = PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    Sort.by("updatedAt").descending()
-            );
-
-            // 조회된 해시태그가 포함된 모든 게시글을 DTO로 변환하여 반환한다.
-            return postRepository.findByStatusAndIsPublicAndHashtag(true, true, hashtag, sortedByUpdatedDateDesc)
-                    .map(PostDto::new);
 
         } catch (Exception e) {
             log.error(e.getMessage());
