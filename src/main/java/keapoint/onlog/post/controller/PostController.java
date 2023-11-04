@@ -28,11 +28,8 @@ import java.util.UUID;
 public class PostController {
 
     private final PostService postService;
-
     private final TopicRepository topicRepository;
-
     private final PostLikeService postLikeService;
-
     private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "(카드) 최근 게시글 조회", description = "조건에 따른 게시글을 조회합니다.")
@@ -61,7 +58,7 @@ public class PostController {
 
     @Operation(summary = "특정 게시글 조회", description = "ID에 따른 특정 게시글을 조회합니다.")
     @GetMapping("/{postId}")
-    public BaseResponse<PostDto> getPost(@PathVariable UUID postId) {
+    public BaseResponse<PostWithRelatedPostsDto> getPost(@PathVariable UUID postId) {
         try {
             return new BaseResponse<>(postService.getPost(postId));
 

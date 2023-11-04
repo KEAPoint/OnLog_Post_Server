@@ -69,14 +69,14 @@ public class PostService {
      * @param postId 조회하고자 하는 게시글 식별자
      * @return 조회된 게시글 정보
      */
-    public PostDto getPost(UUID postId) throws BaseException {
+    public PostWithRelatedPostsDto getPost(UUID postId) throws BaseException {
         try {
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
 
             post.hit();
 
-            return new PostDto(post);
+            return new PostWithRelatedPostsDto(post);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
