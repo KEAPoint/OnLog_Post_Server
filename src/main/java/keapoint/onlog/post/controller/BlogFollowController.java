@@ -8,7 +8,7 @@ import keapoint.onlog.post.base.BaseResponse;
 import keapoint.onlog.post.dto.blog.follow.BlogFollowDto;
 import keapoint.onlog.post.dto.blog.follow.DeleteFollowReqDto;
 import keapoint.onlog.post.dto.blog.follow.PostFollowReqDto;
-import keapoint.onlog.post.service.BlogService;
+import keapoint.onlog.post.service.BlogFollowService;
 import keapoint.onlog.post.utils.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ import java.util.UUID;
 public class BlogFollowController {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final BlogService blogService;
+    private final BlogFollowService blogFollowService;
 
     @Operation(summary = "팔로우 설정", description = "특정 블로그를 팔로우합니다.")
     @PostMapping("")
@@ -33,7 +33,7 @@ public class BlogFollowController {
                                               @RequestBody PostFollowReqDto data) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(blogService.toggleFollow(blogId, data.getTargetBlogId(), true));
+            return new BaseResponse<>(blogFollowService.toggleFollow(blogId, data.getTargetBlogId(), true));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -50,7 +50,7 @@ public class BlogFollowController {
                                                 @RequestBody DeleteFollowReqDto data) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(blogService.toggleFollow(blogId, data.getTargetBlogId(), false));
+            return new BaseResponse<>(blogFollowService.toggleFollow(blogId, data.getTargetBlogId(), false));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
