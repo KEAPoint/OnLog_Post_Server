@@ -74,11 +74,10 @@ public class BlogController {
         }
     }
 
-    @Operation(summary = "프로필 조회", description = "내 블로그 프로필을 조회합니다.")
-    @GetMapping("/profile")
-    public BaseResponse<BlogDto> getMyProfile(@RequestHeader("Authorization") String token) {
+    @Operation(summary = "블로그 조회", description = "블로그를 조회합니다.")
+    @GetMapping("")
+    public BaseResponse<BlogProfileDto> getMyProfile(@RequestParam("blog_id") UUID blogId) {
         try {
-            UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
             return new BaseResponse<>(blogService.getProfile(blogId));
 
         } catch (BaseException e) {

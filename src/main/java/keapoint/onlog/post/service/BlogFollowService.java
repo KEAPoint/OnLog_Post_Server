@@ -47,7 +47,7 @@ public class BlogFollowService {
                         Follow newFollow = Follow.builder()
                                 .me(me)
                                 .target(target)
-                                .isFollowing(false) // 기존에 팔로우 한 기록이 없으면 팔로우X 상태
+                                .following(false) // 기존에 팔로우 한 기록이 없으면 팔로우X 상태
                                 .build();
 
                         return followRepository.save(newFollow); // 새로운 팔로우 정보 생성 및 저장

@@ -25,17 +25,17 @@ public class Follow {
     @JoinColumn(name = "follow_id", referencedColumnName = "blog_id")
     private Blog target;
 
-    @Column(nullable = false)
-    private boolean isFollowing; // 해당 블로그를 팔로잉 하고 있는지 여부
+    @Column(name = "is_following", nullable = false)
+    private boolean following; // 해당 블로그를 팔로잉 하고 있는지 여부
 
     /**
      * 팔로우 업데이트 (팔로우 X <-> 팔로우)
      */
     public void updateFollow(Boolean targetValue) throws BaseException {
-        if (this.isFollowing == targetValue) {
+        if (this.following == targetValue) {
             throw new BaseException(BaseErrorCode.EXPECTED_FOLLOWING_STATE_EXCEPTION);
         } else {
-            this.isFollowing = targetValue;
+            this.following = targetValue;
         }
     }
 
@@ -45,7 +45,7 @@ public class Follow {
                 "id=" + id +
                 ", me=" + me.getBlogId() +
                 ", target=" + target.getBlogId() +
-                ", isFollowing=" + isFollowing +
+                ", isFollowing=" + following +
                 '}';
     }
 }

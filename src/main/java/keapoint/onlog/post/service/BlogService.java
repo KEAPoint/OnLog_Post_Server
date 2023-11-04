@@ -5,6 +5,7 @@ import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.dto.blog.*;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.repository.BlogRepository;
+import keapoint.onlog.post.repository.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BlogService {
 
+    private final FollowRepository followRepository;
     private final BlogRepository blogRepository;
 
     /**
@@ -127,13 +129,16 @@ public class BlogService {
      * @return 블로그 프로필 정보
      */
     @Transactional(readOnly = true)
-    public BlogDto getProfile(UUID blogId) throws BaseException {
+    public BlogProfileDto getProfile(UUID blogId) throws BaseException {
         try {
             // 블로그 조회
             Blog blog = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
 
-            return new BlogDto(blog);
+            // 구독자 수 조회
+            int subscriberCount = followRepository.countByMeAndFollowingIsTrue(blog);
+
+            return new BlogProfileDto(blog, subscriberCount);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
