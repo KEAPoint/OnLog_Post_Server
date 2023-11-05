@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +71,13 @@ public class JwtTokenProvider {
         return bearerToken;
     }
 
+    public String resolveToken(HttpServletRequest req) {
+        String bearerToken = req.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
 
     /**
      * access token에서 사용자의 정보 추출
@@ -77,7 +85,7 @@ public class JwtTokenProvider {
      * @param token access token
      * @return UsernamePasswordAuthenticationToken
      */
-    public Authentication getAuthentication(String token) throws BaseException {
+    public Authentication getAuthentication(String token) {
         Jws<Claims> claimsJws;
 
         try {
@@ -87,8 +95,8 @@ public class JwtTokenProvider {
 
         } catch (Exception exception) {
             exception.printStackTrace();
-            log.error(exception.getMessage());
-            throw new BaseException(BaseErrorCode.TOKEN_DECODING_EXCEPTION);
+            log.error("An error occurred: " + exception.getMessage());
+            throw exception;
         }
 
         // 인증 정보 받아오기
@@ -107,7 +115,7 @@ public class JwtTokenProvider {
      * @param token access token
      * @return boolean (true: valid, false: invalid)
      */
-    public boolean vallidateToken(String token) {
+    public boolean validateToken(String token) {
         Key key = Keys.hmacShaKeyFor(jwtKey.getBytes());
 
         try {
@@ -123,11 +131,10 @@ public class JwtTokenProvider {
     /**
      * refresh token 유효성 검사
      *
-     * @param refreshToken
+     * @param refreshToken refresh token
      * @return
-     * @throws BaseException
      */
-    public String vallidateRefreshToken(String refreshToken) throws BaseException {
+    public String validateRefreshToken(String refreshToken) throws BaseException {
         Jws<Claims> claims;
 
         try {
