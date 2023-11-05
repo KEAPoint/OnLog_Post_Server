@@ -138,6 +138,7 @@ public class PostController {
         }
     }
 
+    @Deprecated
     @Operation(summary = "게시글 주제 목록 조회", description = "게시글 주제 목록을 조회합니다.")
     @GetMapping("/topics")
     public BaseResponse<List<TopicDto>> getTopicList() {
