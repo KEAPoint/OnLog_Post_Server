@@ -26,6 +26,7 @@ public class BlogController {
 
     private final BlogService blogService;
 
+    @Deprecated
     @Operation(summary = "블로그 생성", description = "새로운 블로그를 생성합니다.")
     @PostMapping("")
     public BaseResponse<BlogDto> createBlog(@RequestBody PostCreateBlogReqDto data) {
