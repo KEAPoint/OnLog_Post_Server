@@ -70,6 +70,7 @@ public class PostController {
         }
     }
 
+    @Deprecated
     @Operation(summary = "비공개 게시글 조회", description = "나의 비공개 게시글을 조회합니다.")
     @GetMapping("/private")
     public BaseResponse<Page<PostSummaryDto>> getPrivatePosts(@RequestHeader("Authorization") String token, Pageable pageable) {
