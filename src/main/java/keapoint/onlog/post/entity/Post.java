@@ -38,7 +38,7 @@ public class Post extends BaseEntity {
     @Column(name = "post_summary", nullable = false, columnDefinition = "TEXT")
     private String summary; // 게시글 3줄 요약
 
-    @Column(name = "post_thumbnail_link", nullable = false)
+    @Column(name = "post_thumbnail_link", nullable = false, columnDefinition = "TEXT")
     private String thumbnailLink; // 게시글 thumbnail 사진 위치
 
     @Column(name = "post_public", nullable = false)
