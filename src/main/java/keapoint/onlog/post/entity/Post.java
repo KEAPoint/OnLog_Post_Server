@@ -108,11 +108,15 @@ public class Post extends BaseEntity {
      * @param hashtagList 게시글의 해시태그 리스트
      */
     public Post(PostWritePostReqDto dto, Blog writer, Category category, Topic topic, List<Hashtag> hashtagList) {
+        this.postHits = 0L;
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.summary = dto.getSummary();
         this.thumbnailLink = dto.getThumbnailLink();
         this.isPublic = dto.getIsPublic();
+        this.modified = false;
+        this.likesCount = 0L;
+        this.comments = new ArrayList<>();
 
         // 연관관계 설정
         writer.addNewPost(this);
