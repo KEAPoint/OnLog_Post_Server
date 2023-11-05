@@ -27,13 +27,13 @@ public class Blog extends BaseEntity {
     @Column(name = "blog_nickname", nullable = false, length = 36, unique = true)
     private String blogNickname; // 사용자 블로그 별명 (닉네임)
 
-    @Column(name = "blog_profile_img")
+    @Column(name = "blog_profile_img", columnDefinition = "TEXT")
     private String blogProfileImg; // 사용자 블로그 프로필
 
     @Column(name = "blog_intro", length = 70)
     private String blogIntro; // 사용자 블로그 한 줄 소개
 
-    @Column(name = "blog_theme_img")
+    @Column(name = "blog_theme_img", columnDefinition = "TEXT")
     private String blogThemeImg; // 사용자 블로그 테마 이미지
 
     @OneToMany(mappedBy = "writer")
