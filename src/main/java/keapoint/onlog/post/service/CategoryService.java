@@ -92,7 +92,7 @@ public class CategoryService {
 
             // 사용자가 해당 카테고리를 가지고 있는지 조회
             // 사용자가 만든 카테고리가 아니라면, UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION
-            if (blog.getCategories().contains(category))
+            if (!blog.getCategories().contains(category))
                 throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
 
             // 카테고리 이름 수정
@@ -131,7 +131,7 @@ public class CategoryService {
 
             // 사용자가 해당 카테고리를 가지고 있는지 조회
             // 사용자가 만든 카테고리가 아니라면, UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION
-            if (blog.getCategories().contains(category))
+            if (!blog.getCategories().contains(category))
                 throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
 
             // 카테고리 삭제

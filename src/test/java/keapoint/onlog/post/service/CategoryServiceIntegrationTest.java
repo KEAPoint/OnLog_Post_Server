@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import keapoint.onlog.post.dto.category.DeleteCategoryReqDto;
 
-
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
