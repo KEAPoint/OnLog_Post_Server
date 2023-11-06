@@ -12,8 +12,8 @@ public class PostWithRelatedPostsDto {
 
     private List<PostSummaryDto> relatedPosts; // 같은 카테고리의 다른 게시글들
 
-    public PostWithRelatedPostsDto(Post post) {
-        this.data = new PostDto(post);
+    public PostWithRelatedPostsDto(Post post, boolean isLiked) {
+        this.data = new PostDto(post, isLiked);
         this.relatedPosts = post.getCategory().getPosts()
                 .stream()
                 .map(PostSummaryDto::new)
