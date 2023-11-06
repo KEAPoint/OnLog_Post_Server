@@ -37,14 +37,14 @@ public class PostController {
             @RequestHeader("Authorization") String token,
             @RequestParam(value = "topic", required = false) String topicName,
             @RequestParam(value = "hashtag", required = false) String hashtag,
-            @RequestParam(value = "blog_id", required = false) UUID blogId,
+            @RequestParam(value = "blog_id", required = false) String blogId,
             @RequestParam(value = "category_id", required = false) Long categoryId,
             @RequestParam(value = "is_public", required = false) Boolean isPublic,
             Pageable pageable
     ) {
         try {
             UUID myBlogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(postService.getRecentPosts(myBlogId, topicName, hashtag, blogId, categoryId, isPublic, pageable));
+            return new BaseResponse<>(postService.getRecentPosts(myBlogId, topicName, hashtag, UUID.fromString(blogId), categoryId, isPublic, pageable));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -58,10 +58,10 @@ public class PostController {
     @Operation(summary = "특정 게시글 조회", description = "ID에 따른 특정 게시글을 조회합니다.")
     @GetMapping("/{postId}")
     public BaseResponse<PostWithRelatedPostsDto> getPost(@RequestHeader("Authorization") String token,
-                                                         @PathVariable UUID postId) {
+                                                         @PathVariable String postId) {
         try {
             UUID myBlogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(postService.getPost(myBlogId, postId));
+            return new BaseResponse<>(postService.getPost(myBlogId, UUID.fromString(postId)));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

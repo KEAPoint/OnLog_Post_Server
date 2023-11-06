@@ -77,9 +77,9 @@ public class BlogController {
 
     @Operation(summary = "블로그 조회", description = "블로그를 조회합니다.")
     @GetMapping("")
-    public BaseResponse<BlogProfileDto> getMyProfile(@RequestParam("blog_id") UUID blogId) {
+    public BaseResponse<BlogProfileDto> getMyProfile(@RequestParam("blog_id") String blogId) {
         try {
-            return new BaseResponse<>(blogService.getProfile(blogId));
+            return new BaseResponse<>(blogService.getProfile(UUID.fromString(blogId)));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

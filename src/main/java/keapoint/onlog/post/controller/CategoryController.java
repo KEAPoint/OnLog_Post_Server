@@ -31,9 +31,9 @@ public class CategoryController {
 
     @Operation(summary = "카테고리 조회", description = "특정 유저의 카테고리를 조회합니다.")
     @GetMapping("")
-    public BaseResponse<List<CategoryDto>> getCategories(@RequestParam("blog_id") UUID blogId) {
+    public BaseResponse<List<CategoryDto>> getCategories(@RequestParam("blog_id") String blogId) {
         try {
-            return new BaseResponse<>(categoryService.getCategories(blogId));
+            return new BaseResponse<>(categoryService.getCategories(UUID.fromString(blogId)));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
