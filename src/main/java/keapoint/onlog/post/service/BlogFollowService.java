@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -22,6 +24,33 @@ public class BlogFollowService {
 
     private final BlogRepository blogRepository;
     private final FollowRepository followRepository;
+
+    /**
+     * 내가 팔로우 하고 있는 블로그 조회
+     *
+     * @param blogId 내 블로그 식별자
+     * @return 내가 팔로우 하고 있는 블로그 정보
+     */
+    public List<BlogFollowDto> getFollowers(UUID blogId) throws BaseException {
+        try {
+            // 내 블로그 조회
+            Blog me = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
+            // 결과 return
+            return followRepository.findByMe(me).orElse(new ArrayList<>()).stream()
+                    .map(BlogFollowDto::new)
+                    .toList();
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     /**
      * 블로그 팔로우 / 언팔로우
