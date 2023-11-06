@@ -1,5 +1,7 @@
 package keapoint.onlog.post.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
@@ -26,8 +28,7 @@ public class BlogController {
 
     private final BlogService blogService;
 
-    @Deprecated
-    @Operation(summary = "블로그 생성", description = "새로운 블로그를 생성합니다.")
+    @Operation(summary = "블로그 생성", description = "새로운 블로그를 생성합니다.", hidden = true)
     @PostMapping("")
     public BaseResponse<BlogDto> createBlog(@RequestBody PostCreateBlogReqDto data) {
         try {
@@ -42,7 +43,9 @@ public class BlogController {
         }
     }
 
-    @Operation(summary = "블로그 수정", description = "사용자 블로그 정보를 수정합니다.")
+    @Operation(summary = "블로그 수정", description = "사용자 블로그 정보를 수정합니다.", parameters = {
+            @Parameter(name = "Authorization", description = "사용자 토큰", required = true, schema = @Schema(type = "string"))
+    })
     @PutMapping("")
     public BaseResponse<BlogDto> updateBlog(@RequestHeader("Authorization") String token,
                                             @RequestBody PutUpdateBlogReqDto data) {
@@ -59,7 +62,9 @@ public class BlogController {
         }
     }
 
-    @Operation(summary = "블로그 탈퇴", description = "사용자의 블로그를 탈퇴합니다.")
+    @Operation(summary = "블로그 탈퇴", description = "사용자의 블로그를 탈퇴합니다.", parameters = {
+            @Parameter(name = "Authorization", description = "사용자 토큰", required = true, schema = @Schema(type = "string"))
+    })
     @DeleteMapping("")
     public BaseResponse<BlogDto> deleteBlog(@RequestHeader("Authorization") String token) {
         try {
@@ -75,7 +80,9 @@ public class BlogController {
         }
     }
 
-    @Operation(summary = "블로그 조회", description = "블로그를 조회합니다.")
+    @Operation(summary = "블로그 조회", description = "블로그를 조회합니다.", parameters = {
+            @Parameter(name = "blog_id", description = "사용자 블로그 식별자", required = true, schema = @Schema(type = "string", format = "uuid"), example = "3b985c11-dee4-46d1-81ed-4c0eb810d3f5")
+    })
     @GetMapping("")
     public BaseResponse<BlogProfileDto> getMyProfile(@RequestParam("blog_id") UUID blogId) {
         try {

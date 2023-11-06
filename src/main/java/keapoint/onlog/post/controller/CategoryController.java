@@ -1,6 +1,8 @@
 package keapoint.onlog.post.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
@@ -21,7 +23,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@Tag(name = "Category")
+@Tag(name = "Blog")
 @RequiredArgsConstructor
 @RequestMapping("/blog/categories")
 public class CategoryController {
@@ -29,7 +31,9 @@ public class CategoryController {
     private final CategoryService categoryService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Operation(summary = "카테고리 조회", description = "특정 유저의 카테고리를 조회합니다.")
+    @Operation(summary = "카테고리 조회", description = "특정 유저의 카테고리를 조회합니다.", parameters = {
+            @Parameter(name = "blog_id", description = "사용자 블로그 식별자", required = true, schema = @Schema(type = "string", format = "uuid"), example = "3b985c11-dee4-46d1-81ed-4c0eb810d3f5")
+    })
     @GetMapping("")
     public BaseResponse<List<CategoryDto>> getCategories(@RequestParam("blog_id") UUID blogId) {
         try {
@@ -44,7 +48,9 @@ public class CategoryController {
         }
     }
 
-    @Operation(summary = "카테고리 생성", description = "새로운 카테고리를 생성합니다.")
+    @Operation(summary = "카테고리 생성", description = "새로운 카테고리를 생성합니다.", parameters = {
+            @Parameter(name = "Authorization", description = "사용자 토큰", required = true, schema = @Schema(type = "string"))
+    })
     @PostMapping("")
     public BaseResponse<CategoryDto> createCategory(@RequestHeader("Authorization") String token,
                                                     @RequestBody PostCreateCategoryReqDto dto) {
@@ -61,7 +67,9 @@ public class CategoryController {
         }
     }
 
-    @Operation(summary = "카테고리 수정", description = "카테고리 이름을 수정합니다.")
+    @Operation(summary = "카테고리 수정", description = "카테고리 이름을 수정합니다.", parameters = {
+            @Parameter(name = "Authorization", description = "사용자 토큰", required = true, schema = @Schema(type = "string"))
+    })
     @PutMapping("")
     public BaseResponse<CategoryDto> updateCategory(@RequestHeader("Authorization") String token,
                                                     @RequestBody PutCategoryUpdateReqDto dto) {
@@ -78,7 +86,9 @@ public class CategoryController {
         }
     }
 
-    @Operation(summary = "카테고리 삭제", description = "카테고리를 삭제합니다.")
+    @Operation(summary = "카테고리 삭제", description = "카테고리를 삭제합니다.", parameters = {
+            @Parameter(name = "Authorization", description = "사용자 토큰", required = true, schema = @Schema(type = "string"))
+    })
     @DeleteMapping("")
     public BaseResponse<CategoryDto> deleteCategory(@RequestHeader("Authorization") String token,
                                                     @RequestBody DeleteCategoryReqDto dto) {

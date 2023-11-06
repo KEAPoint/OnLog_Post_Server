@@ -1,6 +1,8 @@
 package keapoint.onlog.post.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
@@ -28,7 +30,9 @@ public class BlogFollowController {
     private final JwtTokenProvider jwtTokenProvider;
     private final BlogFollowService blogFollowService;
 
-    @Operation(summary = "팔로우 조회", description = "내가 팔로우 하고 있는 블로그를 조회합니다.")
+    @Operation(summary = "팔로우 조회", description = "내가 팔로우 하고 있는 블로그를 조회합니다.", parameters = {
+            @Parameter(name = "Authorization", description = "사용자 토큰", required = true, schema = @Schema(type = "string"))
+    })
     @GetMapping("")
     public BaseResponse<List<BlogFollowDto>> follow(@RequestHeader("Authorization") String token) {
         try {
@@ -44,7 +48,9 @@ public class BlogFollowController {
         }
     }
 
-    @Operation(summary = "팔로우 설정", description = "특정 블로그를 팔로우합니다.")
+    @Operation(summary = "팔로우 설정", description = "특정 블로그를 팔로우합니다.", parameters = {
+            @Parameter(name = "Authorization", description = "사용자 토큰", required = true, schema = @Schema(type = "string"))
+    })
     @PostMapping("")
     public BaseResponse<BlogFollowDto> follow(@RequestHeader("Authorization") String token,
                                               @RequestBody PostFollowReqDto data) {
@@ -61,7 +67,9 @@ public class BlogFollowController {
         }
     }
 
-    @Operation(summary = "팔로우 해제", description = "특정 블로그 팔로우를 해제합니다.")
+    @Operation(summary = "팔로우 해제", description = "특정 블로그 팔로우를 해제합니다.", parameters = {
+            @Parameter(name = "Authorization", description = "사용자 토큰", required = true, schema = @Schema(type = "string"))
+    })
     @DeleteMapping("")
     public BaseResponse<BlogFollowDto> unFollow(@RequestHeader("Authorization") String token,
                                                 @RequestBody DeleteFollowReqDto data) {
