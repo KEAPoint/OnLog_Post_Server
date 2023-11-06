@@ -5,10 +5,19 @@ import keapoint.onlog.post.entity.Follow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface FollowRepository extends JpaRepository<Follow, Long> {
+
+    /**
+     * 내가 팔로우 하고 있는 블로그 정보 조회
+     *
+     * @param me 내 블로그
+     * @return 내가 팔로우 하고 있는 블로그 정보 조회
+     */
+    Optional<List<Follow>> findByMe(Blog me);
 
     Optional<Follow> findByMeAndTarget(Blog me, Blog target);
 
