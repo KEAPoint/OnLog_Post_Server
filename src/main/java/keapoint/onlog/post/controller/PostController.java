@@ -89,7 +89,7 @@ public class PostController {
 
     @Operation(summary = "게시글 작성", description = "게시글을 작성합니다.")
     @PostMapping("")
-    public BaseResponse<PostDto> writePost(@RequestHeader("Authorization") String token,
+    public BaseResponse<PostSummaryDto> writePost(@RequestHeader("Authorization") String token,
                                            @RequestBody PostWritePostReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
@@ -106,7 +106,7 @@ public class PostController {
 
     @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.")
     @PutMapping("")
-    public BaseResponse<PostDto> modifyPost(@RequestHeader("Authorization") String token,
+    public BaseResponse<PostSummaryDto> modifyPost(@RequestHeader("Authorization") String token,
                                             @RequestBody PutModifyPostReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
@@ -123,7 +123,7 @@ public class PostController {
 
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
     @DeleteMapping("")
-    public BaseResponse<PostDto> deletePost(@RequestHeader("Authorization") String token,
+    public BaseResponse<PostSummaryDto> deletePost(@RequestHeader("Authorization") String token,
                                             @RequestBody DeletePostReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
