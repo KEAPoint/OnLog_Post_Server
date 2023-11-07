@@ -8,7 +8,6 @@ public class CategoryDto {
     private Long id;
     private String name;
     private int order;
-    private String topic;
 
     public CategoryDto(Category category) {
         this.id = category.getId();

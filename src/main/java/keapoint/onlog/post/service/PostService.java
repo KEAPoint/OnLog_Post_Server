@@ -26,6 +26,7 @@ public class PostService {
     private final TopicRepository topicRepository;
     private final HashtagRepository hashtagRepository;
     private final CategoryRepository categoryRepository;
+    private final UserPostLikeRepository userPostLikeRepository;
 
     /**
      * 최신 게시글 조회
@@ -66,17 +67,34 @@ public class PostService {
     /**
      * 게시글 조회
      *
+     * @param blogId 내 블로그 식별자
      * @param postId 조회하고자 하는 게시글 식별자
      * @return 조회된 게시글 정보
      */
-    public PostWithRelatedPostsDto getPost(UUID postId) throws BaseException {
+    public PostWithRelatedPostsDto getPost(UUID blogId, UUID postId) throws BaseException {
         try {
+            // 내 블로그를 조회한다.
+            Blog me = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+
+            // 게시글을 조회한다.
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
 
             post.hit();
 
-            return new PostWithRelatedPostsDto(post);
+            // 내가 해당 게시글을 좋아요 하고 있는지 조회한다.
+            UserPostLike userPostLike = userPostLikeRepository.findByBlogAndPost(me, post).orElseGet(() -> {
+                UserPostLike newLike = UserPostLike.builder()
+                        .blog(me)
+                        .post(post)
+                        .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
+                        .build();
+
+                return userPostLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
+            });
+
+            return new PostWithRelatedPostsDto(post, userPostLike.isLiked());
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
@@ -130,7 +148,7 @@ public class PostService {
      * @param dto    작성하고자 하는 게시글 정보
      * @return 작성된 게시글 정보
      */
-    public PostDto writePost(UUID blogId, PostWritePostReqDto dto) throws BaseException {
+    public PostSummaryDto writePost(UUID blogId, PostWritePostReqDto dto) throws BaseException {
         try {
             // 게시글을 작성하고자 하는 사용자를 조회한다.
             Blog writer = blogRepository.findById(blogId)
@@ -167,7 +185,7 @@ public class PostService {
             log.info("생성된 게시글: " + savedPost.getPostId());
 
             // 생성된 게시글 정보를 반환한다.
-            return new PostDto(savedPost);
+            return new PostSummaryDto(savedPost);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
@@ -186,7 +204,7 @@ public class PostService {
      * @param dto    수정하고자 하는 게시글 정보
      * @return 수정된 게시글 정보
      */
-    public PostDto modifyPost(UUID blogId, PutModifyPostReqDto dto) throws BaseException {
+    public PostSummaryDto modifyPost(UUID blogId, PutModifyPostReqDto dto) throws BaseException {
         try {
             // 게시글을 수정하고자 하는 사용자를 조회한다.
             Blog writer = blogRepository.findById(blogId)
@@ -231,7 +249,7 @@ public class PostService {
             post.modifyPost(dto, category, topic, hashtagList);
 
             // 수정된 게시글 정보를 반환한다.
-            return new PostDto(post);
+            return new PostSummaryDto(post);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
@@ -251,7 +269,7 @@ public class PostService {
      * @param dto    삭제하고자 하는 게시글 정보
      * @return 삭제된 게시글 정보
      */
-    public PostDto deletePost(UUID blogId, DeletePostReqDto dto) throws BaseException {
+    public PostSummaryDto deletePost(UUID blogId, DeletePostReqDto dto) throws BaseException {
         try {
             Post post = postRepository.findById(dto.getPostId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
@@ -266,7 +284,7 @@ public class PostService {
             // DB에서 게시글 삭제한다.
             postRepository.delete(post);
 
-            return new PostDto(post); // 결과 return
+            return new PostSummaryDto(post); // 결과 return
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
