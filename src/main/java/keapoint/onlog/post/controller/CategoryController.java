@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@Tag(name = "Category")
+@Tag(name = "Blog")
 @RequiredArgsConstructor
 @RequestMapping("/blog/categories")
 public class CategoryController {
