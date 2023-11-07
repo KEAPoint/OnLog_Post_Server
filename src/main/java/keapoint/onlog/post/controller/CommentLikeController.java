@@ -32,7 +32,7 @@ public class CommentLikeController {
                                                           @RequestBody PostCommentLikeReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(commentLikeService.toggleLike(blogId, dto.getCommentId(), true));
+            return BaseResponse.onCreate(commentLikeService.toggleLike(blogId, dto.getCommentId(), true));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -50,7 +50,7 @@ public class CommentLikeController {
                                                           @RequestBody DeleteCommentLikeReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(commentLikeService.toggleLike(blogId, dto.getCommentId(), false));
+            return BaseResponse.onSuccess(commentLikeService.toggleLike(blogId, dto.getCommentId(), false));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

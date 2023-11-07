@@ -33,7 +33,7 @@ public class CategoryController {
     @GetMapping("")
     public BaseResponse<List<CategoryDto>> getCategories(@RequestParam("blog_id") UUID blogId) {
         try {
-            return new BaseResponse<>(categoryService.getCategories(blogId));
+            return BaseResponse.onSuccess(categoryService.getCategories(blogId));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -50,7 +50,7 @@ public class CategoryController {
                                                     @RequestBody PostCreateCategoryReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(categoryService.createCategory(blogId, dto));
+            return BaseResponse.onCreate(categoryService.createCategory(blogId, dto));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -67,7 +67,7 @@ public class CategoryController {
                                                     @RequestBody PutCategoryUpdateReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(categoryService.updateCategory(blogId, dto));
+            return BaseResponse.onCreate(categoryService.updateCategory(blogId, dto));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -84,7 +84,7 @@ public class CategoryController {
                                                     @RequestBody DeleteCategoryReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(categoryService.deleteCategory(blogId, dto));
+            return BaseResponse.onSuccess(categoryService.deleteCategory(blogId, dto));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
