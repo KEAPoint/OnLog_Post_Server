@@ -1,13 +1,17 @@
 package keapoint.onlog.post.dto.blog;
 
 import keapoint.onlog.post.entity.Blog;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostCreateBlogReqDto {
     private UUID blogId; // 사용자 블로그 식별자
     private String blogName; // 사용자 블로그 이름
