@@ -41,7 +41,7 @@ public class Blog extends BaseEntity {
 
     @OneToMany
     @JoinColumn(name = "blog_id")
-    private List<Category> categories; // 블로그가 소유한 카테고리 리스트
+    private List<Category> categories = new ArrayList<>(); // 블로그가 소유한 카테고리 리스트
 
     @OneToMany(mappedBy = "writer")
     private List<Comment> comments = new ArrayList<>();

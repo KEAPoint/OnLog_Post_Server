@@ -15,6 +15,7 @@ import keapoint.onlog.post.dto.category.PutCategoryUpdateReqDto;
 import keapoint.onlog.post.dto.category.DeleteCategoryReqDto;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,6 +76,7 @@ public class CategoryService {
             Category newCategory = Category.builder()
                     .name(dto.getName())
                     .order(blog.getCategories().size() + 1) // 생성된 카테고리 순서는 가장 마지막
+                    .posts(new ArrayList<>())
                     .build();
 
             // 카테고리 생성
@@ -141,9 +143,8 @@ public class CategoryService {
      *
      * @param blogId 카테고리 삭제를 원하는 블로그 식별자
      * @param dto    삭제하고자 하는 카테고리 정보
-     * @return 삭제된 카테고리 정보
      */
-    public CategoryDto deleteCategory(UUID blogId, DeleteCategoryReqDto dto) throws BaseException {
+    public void deleteCategory(UUID blogId, DeleteCategoryReqDto dto) throws BaseException {
         try {
             // 사용자 조회
             Blog blog = blogRepository.findById(blogId)
@@ -162,10 +163,7 @@ public class CategoryService {
 
             // 카테고리 삭제
             categoryRepository.delete(category);
-            log.info("삭제된 카테고리: " + category);
-
-            // 삭제된 카테고리 반환
-            return new CategoryDto(category);
+            log.info("카테고리가 삭제되었습니다.");
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());

@@ -2,14 +2,18 @@ package keapoint.onlog.post.service;
 
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
+import keapoint.onlog.post.config.TestSecurityConfig;
 import keapoint.onlog.post.dto.blog.PostCreateBlogReqDto;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.repository.BlogRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.UUID;
 
@@ -17,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Rollback
 @SpringBootTest
+@Import(TestSecurityConfig.class)
+@ActiveProfiles("test")
 class BlogServiceUnitTest {
 
     @Autowired
@@ -26,12 +32,13 @@ class BlogServiceUnitTest {
     private BlogRepository blogRepository;
 
     @BeforeEach
-    void 데이터_삭제() {
+    void removeData() {
         blogRepository.deleteAll();
     }
 
     @Test
-    void 블로그_생성() throws BaseException {
+    @DisplayName("블로그 생성")
+    void test1() throws BaseException {
         // given: 새로운 블로그 생성이 들어왔을 때
         UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
         PostCreateBlogReqDto reqDto = PostCreateBlogReqDto.builder()
@@ -53,7 +60,8 @@ class BlogServiceUnitTest {
     }
 
     @Test
-    void 블로그_생성_2() throws BaseException {
+    @DisplayName("블로그 생성")
+    void test2() throws BaseException {
         // given: 새로운 블로그 생성이 들어왔을 때
         UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
         PostCreateBlogReqDto reqDto = PostCreateBlogReqDto.builder()
@@ -86,7 +94,8 @@ class BlogServiceUnitTest {
     }
 
     @Test
-    void 블로그_생성_실패_식별자_중복() throws BaseException {
+    @DisplayName("블로그 생성 실패 by 식별자 중복")
+    void test3() throws BaseException {
         // given: 사전에 있는 블로그 식별자로
         UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
         PostCreateBlogReqDto reqDto = PostCreateBlogReqDto.builder()
@@ -109,15 +118,14 @@ class BlogServiceUnitTest {
                 .build();
 
         // then: ALREADY_BLOG_EXISTS_EXCEPTION 예외가 발생해야 한다.
-        BaseException thrownException = assertThrows(BaseException.class, () -> {
-            blogService.createBlog(newReqDto);
-        });
+        BaseException thrownException = assertThrows(BaseException.class, () -> blogService.createBlog(newReqDto));
 
         assertEquals(BaseErrorCode.ALREADY_BLOG_EXISTS_EXCEPTION, thrownException.getErrorCode());
     }
 
     @Test
-    void 블로그_생성_실패_블로그_닉네임_중복() throws BaseException {
+    @DisplayName("블로그 생성 실패 by 블로그 닉네임 중복")
+    void test4() throws BaseException {
         // given: 사전에 있는 블로그 닉네임으로
         UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
         PostCreateBlogReqDto reqDto = PostCreateBlogReqDto.builder()
@@ -147,7 +155,8 @@ class BlogServiceUnitTest {
     }
 
     @Test
-    void 블로그_탈퇴_실패_존재하지_않은_블로그_탈퇴() {
+    @DisplayName("블로그 탈퇴 실패 by 존재하지 않은 블로그 탈퇴")
+    void test5() {
         // given: 사용자가 블로그 탈퇴 요청을 했을 때
         UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
 
@@ -159,7 +168,8 @@ class BlogServiceUnitTest {
     }
 
     @Test
-    void 블로그_프로필_조회_실패_존재하지_않는_블로그_조회() {
+    @DisplayName("블로그 프로필 조회 실패 by 존재하지 않는 블로그 조회")
+    void test6() {
         // given: 사용자가 블로그 프로필 조회 요청을 했을 떄
         UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
 
@@ -168,9 +178,5 @@ class BlogServiceUnitTest {
 
         // then: BLOG_NOT_FOUND_EXCEPTION 예외가 터져야 한다.
         assertEquals(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION, thrownException.getErrorCode());
-    }
-
-    @Test
-    void toggleFollow() {
     }
 }

@@ -75,9 +75,9 @@ public class CommentService {
                     .step(step)
                     .parentNum(parentNum)
                     .answerNum(answerNum)
+                    .likesCount(0L)
                     .post(post)
                     .writer(writer)
-                    .likesCount(0L)
                     .build();
 
             // 댓글 저장
@@ -138,13 +138,18 @@ public class CommentService {
      */
     public CommentDto updateComment(UUID blogId, PutUpdateCommentReqDto dto) throws BaseException {
         try {
+            // 댓글을 수정하려고 하는 블로그를 조회한다.
+            Blog blog = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("댓글을 수정하려고 하는 블로그 정보: " + blog);
+
             // 수정할 댓글을 가져온다
             Comment comment = commentRepository.findById(dto.getCommentId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
             log.info("수정할 댓글: " + comment.toString());
 
             // 댓글 수정 권한을 확인한다.
-            if (!comment.getWriter().getBlogId().equals(blogId)) { // 댓글 작성자가 아니라면
+            if (!comment.getWriter().equals(blog)) { // 댓글 작성자가 아니라면
                 throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
             }
 
@@ -170,26 +175,28 @@ public class CommentService {
      *
      * @param blogId 댓글 삭제를 원하는 블로그 식별자
      * @param dto    삭제하고자 하는 댓글 정보
-     * @return 삭제된 댓글 정보
      */
-    public CommentDto deleteComment(UUID blogId, DeleteCommentReqDto dto) throws BaseException {
+    public void deleteComment(UUID blogId, DeleteCommentReqDto dto) throws BaseException {
         try {
+            // 댓글을 삭제하려고 하는 블로그를 조회한다.
+            Blog blog = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("댓글을 삭제하려고 하는 블로그 정보: " + blog);
+
             // 삭제할 댓글을 조회한다.
             Comment comment = commentRepository.findById(dto.getCommentId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
             log.info("삭제할 댓글 정보: " + comment.toString());
 
             // 댓글 삭제 권한을 확인한다.
-            if (!comment.getWriter().getBlogId().equals(blogId)) { // 댓글 작성자가 아니라면
+            if (!comment.getWriter().equals(blog)) { // 댓글 작성자가 아니라면
                 throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
             }
 
             // 댓글 삭제
             comment.removeComment();
             commentRepository.delete(comment);
-            log.info("삭제된 댓글 정보: " + comment);
-
-            return new CommentDto(comment); // 결과 return
+            log.info("댓글이 삭제되었습니다.");
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
