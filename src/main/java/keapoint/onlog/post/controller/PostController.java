@@ -44,7 +44,7 @@ public class PostController {
     ) {
         try {
             UUID myBlogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(postService.getRecentPosts(myBlogId, topicName, hashtag, blogId, categoryId, isPublic, pageable));
+            return BaseResponse.onSuccess(postService.getRecentPosts(myBlogId, topicName, hashtag, blogId, categoryId, isPublic, pageable));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -61,7 +61,7 @@ public class PostController {
                                                          @PathVariable UUID postId) {
         try {
             UUID myBlogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(postService.getPost(myBlogId, postId));
+            return BaseResponse.onSuccess(postService.getPost(myBlogId, postId));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -78,7 +78,7 @@ public class PostController {
     public BaseResponse<Page<PostSummaryDto>> getPrivatePosts(@RequestHeader("Authorization") String token, Pageable pageable) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(postService.getPrivatePosts(blogId, pageable));
+            return BaseResponse.onSuccess(postService.getPrivatePosts(blogId, pageable));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -95,7 +95,7 @@ public class PostController {
                                                   @RequestBody PostWritePostReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(postService.writePost(blogId, dto));
+            return BaseResponse.onCreate(postService.writePost(blogId, dto));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -112,7 +112,7 @@ public class PostController {
                                                    @RequestBody PutModifyPostReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(postService.modifyPost(blogId, dto));
+            return BaseResponse.onCreate(postService.modifyPost(blogId, dto));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -129,7 +129,7 @@ public class PostController {
                                                    @RequestBody DeletePostReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(postService.deletePost(blogId, dto));
+            return BaseResponse.onSuccess(postService.deletePost(blogId, dto));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -147,7 +147,7 @@ public class PostController {
         try {
             List<Topic> topics = topicRepository.findAll();
 
-            return new BaseResponse<>(topics.stream()
+            return BaseResponse.onSuccess(topics.stream()
                     .map(topic -> TopicDto.builder()
                             .id(topic.getId())
                             .name(topic.getName())

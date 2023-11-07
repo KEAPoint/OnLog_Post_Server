@@ -30,7 +30,7 @@ public class CommentController {
                                                   @RequestBody PostCreateCommentReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(commentService.createComment(blogId, dto));
+            return BaseResponse.onCreate(commentService.createComment(blogId, dto));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -47,7 +47,7 @@ public class CommentController {
                                                   @RequestBody PutUpdateCommentReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(commentService.updateComment(blogId, dto));
+            return BaseResponse.onCreate(commentService.updateComment(blogId, dto));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -64,7 +64,7 @@ public class CommentController {
                                                   @RequestBody DeleteCommentReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(commentService.deleteComment(blogId, dto));
+            return BaseResponse.onSuccess(commentService.deleteComment(blogId, dto));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

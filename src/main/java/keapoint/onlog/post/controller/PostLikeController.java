@@ -32,7 +32,7 @@ public class PostLikeController {
                                               @RequestBody PostPostLikeReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(postLikeService.toggleLike(blogId, dto.getPostId(), true)); // 좋아요 추가 처리 서비스 호출
+            return BaseResponse.onCreate(postLikeService.toggleLike(blogId, dto.getPostId(), true)); // 좋아요 추가 처리 서비스 호출
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -49,7 +49,7 @@ public class PostLikeController {
                                                 @RequestBody DeletePostLikeReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(postLikeService.toggleLike(blogId, dto.getPostId(), false)); // 좋아요 제거 처리 서비스 호출
+            return BaseResponse.onSuccess(postLikeService.toggleLike(blogId, dto.getPostId(), false)); // 좋아요 제거 처리 서비스 호출
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
