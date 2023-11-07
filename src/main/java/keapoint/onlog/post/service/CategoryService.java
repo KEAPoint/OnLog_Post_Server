@@ -15,6 +15,7 @@ import keapoint.onlog.post.dto.category.PutCategoryUpdateReqDto;
 import keapoint.onlog.post.dto.category.DeleteCategoryReqDto;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,6 +76,7 @@ public class CategoryService {
             Category newCategory = Category.builder()
                     .name(dto.getName())
                     .order(blog.getCategories().size() + 1) // 생성된 카테고리 순서는 가장 마지막
+                    .posts(new ArrayList<>())
                     .build();
 
             // 카테고리 생성
