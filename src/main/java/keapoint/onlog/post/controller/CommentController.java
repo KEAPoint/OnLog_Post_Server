@@ -64,7 +64,8 @@ public class CommentController {
                                                   @RequestBody DeleteCommentReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return BaseResponse.onSuccess(commentService.deleteComment(blogId, dto));
+            commentService.deleteComment(blogId, dto); // 댓글 삭제
+            return BaseResponse.onSuccess(null);
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Data
@@ -24,8 +25,12 @@ public class PostCreateBlogReqDto {
                 .blogId(blogId)
                 .blogName(blogName)
                 .blogNickname(blogNickname)
-                .blogIntro(blogIntro)
                 .blogProfileImg(blogProfileImg)
+                .blogIntro(blogIntro)
+                .blogThemeImg(blogProfileImg)
+                .postList(new ArrayList<>())
+                .categories(new ArrayList<>())
+                .comments(new ArrayList<>())
                 .build();
     }
 }
