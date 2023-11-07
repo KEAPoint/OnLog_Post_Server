@@ -96,9 +96,8 @@ public class BlogService {
      * 블로그 탈퇴
      *
      * @param blogId 탈퇴를 원하는 블로그 식별자
-     * @return 탈퇴된 블로그 정보
      */
-    public BlogDto deleteBlog(UUID blogId) throws BaseException {
+    public void deleteBlog(UUID blogId) throws BaseException {
         try {
             // 블로그 조회, 탈퇴 할 블로그 정보가 없다면 예외를 터트린다.
             Blog blog = blogRepository.findById(blogId)
@@ -107,10 +106,7 @@ public class BlogService {
 
             // 블로그 탈퇴를 진행한다.
             blogRepository.delete(blog);
-            log.info("탈퇴된 블로그 정보: " + blog);
-
-            // 탈퇴 된 블로그 정보를 반환한다.
-            return new BlogDto(blog);
+            log.info("블로그가 탈퇴되었습니다.");
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());

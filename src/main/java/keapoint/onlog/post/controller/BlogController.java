@@ -63,7 +63,8 @@ public class BlogController {
     public BaseResponse<BlogDto> deleteBlog(@RequestHeader("Authorization") String token) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
-            return BaseResponse.onSuccess(blogService.deleteBlog(blogId));
+            blogService.deleteBlog(blogId);
+            return BaseResponse.onSuccess(null);
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);

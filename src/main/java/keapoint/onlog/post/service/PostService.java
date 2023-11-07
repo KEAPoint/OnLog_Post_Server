@@ -277,9 +277,8 @@ public class PostService {
      *
      * @param blogId 게시글 삭제를 원하는 블로그 식별자
      * @param dto    삭제하고자 하는 게시글 정보
-     * @return 삭제된 게시글 정보
      */
-    public PostSummaryDto deletePost(UUID blogId, DeletePostReqDto dto) throws BaseException {
+    public void deletePost(UUID blogId, DeletePostReqDto dto) throws BaseException {
         try {
             Post post = postRepository.findById(dto.getPostId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
@@ -292,9 +291,8 @@ public class PostService {
             // 게시글을 삭제한다.
             post.deletePost();
             postRepository.delete(post);
-            log.info("삭제된 게시글 정보: " + post);
 
-            return new PostSummaryDto(post); // 결과 return
+            log.info("게시글이 삭제되었습니다.");
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());

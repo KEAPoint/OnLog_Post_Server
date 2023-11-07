@@ -129,7 +129,8 @@ public class PostController {
                                                    @RequestBody DeletePostReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
-            return BaseResponse.onSuccess(postService.deletePost(blogId, dto));
+            postService.deletePost(blogId, dto);
+            return BaseResponse.onSuccess(null);
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
