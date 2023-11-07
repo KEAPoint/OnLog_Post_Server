@@ -38,6 +38,7 @@ public class CategoryService {
             // 사용자 조회
             Blog blog = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("카테고리 조회할 블로그 정보: " + blog.toString());
 
             return blog.getCategories().stream()
                     .map(CategoryDto::new)
@@ -65,6 +66,7 @@ public class CategoryService {
             // 사용자 조회
             Blog blog = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("카테고리 생성할 블로그 정보: " + blog.toString());
 
             // 사용자가 해당 이름으로 카테고리를 만든 적 있는지 조회
             if (blog.getCategories().stream().anyMatch(category -> category.getName().equals(dto.getName()))) // 이미 사용자가 해당 이름으로 카테고리를 가지고 있는 경우
@@ -79,7 +81,7 @@ public class CategoryService {
             Category category = categoryRepository.save(newCategory);
             blog.getCategories().add(category);
 
-            log.info("생성된 카테고리: " + category);
+            log.info("생성된 카테고리 정보: " + category);
 
             return new CategoryDto(category);
 
@@ -105,10 +107,12 @@ public class CategoryService {
             // 사용자 조회
             Blog blog = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("카테고리 수정할 블로그 정보: " + blog.toString());
 
             // 카테고리 조회
             Category category = categoryRepository.findById(dto.getId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
+            log.info("수정할 카테고리 정보: " + category.toString());
 
             // 사용자가 해당 카테고리를 가지고 있는지 조회
             // 사용자가 만든 카테고리가 아니라면, UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION
@@ -117,7 +121,7 @@ public class CategoryService {
 
             // 카테고리 이름 수정
             category.updateCategory(dto.getName());
-            log.info("수정된 카테고리: " + category);
+            log.info("수정된 카테고리 정보: " + category);
 
             // 수정된 카테고리 반환
             return new CategoryDto(category);
@@ -144,10 +148,12 @@ public class CategoryService {
             // 사용자 조회
             Blog blog = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("카테고리 삭제할 블로그 정보: " + blog.toString());
 
             // 카테고리 조회
             Category category = categoryRepository.findById(dto.getId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
+            log.info("삭제할 카테고리 정보: " + category.toString());
 
             // 사용자가 해당 카테고리를 가지고 있는지 조회
             // 사용자가 만든 카테고리가 아니라면, UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION

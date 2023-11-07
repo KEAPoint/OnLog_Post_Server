@@ -73,9 +73,11 @@ public class BlogService {
             // 블로그 조회, 수정 할 블로그 정보가 없다면 예외를 터트린다.
             Blog blog = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("수정할 블로그 정보: " + blog.toString());
 
             // 블로그 정보 업데이트
             blog.updateUserProfile(data);
+            log.info("수정된 블로그 정보: " + blog);
 
             // 수정된 블로그 정보를 반환한다.
             return new BlogDto(blog);
@@ -98,15 +100,14 @@ public class BlogService {
      */
     public BlogDto deleteBlog(UUID blogId) throws BaseException {
         try {
-            // 로깅
-            log.info("블로그 탈퇴 요청 정보: " + blogId);
-
             // 블로그 조회, 탈퇴 할 블로그 정보가 없다면 예외를 터트린다.
             Blog blog = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("탈퇴할 블로그 정보: " + blog.toString());
 
             // 블로그 탈퇴를 진행한다.
             blogRepository.delete(blog);
+            log.info("탈퇴된 블로그 정보: " + blog);
 
             // 탈퇴 된 블로그 정보를 반환한다.
             return new BlogDto(blog);
@@ -134,9 +135,11 @@ public class BlogService {
             // 블로그 조회
             Blog blog = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("프로필 조회할 블로그 정보: " + blog.toString());
 
             // 구독자 수 조회
             int subscriberCount = followRepository.countByMeAndFollowingIsTrue(blog);
+            log.info("구독자 수: " + subscriberCount);
 
             return new BlogProfileDto(blog, subscriberCount);
 

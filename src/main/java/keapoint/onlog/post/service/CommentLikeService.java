@@ -39,10 +39,12 @@ public class CommentLikeService {
             // 사용자 정보 조회
             Blog blog = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("댓글 좋아요 수정하는 사용자 정보: " + blog.toString());
 
             // 댓글 정보 조회
             Comment comment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
+            log.info("댓글 정보: " + comment.toString());
 
             // 댓글 좋아요 정보 조회
             UserCommentLike userCommentLike = userCommentLikeRepository.findByBlogAndComment(blog, comment)
@@ -55,18 +57,27 @@ public class CommentLikeService {
 
                         return userCommentLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
                     });
+            log.info("사용자 댓글 좋아요 정보: " + userCommentLike);
 
             // 댓글 좋아요 정보 업데이트
             userCommentLike.updateLike(targetValue);
+            log.info("업데이트 된 사용자 댓글 좋아요 정보: " + userCommentLike);
 
-            if (targetValue) { // 댓글 좋아요라면
+            if (Boolean.TRUE.equals(targetValue)) { // 댓글 좋아요라면
                 comment.commentLike(); // 댓글 좋아요 개수 늘려주고
             } else { // 댓글 좋아요 취소라면
                 comment.commentUnlike(); // 댓글 좋아요 개수 줄여준다.
             }
 
+            // 업데이트 된 댓글 정보 로깅
+            log.info("업데이트 된 댓글 정보: " + comment);
+
             // 결과 리턴
             return new CommentLikeDto(userCommentLike);
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
 
         } catch (Exception e) {
             log.error(e.getMessage());

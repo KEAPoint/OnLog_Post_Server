@@ -36,6 +36,7 @@ public class BlogFollowService {
             // 내 블로그 조회
             Blog me = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("팔로우 정보 조회하는 블로그: " + me.toString());
 
             // 결과 return
             return followRepository.findByMe(me).orElse(new ArrayList<>()).stream()
@@ -65,10 +66,12 @@ public class BlogFollowService {
             // 내 블로그 조회
             Blog me = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("내 블로그: " + me.toString());
 
             // 팔로우 할 블로그 조회
             Blog target = blogRepository.findById(targetBlogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("팔로우할 블로그: " + target.toString());
 
             // 팔로우 정보 조회
             Follow follow = followRepository.findByMeAndTarget(me, target)
@@ -81,9 +84,11 @@ public class BlogFollowService {
 
                         return followRepository.save(newFollow); // 새로운 팔로우 정보 생성 및 저장
                     });
+            log.info("팔로우 정보: " + follow);
 
             // 팔로우 정보 업데이트
             follow.updateFollow(targetValue);
+            log.info("수정된 팔로우 정보: " + follow);
 
             // 결과 return
             return new BlogFollowDto(follow);

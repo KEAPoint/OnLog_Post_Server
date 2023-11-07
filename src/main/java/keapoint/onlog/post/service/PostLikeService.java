@@ -41,12 +41,14 @@ public class PostLikeService {
             // 사용자 정보 조회
             Blog blog = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("게시글 좋아요 수정하는 사용자 정보: " + blog.toString());
 
             // 게시글 정보 조회
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
+            log.info("게시글 정보: " + post.toString());
 
-            UserPostLike userPost = likeRepository.findByBlogAndPost(blog, post)
+            UserPostLike userPostLike = likeRepository.findByBlogAndPost(blog, post)
                     .orElseGet(() -> {
                         UserPostLike newLike = UserPostLike.builder()
                                 .blog(blog)
@@ -56,16 +58,26 @@ public class PostLikeService {
 
                         return likeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
                     });
+            log.info("사용자 게시글 좋아요 정보: " + userPostLike);
 
-            userPost.updateLike(targetValue);
+            // 게시글 좋아요 정보 업데이트
+            userPostLike.updateLike(targetValue);
+            log.info("업데이트 된 사용자 게시글 좋아요 정보: " + userPostLike);
 
-            if (targetValue) { // 게시글 좋아요라면
+            if (Boolean.TRUE.equals(targetValue)) { // 게시글 좋아요라면
                 post.postLike(); // 게시글 좋아요 개수 늘려주고
             } else { // 게시글 좋아요 취소라면
                 post.postUnlike(); // 게시글 좋아요 개수 줄여준다.
             }
 
-            return new PostLikeDto(userPost);
+            // 업데이트 된 게시글 정보 로깅
+            log.info("업데이트 된 게시글 정보: " + post);
+
+            return new PostLikeDto(userPostLike);
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
 
         } catch (Exception e) {
             log.error(e.getMessage());
