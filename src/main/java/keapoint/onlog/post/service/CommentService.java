@@ -77,6 +77,7 @@ public class CommentService {
                     .answerNum(answerNum)
                     .post(post)
                     .writer(writer)
+                    .likesCount(0L)
                     .build();
 
             // 댓글 저장
