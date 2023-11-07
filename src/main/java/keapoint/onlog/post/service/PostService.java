@@ -159,7 +159,7 @@ public class PostService {
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
 
             // 해당 카테고리 주인인지 확인한다.
-            if (writer.getCategories().contains(category))
+            if (!writer.getCategories().contains(category))
                 throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
 
             // 주제를 조회한다.
@@ -227,7 +227,7 @@ public class PostService {
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
 
             // 해당 카테고리 주인인지 확인한다.
-            if (writer.getCategories().contains(category))
+            if (!writer.getCategories().contains(category))
                 throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
 
             // 주제를 조회한다.
