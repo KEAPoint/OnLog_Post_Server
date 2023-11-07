@@ -37,9 +37,11 @@ public class CommentService {
         try {
             Blog writer = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("댓글 작성하는 사용자 정보: " + writer.toString());
 
             Post post = postRepository.findById(data.getPostId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
+            log.info("댓글이 작성되는 게시글 정보: " + post.toString());
 
             long ref; // 그룹
             long refOrder; // 그룹 순서
@@ -50,6 +52,7 @@ public class CommentService {
             if (parentNum != null) { // 부모 댓글이 있는 경우 (대댓글)
                 Comment parentComment = commentRepository.findById(data.getParentCommentId())
                         .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
+                log.info("대댓글이 달리는 댓글 정보: " + parentComment.toString());
 
                 ref = parentComment.getRef(); // 부모와 같은 그룹
                 step = parentComment.getStep() + 1L; // 부모의 댓글이므로 댓글의 계층은 부모 계층 + 1
@@ -80,7 +83,13 @@ public class CommentService {
             comment.addComment(post);
             commentRepository.save(comment);
 
+            log.info("작성된 댓글 정보: " + comment);
+
             return new CommentDto(comment);
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -128,16 +137,25 @@ public class CommentService {
      */
     public CommentDto updateComment(UUID blogId, PutUpdateCommentReqDto dto) throws BaseException {
         try {
+            // 수정할 댓글을 가져온다
             Comment comment = commentRepository.findById(dto.getCommentId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
+            log.info("수정할 댓글: " + comment.toString());
 
+            // 댓글 수정 권한을 확인한다.
             if (!comment.getWriter().getBlogId().equals(blogId)) { // 댓글 작성자가 아니라면
                 throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
             }
 
-            comment.updateComment(dto.getContent()); // 댓글 업데이트
+            // 댓글 수정
+            comment.updateComment(dto.getContent());
+            log.info("수정된 댓글: " + comment);
 
             return new CommentDto(comment); // 댓글 dto 반환
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -155,9 +173,12 @@ public class CommentService {
      */
     public CommentDto deleteComment(UUID blogId, DeleteCommentReqDto dto) throws BaseException {
         try {
+            // 삭제할 댓글을 조회한다.
             Comment comment = commentRepository.findById(dto.getCommentId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
+            log.info("삭제할 댓글 정보: " + comment.toString());
 
+            // 댓글 삭제 권한을 확인한다.
             if (!comment.getWriter().getBlogId().equals(blogId)) { // 댓글 작성자가 아니라면
                 throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
             }
@@ -165,8 +186,13 @@ public class CommentService {
             // 댓글 삭제
             comment.removeComment();
             commentRepository.delete(comment);
+            log.info("삭제된 댓글 정보: " + comment);
 
             return new CommentDto(comment); // 결과 return
+
+        } catch (BaseException e) {
+            log.error(e.getErrorCode().getMessage());
+            throw e;
 
         } catch (Exception e) {
             log.error(e.getMessage());

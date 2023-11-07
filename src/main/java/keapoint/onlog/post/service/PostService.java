@@ -80,6 +80,7 @@ public class PostService {
             // 게시글을 조회한다.
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
+            log.info("게시글 정보: " + post.toString());
 
             post.hit();
 
@@ -93,6 +94,8 @@ public class PostService {
 
                 return userPostLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
             });
+            log.info("내 블로그 정보: " + me.toString());
+            log.info("게시글 좋아요 정보: " + userPostLike);
 
             return new PostWithRelatedPostsDto(post, userPostLike.isLiked());
 
@@ -153,10 +156,12 @@ public class PostService {
             // 게시글을 작성하고자 하는 사용자를 조회한다.
             Blog writer = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("게시글 작성할 블로그 정보: " + writer.toString());
 
             // 카테고리를 조회한다.
             Category category = categoryRepository.findById(dto.getCategoryId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
+            log.info("게시글 카테고리 정보: " + category.toString());
 
             // 해당 카테고리 주인인지 확인한다.
             if (!writer.getCategories().contains(category))
@@ -165,6 +170,7 @@ public class PostService {
             // 주제를 조회한다.
             Topic topic = topicRepository.findById(dto.getTopicId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
+            log.info("게시글 주제 정보: " + topic.toString());
 
             // 해시태그를 조회한다. 만약 해시태그가 없는 경우엔 만든다
             List<Hashtag> hashtagList = dto.getHashtagList()
@@ -176,16 +182,14 @@ public class PostService {
                             })
                     )
                     .toList();
+            log.info("게시글 해시태그 정보: " + hashtagList);
 
-            // 게시글을 만든다
-            Post post = new Post(dto, writer, category, topic, hashtagList);
-
-            // DB에 저장한다.
-            Post savedPost = postRepository.save(post);
-            log.info("생성된 게시글: " + savedPost.getPostId());
+            // 게시글을 생성한다.
+            Post post = postRepository.save(new Post(dto, writer, category, topic, hashtagList));
+            log.info("생성된 게시글 정보: " + post);
 
             // 생성된 게시글 정보를 반환한다.
-            return new PostSummaryDto(savedPost);
+            return new PostSummaryDto(post);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
@@ -209,10 +213,12 @@ public class PostService {
             // 게시글을 수정하고자 하는 사용자를 조회한다.
             Blog writer = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("게시글 수정할 블로그 정보: " + writer.toString());
 
             // 수정하고자 하는 게시글을 조회한다.
             Post post = postRepository.findById(dto.getPostId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
+            log.info("수정할 게시글 정보: " + post.toString());
 
             // 게시글이 삭제되었는지 확인한다. 삭제된 경우 post not found exception을 던진다
             if (post.getStatus().equals(false))
@@ -225,6 +231,7 @@ public class PostService {
             // 카테고리를 조회한다.
             Category category = categoryRepository.findById(dto.getCategoryId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.CATEGORY_NOT_FOUND_EXCEPTION));
+            log.info("게시글 카테고리 정보: " + category.toString());
 
             // 해당 카테고리 주인인지 확인한다.
             if (!writer.getCategories().contains(category))
@@ -233,6 +240,7 @@ public class PostService {
             // 주제를 조회한다.
             Topic topic = topicRepository.findById(dto.getTopicId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.TOPIC_NOT_FOUND_EXCEPTION));
+            log.info("게시글 주제 정보: " + topic.toString());
 
             // 해시태그를 조회한다. 만약 해시태그가 없는 경우엔 만든다
             List<Hashtag> hashtagList = dto.getHashtagList()
@@ -244,9 +252,11 @@ public class PostService {
                             })
                     )
                     .toList();
+            log.info("게시글 해시태그 정보: " + hashtagList);
 
             // 게시글을 수정한다
             post.modifyPost(dto, category, topic, hashtagList);
+            log.info("수정된 게시글 정보: " + post);
 
             // 수정된 게시글 정보를 반환한다.
             return new PostSummaryDto(post);
@@ -273,6 +283,7 @@ public class PostService {
         try {
             Post post = postRepository.findById(dto.getPostId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
+            log.info("삭제할 게시글 정보: " + post.toString());
 
             if (!post.getWriter().getBlogId().equals(blogId)) { // 게시글 작성자가 아니라면
                 throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
@@ -280,9 +291,8 @@ public class PostService {
 
             // 게시글을 삭제한다.
             post.deletePost();
-
-            // DB에서 게시글 삭제한다.
             postRepository.delete(post);
+            log.info("삭제된 게시글 정보: " + post);
 
             return new PostSummaryDto(post); // 결과 return
 
