@@ -30,7 +30,7 @@ public class BlogController {
     @PostMapping("")
     public BaseResponse<BlogDto> createBlog(@RequestBody PostCreateBlogReqDto data) {
         try {
-            return new BaseResponse<>(blogService.createBlog(data));
+            return BaseResponse.onCreate(blogService.createBlog(data));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -47,7 +47,7 @@ public class BlogController {
                                             @RequestBody PutUpdateBlogReqDto data) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(blogService.updateBlog(blogId, data));
+            return BaseResponse.onCreate(blogService.updateBlog(blogId, data));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -63,7 +63,7 @@ public class BlogController {
     public BaseResponse<BlogDto> deleteBlog(@RequestHeader("Authorization") String token) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
-            return new BaseResponse<>(blogService.deleteBlog(blogId));
+            return BaseResponse.onSuccess(blogService.deleteBlog(blogId));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
@@ -78,7 +78,7 @@ public class BlogController {
     @GetMapping("")
     public BaseResponse<BlogProfileDto> getMyProfile(@RequestParam("blog_id") UUID blogId) {
         try {
-            return new BaseResponse<>(blogService.getProfile(blogId));
+            return BaseResponse.onSuccess(blogService.getProfile(blogId));
 
         } catch (BaseException e) {
             return new BaseResponse<>(e);
