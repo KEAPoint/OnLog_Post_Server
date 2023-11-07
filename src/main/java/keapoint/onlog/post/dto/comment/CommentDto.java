@@ -1,5 +1,6 @@
 package keapoint.onlog.post.dto.comment;
 
+import keapoint.onlog.post.dto.blog.BlogDto;
 import keapoint.onlog.post.entity.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +23,7 @@ public class CommentDto {
     private long answerNum; // 해당댓글의 자식댓글의 수
     private LocalDateTime createdAt; // 댓글 작성 시간
     private UUID postId; // 댓글이 달린 게시글 식별자
-    private UUID writerId; // 댓글 작성자의 블로그 식별자
+    private BlogDto writerId; // 댓글 작성자의 블로그 식별자
     private Long likesCount; // 댓글 좋아요 갯수
 
     public CommentDto(Comment comment) {
@@ -36,7 +37,7 @@ public class CommentDto {
         this.answerNum = comment.getAnswerNum();
         this.createdAt = comment.getCreatedAt();
         this.postId = comment.getPost().getPostId();
-        this.writerId = comment.getWriter().getBlogId();
+        this.writerId = new BlogDto(comment.getWriter());
         this.likesCount = comment.getLikesCount();
     }
 }
