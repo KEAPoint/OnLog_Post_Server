@@ -75,7 +75,10 @@ public class CategoryService {
                     .order(blog.getCategories().size() + 1) // 생성된 카테고리 순서는 가장 마지막
                     .build();
 
+            // 카테고리 생성
             Category category = categoryRepository.save(newCategory);
+            blog.getCategories().add(category);
+
             log.info("생성된 카테고리: " + category);
 
             return new CategoryDto(category);
@@ -109,7 +112,7 @@ public class CategoryService {
 
             // 사용자가 해당 카테고리를 가지고 있는지 조회
             // 사용자가 만든 카테고리가 아니라면, UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION
-            if (blog.getCategories().contains(category))
+            if (!blog.getCategories().contains(category))
                 throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
 
             // 카테고리 이름 수정
@@ -148,7 +151,7 @@ public class CategoryService {
 
             // 사용자가 해당 카테고리를 가지고 있는지 조회
             // 사용자가 만든 카테고리가 아니라면, UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION
-            if (blog.getCategories().contains(category))
+            if (!blog.getCategories().contains(category))
                 throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
 
             // 카테고리 삭제
