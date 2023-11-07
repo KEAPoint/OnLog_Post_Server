@@ -4,12 +4,16 @@ import keapoint.onlog.post.dto.blog.BlogDto;
 import keapoint.onlog.post.dto.category.CategoryDto;
 import keapoint.onlog.post.dto.topic.TopicDto;
 import keapoint.onlog.post.entity.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostSummaryDto {
     private UUID postId; // 게시글 식별자
     private String title; // 게시글 제목

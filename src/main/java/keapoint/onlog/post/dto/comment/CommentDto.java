@@ -1,12 +1,16 @@
 package keapoint.onlog.post.dto.comment;
 
 import keapoint.onlog.post.entity.Comment;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CommentDto {
     private UUID commentId; // 댓글 식별자
     private String content; // 댓글 내용
