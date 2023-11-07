@@ -6,6 +6,8 @@ import lombok.*;
 import java.util.UUID;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostLikeDto {
     private UUID blogId; // 블로그 식별자
     private UUID postId; // 게시글 식별자

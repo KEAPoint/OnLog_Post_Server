@@ -6,13 +6,17 @@ import keapoint.onlog.post.dto.comment.CommentDto;
 import keapoint.onlog.post.dto.hashtag.HashtagDto;
 import keapoint.onlog.post.dto.topic.TopicDto;
 import keapoint.onlog.post.entity.Post;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostDto {
     private UUID postId; // 게시글 식별자
     private Long postHits; // 게시글 방문 횟수

@@ -1,11 +1,15 @@
 package keapoint.onlog.post.dto.post;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PutModifyPostReqDto {
     private UUID postId; // 게시글 식별자
     private String title; // 게시글 제목

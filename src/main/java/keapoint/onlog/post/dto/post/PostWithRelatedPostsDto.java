@@ -2,9 +2,13 @@ package keapoint.onlog.post.dto.post;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import keapoint.onlog.post.entity.Post;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostWithRelatedPostsDto {
 
     @JsonUnwrapped
