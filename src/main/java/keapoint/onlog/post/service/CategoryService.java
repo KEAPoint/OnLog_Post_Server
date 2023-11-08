@@ -6,6 +6,7 @@ import keapoint.onlog.post.dto.category.CategoryDto;
 import keapoint.onlog.post.dto.category.PostCreateCategoryReqDto;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Category;
+import keapoint.onlog.post.entity.Post;
 import keapoint.onlog.post.repository.BlogRepository;
 import keapoint.onlog.post.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -160,6 +161,12 @@ public class CategoryService {
             // 사용자가 만든 카테고리가 아니라면, UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION
             if (!blog.getCategories().contains(category))
                 throw new BaseException(BaseErrorCode.UNAUTHORIZED_CATEGORY_ACCESS_EXCEPTION);
+
+            // 해당 카테고리에 속한 게시글의 카테고리를 null로 설정
+            List<Post> posts = new ArrayList<>(category.getPosts());
+            for (Post post : posts) {
+                post.removeCategory();
+            }
 
             // 카테고리 삭제
             categoryRepository.delete(category);
