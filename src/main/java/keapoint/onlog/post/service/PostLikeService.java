@@ -46,7 +46,12 @@ public class PostLikeService {
             // 게시글 정보 조회
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
-            log.info("게시글 정보: " + post.toString());
+            log.info("좋아요 정보 수정 요청 온 게시글 정보: " + post.toString());
+
+            // 게시글이 삭제되었는지 확인한다.
+            if (post.getStatus().equals(false))
+                throw new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION);
+            log.info("좋아요 정보 수정하고자 하는 게시글 정보: " + post);
 
             UserPostLike userPostLike = likeRepository.findByBlogAndPost(blog, post)
                     .orElseGet(() -> {

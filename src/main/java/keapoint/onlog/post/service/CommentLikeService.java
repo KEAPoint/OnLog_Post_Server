@@ -44,7 +44,12 @@ public class CommentLikeService {
             // 댓글 정보 조회
             Comment comment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
-            log.info("댓글 정보: " + comment.toString());
+            log.info("좋아요 정보 수정 요청 온 댓글 정보: " + comment.toString());
+
+            // 댓글이 삭제되었는지 확인한다.
+            if (comment.getStatus().equals(false))
+                throw new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION);
+            log.info("좋아요 정보 수정하고자 하는 댓글 정보: " + comment);
 
             // 댓글 좋아요 정보 조회
             UserCommentLike userCommentLike = userCommentLikeRepository.findByBlogAndComment(blog, comment)
@@ -85,3 +90,4 @@ public class CommentLikeService {
         }
     }
 }
+
