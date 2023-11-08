@@ -288,6 +288,9 @@ public class PostService {
                 throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
             }
 
+            // 게시글 좋아요 정보를 삭제한다.
+            userPostLikeRepository.deleteByPost(post);
+
             // 게시글을 삭제한다.
             post.deletePost();
             postRepository.delete(post);
