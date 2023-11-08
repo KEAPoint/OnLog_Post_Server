@@ -99,7 +99,7 @@ class CommentServiceIntegrationTest {
                 .content("이것은 테스트 댓글입니다.")
                 .parentCommentId(null)
                 .build();
-        CommentDto commentDto = commentService.createComment(blogId, postCreateCommentReqDto); // 댓글 생성
+        CommentSummaryDto commentDto = commentService.createComment(blogId, postCreateCommentReqDto); // 댓글 생성
         UUID commentId = commentDto.getCommentId();
 
         // when: 댓글을 삭제하면

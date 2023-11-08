@@ -60,7 +60,7 @@ public class BlogController {
 
     @Operation(summary = "블로그 탈퇴", description = "사용자의 블로그를 탈퇴합니다.")
     @DeleteMapping("")
-    public BaseResponse<BlogDto> deleteBlog(@RequestHeader("Authorization") String token) {
+    public BaseResponse<Void> deleteBlog(@RequestHeader("Authorization") String token) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 블로그 ID 추출 후 UUID로 변환
             blogService.deleteBlog(blogId);

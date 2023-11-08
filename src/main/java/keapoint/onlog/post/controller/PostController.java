@@ -125,7 +125,7 @@ public class PostController {
 
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
     @DeleteMapping("")
-    public BaseResponse<PostSummaryDto> deletePost(@RequestHeader("Authorization") String token,
+    public BaseResponse<Void> deletePost(@RequestHeader("Authorization") String token,
                                                    @RequestBody DeletePostReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
