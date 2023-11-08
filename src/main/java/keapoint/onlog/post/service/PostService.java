@@ -83,7 +83,16 @@ public class PostService {
             // 게시글을 조회한다.
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
-            log.info("게시글 정보: " + post.toString());
+            log.info("조회 요청 온 게시글 정보: " + post.toString());
+
+            // 게시글이 삭제되었는지 확인한다.
+            if (post.getStatus().equals(false))
+                throw new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION);
+            log.info("조회할 게시글 정보: " + post);
+
+            // 게시글의 권한을 확인한다.
+            if (post.getIsPublic().equals(false) && !post.getWriter().equals(me))
+                throw new BaseException(BaseErrorCode.ACCESS_DENIED_EXCEPTION);
 
             post.hit();
 
@@ -102,18 +111,20 @@ public class PostService {
 
             // 게시글의 댓글들에 대해 각각 좋아요 정보를 조회하고 CommentDto를 생성한다.
             List<CommentDto> commentDtoList = new ArrayList<>();
-            post.getComments().forEach(comment -> {
-                UserCommentLike userCommentLike = userCommentLikeRepository.findByBlogAndComment(me, comment).orElseGet(() -> {
-                    UserCommentLike newLike = UserCommentLike.builder()
-                            .blog(me)
-                            .comment(comment)
-                            .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
-                            .build();
+            post.getComments().stream()
+                    .filter(Comment::getStatus) // 유효한 (삭제되지 않은) 댓글만 필터링
+                    .forEach(comment -> {
+                        UserCommentLike userCommentLike = userCommentLikeRepository.findByBlogAndComment(me, comment).orElseGet(() -> {
+                            UserCommentLike newLike = UserCommentLike.builder()
+                                    .blog(me)
+                                    .comment(comment)
+                                    .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
+                                    .build();
 
-                    return userCommentLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
-                });
-                commentDtoList.add(new CommentDto(comment, userCommentLike.isLiked()));
-            });
+                            return userCommentLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
+                        });
+                        commentDtoList.add(new CommentDto(comment, userCommentLike.isLiked()));
+                    });
             log.info("사용자 댓글 좋아요 정보: " + commentDtoList);
 
             return new PostWithRelatedPostsDto(post, userPostLike.isLiked(), commentDtoList);
@@ -237,14 +248,15 @@ public class PostService {
             // 수정하고자 하는 게시글을 조회한다.
             Post post = postRepository.findById(dto.getPostId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
-            log.info("수정할 게시글 정보: " + post.toString());
+            log.info("수정 요청 온 게시글 정보: " + post.toString());
 
-            // 게시글이 삭제되었는지 확인한다. 삭제된 경우 post not found exception을 던진다
+            // 게시글이 삭제되었는지 확인한다.
             if (post.getStatus().equals(false))
                 throw new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION);
+            log.info("수정할 게시글 정보: " + post);
 
             // 게시글 작성자인지 확인한다.
-            if (!post.getWriter().getBlogId().equals(blogId))
+            if (!post.getWriter().equals(writer))
                 throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION);
 
             // 카테고리를 조회한다.
@@ -299,20 +311,31 @@ public class PostService {
      */
     public void deletePost(UUID blogId, DeletePostReqDto dto) throws BaseException {
         try {
+            // 게시글을 삭제하고자 하는 사용자를 조회한다.
+            Blog writer = blogRepository.findById(blogId)
+                    .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
+            log.info("삭제할 게시글 정보: " + writer.toString());
+
+            // 삭제하고자 하는 게시글을 조회한다.
             Post post = postRepository.findById(dto.getPostId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
-            log.info("삭제할 게시글 정보: " + post.toString());
+            log.info("삭제 요청 온 게시글 정보: " + post.toString());
 
-            if (!post.getWriter().getBlogId().equals(blogId)) { // 게시글 작성자가 아니라면
-                throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
-            }
+            // 게시글이 삭제되었는지 확인한다.
+            if (post.getStatus().equals(false))
+                throw new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION);
+            log.info("삭제할 게시글 정보: " + post);
+
+            // 게시글 작성자인지 확인한다.
+            if (!post.getWriter().equals(writer))
+                throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION);
 
             // 게시글 좋아요 정보를 삭제한다.
             userPostLikeRepository.deleteByPost(post);
 
             // 게시글을 삭제한다.
-            post.deletePost();
-            postRepository.delete(post);
+            post.setStatus(false);
+            post.resetPostLike();
 
             log.info("게시글이 삭제되었습니다.");
 

@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import keapoint.onlog.post.dto.comment.CommentDto;
 import keapoint.onlog.post.entity.Post;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostWithRelatedPostsDto {

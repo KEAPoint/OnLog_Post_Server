@@ -36,14 +36,14 @@ public class Blog extends BaseEntity {
     @Column(name = "blog_theme_img", columnDefinition = "TEXT")
     private String blogThemeImg; // 사용자 블로그 테마 이미지
 
-    @OneToMany(mappedBy = "writer")
+    @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL)
     private List<Post> postList = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "blog_id")
     private List<Category> categories = new ArrayList<>(); // 블로그가 소유한 카테고리 리스트
 
-    @OneToMany(mappedBy = "writer")
+    @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
     public void updateUserProfile(PutUpdateBlogReqDto data) {

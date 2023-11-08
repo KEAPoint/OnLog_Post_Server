@@ -148,7 +148,12 @@ public class CommentService {
             // 수정할 댓글을 가져온다
             Comment comment = commentRepository.findById(dto.getCommentId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
-            log.info("수정할 댓글: " + comment.toString());
+            log.info("수정 요청 온 댓글: " + comment.toString());
+
+            // 댓글이 삭제되었는지 확인한다.
+            if (comment.getStatus().equals(false))
+                throw new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION);
+            log.info("수정할 댓글 정보: " + comment);
 
             // 댓글 수정 권한을 확인한다.
             if (!comment.getWriter().equals(blog)) { // 댓글 작성자가 아니라면
@@ -188,7 +193,12 @@ public class CommentService {
             // 삭제할 댓글을 조회한다.
             Comment comment = commentRepository.findById(dto.getCommentId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
-            log.info("삭제할 댓글 정보: " + comment.toString());
+            log.info("삭제 요청 온 댓글 정보: " + comment.toString());
+
+            // 댓글이 삭제되었는지 확인한다.
+            if (comment.getStatus().equals(false))
+                throw new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION);
+            log.info("삭제할 댓글 정보: " + comment);
 
             // 댓글 삭제 권한을 확인한다.
             if (!comment.getWriter().equals(blog)) { // 댓글 작성자가 아니라면
@@ -199,8 +209,9 @@ public class CommentService {
             userCommentLikeRepository.deleteByComment(comment);
 
             // 댓글 삭제
-            comment.removeComment();
-            commentRepository.delete(comment);
+            comment.setStatus(false);
+            comment.resetCommentLike();
+
             log.info("댓글이 삭제되었습니다.");
 
         } catch (BaseException e) {
