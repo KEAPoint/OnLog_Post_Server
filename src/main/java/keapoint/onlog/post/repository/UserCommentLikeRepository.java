@@ -11,4 +11,6 @@ import java.util.Optional;
 @Repository
 public interface UserCommentLikeRepository extends JpaRepository<UserCommentLike, Long> {
     Optional<UserCommentLike> findByBlogAndComment(Blog blog, Comment comment);
+
+    void deleteByComment(Comment comment);
 }
