@@ -80,7 +80,7 @@ public class CategoryController {
 
     @Operation(summary = "카테고리 삭제", description = "카테고리를 삭제합니다.")
     @DeleteMapping("")
-    public BaseResponse<CategoryDto> deleteCategory(@RequestHeader("Authorization") String token,
+    public BaseResponse<Void> deleteCategory(@RequestHeader("Authorization") String token,
                                                     @RequestBody DeleteCategoryReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환

@@ -26,7 +26,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 작성", description = "게시글에 댓글을 작성합니다.")
     @PostMapping("")
-    public BaseResponse<CommentDto> createComment(@RequestHeader("Authorization") String token,
+    public BaseResponse<CommentSummaryDto> createComment(@RequestHeader("Authorization") String token,
                                                   @RequestBody PostCreateCommentReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
@@ -43,7 +43,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 수정", description = "사용자가 작성한 댓글의 내용을 수정합니다.")
     @PutMapping("")
-    public BaseResponse<CommentDto> updateComment(@RequestHeader("Authorization") String token,
+    public BaseResponse<CommentSummaryDto> updateComment(@RequestHeader("Authorization") String token,
                                                   @RequestBody PutUpdateCommentReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환
@@ -60,7 +60,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 삭제", description = "사용자가 작성한 댓글을 삭제합니다.")
     @DeleteMapping("")
-    public BaseResponse<CommentDto> deleteComment(@RequestHeader("Authorization") String token,
+    public BaseResponse<Void> deleteComment(@RequestHeader("Authorization") String token,
                                                   @RequestBody DeleteCommentReqDto dto) {
         try {
             UUID blogId = UUID.fromString(jwtTokenProvider.extractIdx(token)); // JWT 토큰에서 사용자 ID 추출 후 UUID로 변환

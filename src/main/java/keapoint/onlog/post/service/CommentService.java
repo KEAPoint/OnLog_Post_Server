@@ -35,7 +35,7 @@ public class CommentService {
      * @param data   작성 할 댓글 정보
      * @return 댓글 정보
      */
-    public CommentDto createComment(UUID blogId, PostCreateCommentReqDto data) throws BaseException {
+    public CommentSummaryDto createComment(UUID blogId, PostCreateCommentReqDto data) throws BaseException {
         try {
             Blog writer = blogRepository.findById(blogId)
                     .orElseThrow(() -> new BaseException(BaseErrorCode.BLOG_NOT_FOUND_EXCEPTION));
@@ -88,7 +88,7 @@ public class CommentService {
 
             log.info("작성된 댓글 정보: " + comment);
 
-            return new CommentDto(comment);
+            return new CommentSummaryDto(comment);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
@@ -138,7 +138,7 @@ public class CommentService {
      * @param dto    수정하고자 하는 댓글 정보
      * @return 수정된 댓글 정보
      */
-    public CommentDto updateComment(UUID blogId, PutUpdateCommentReqDto dto) throws BaseException {
+    public CommentSummaryDto updateComment(UUID blogId, PutUpdateCommentReqDto dto) throws BaseException {
         try {
             // 댓글을 수정하려고 하는 블로그를 조회한다.
             Blog blog = blogRepository.findById(blogId)
@@ -159,7 +159,7 @@ public class CommentService {
             comment.updateComment(dto.getContent());
             log.info("수정된 댓글: " + comment);
 
-            return new CommentDto(comment); // 댓글 dto 반환
+            return new CommentSummaryDto(comment); // 댓글 dto 반환
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());

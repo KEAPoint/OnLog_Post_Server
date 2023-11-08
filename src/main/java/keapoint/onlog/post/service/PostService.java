@@ -2,6 +2,7 @@ package keapoint.onlog.post.service;
 
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
+import keapoint.onlog.post.dto.comment.CommentDto;
 import keapoint.onlog.post.dto.post.*;
 import keapoint.onlog.post.entity.*;
 import keapoint.onlog.post.repository.*;
@@ -13,6 +14,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +29,7 @@ public class PostService {
     private final HashtagRepository hashtagRepository;
     private final CategoryRepository categoryRepository;
     private final UserPostLikeRepository userPostLikeRepository;
+    private final UserCommentLikeRepository userCommentLikeRepository;
 
     /**
      * 최신 게시글 조회
@@ -97,7 +100,23 @@ public class PostService {
             log.info("내 블로그 정보: " + me.toString());
             log.info("게시글 좋아요 정보: " + userPostLike);
 
-            return new PostWithRelatedPostsDto(post, userPostLike.isLiked());
+            // 게시글의 댓글들에 대해 각각 좋아요 정보를 조회하고 CommentDto를 생성한다.
+            List<CommentDto> commentDtoList = new ArrayList<>();
+            post.getComments().forEach(comment -> {
+                UserCommentLike userCommentLike = userCommentLikeRepository.findByBlogAndComment(me, comment).orElseGet(() -> {
+                    UserCommentLike newLike = UserCommentLike.builder()
+                            .blog(me)
+                            .comment(comment)
+                            .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
+                            .build();
+
+                    return userCommentLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
+                });
+                commentDtoList.add(new CommentDto(comment, userCommentLike.isLiked()));
+            });
+            log.info("사용자 댓글 좋아요 정보: " + commentDtoList);
+
+            return new PostWithRelatedPostsDto(post, userPostLike.isLiked(), commentDtoList);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
@@ -287,6 +306,9 @@ public class PostService {
             if (!post.getWriter().getBlogId().equals(blogId)) { // 게시글 작성자가 아니라면
                 throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
             }
+
+            // 게시글 좋아요 정보를 삭제한다.
+            userPostLikeRepository.deleteByPost(post);
 
             // 게시글을 삭제한다.
             post.deletePost();

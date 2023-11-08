@@ -11,5 +11,7 @@ import java.util.Optional;
 @Repository
 public interface UserPostLikeRepository extends JpaRepository<UserPostLike, Long> {
     Optional<UserPostLike> findByBlogAndPost(Blog blog, Post post);
+
+    void deleteByPost(Post post);
 }
 
