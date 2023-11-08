@@ -9,6 +9,7 @@ import keapoint.onlog.post.entity.Post;
 import keapoint.onlog.post.repository.BlogRepository;
 import keapoint.onlog.post.repository.CommentRepository;
 import keapoint.onlog.post.repository.PostRepository;
+import keapoint.onlog.post.repository.UserCommentLikeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class CommentService {
     private final BlogRepository blogRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final UserCommentLikeRepository userCommentLikeRepository;
 
     /**
      * 댓글 작성
@@ -192,6 +194,9 @@ public class CommentService {
             if (!comment.getWriter().equals(blog)) { // 댓글 작성자가 아니라면
                 throw new BaseException(BaseErrorCode.PERMISSION_EXCEPTION); // permission exception
             }
+
+            // 댓글 좋아요 정보 삭제
+            userCommentLikeRepository.deleteByComment(comment);
 
             // 댓글 삭제
             comment.removeComment();
