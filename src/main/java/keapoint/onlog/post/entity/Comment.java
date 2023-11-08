@@ -93,11 +93,10 @@ public class Comment extends BaseEntity {
     }
 
     /**
-     * 댓글 삭제
+     * 댓글 좋아요 갯수 초기화 (소프트 삭제)
      */
-    public void removeComment() {
-        post.getComments().remove(this);
-        this.setPost(null);
+    public void resetCommentLike() {
+        this.likesCount = 0L;
     }
 
     @Override

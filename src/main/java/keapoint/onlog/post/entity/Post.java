@@ -58,7 +58,7 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "topic_id")
     private Topic topic; // 게시글 주제
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "Post_HashTag_Table",
             joinColumns = @JoinColumn(name = "post_id"),
@@ -66,7 +66,7 @@ public class Post extends BaseEntity {
     )
     private List<Hashtag> hashtagList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>(); // 게시글 댓글
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -96,6 +96,13 @@ public class Post extends BaseEntity {
      */
     public void postUnlike() {
         this.likesCount -= 1;
+    }
+
+    /**
+     * 게시글 좋아요 갯수 초기화 (소프트 삭제)
+     */
+    public void resetPostLike() {
+        this.likesCount = 0L;
     }
 
     /**
@@ -153,16 +160,6 @@ public class Post extends BaseEntity {
         assignCategory(category);
         assignTopic(topic);
         hashtagList.forEach(this::addHashtag);
-    }
-
-    /**
-     * 게시글 삭제
-     */
-    public void deletePost() {
-        writer.removeExistingPost(this);
-        removeCategory();
-        removeAssignedTopic();
-        this.hashtagList.forEach(this::removeHashtag);
     }
 
     /**

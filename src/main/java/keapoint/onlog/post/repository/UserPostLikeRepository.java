@@ -6,10 +6,14 @@ import keapoint.onlog.post.entity.UserPostLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserPostLikeRepository extends JpaRepository<UserPostLike, Long> {
+
+    Optional<List<UserPostLike>> findByPost(Post post);
+
     Optional<UserPostLike> findByBlogAndPost(Blog blog, Post post);
 
     void deleteByPost(Post post);
