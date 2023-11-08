@@ -24,9 +24,10 @@ public class CommentDto {
     private LocalDateTime createdAt; // 댓글 작성 시간
     private UUID postId; // 댓글이 달린 게시글 식별자
     private BlogDto writer; // 댓글 작성자의 블로그 식별자
+    private Boolean commentLiked; // 댓글 좋아요 하고 있는지 여부
     private Long likesCount; // 댓글 좋아요 갯수
 
-    public CommentDto(Comment comment) {
+    public CommentDto(Comment comment, Boolean commentLiked) {
         this.commentId = comment.getCommentId();
         this.content = comment.getContent();
         this.modified = comment.getModified();
@@ -38,6 +39,7 @@ public class CommentDto {
         this.createdAt = comment.getCreatedAt();
         this.postId = comment.getPost().getPostId();
         this.writer = new BlogDto(comment.getWriter());
+        this.commentLiked = commentLiked;
         this.likesCount = comment.getLikesCount();
     }
 }

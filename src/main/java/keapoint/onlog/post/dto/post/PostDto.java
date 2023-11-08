@@ -24,7 +24,7 @@ public class PostDto {
     private String content; // 게시글 내용
     private String summary; // 게시글 3줄 요약
     private String thumbnailLink; // 게시글 thumbnail 사진 위치
-    private Boolean isLiked; // 게시글을 좋아요 하고 있는지 여부
+    private Boolean postLiked; // 게시글을 좋아요 하고 있는지 여부
     private Long likesCount; // 게시글 좋아요 갯수
     private Boolean isPublic; // 게시글 공개 여부
     private Boolean isModified; // 게시글 수정 여부
@@ -36,14 +36,14 @@ public class PostDto {
     private BlogDto writer; // 작성자
     private LocalDateTime createdAt; // Row 생성 시점
 
-    public PostDto(Post post, boolean isLiked) {
+    public PostDto(Post post, boolean postLiked, List<CommentDto> commentDtoList) {
         this.postId = post.getPostId();
         this.postHits = post.getPostHits();
         this.title = post.getTitle();
         this.content = post.getContent();
         this.summary = post.getSummary();
         this.thumbnailLink = post.getThumbnailLink();
-        this.isLiked = isLiked;
+        this.postLiked = postLiked;
         this.likesCount = post.getLikesCount();
         this.isPublic = post.getIsPublic();
         this.isModified = post.getModified();
@@ -54,10 +54,7 @@ public class PostDto {
                 .toList();
 
         this.commentsCounts = post.getComments().size();
-        this.comments = post.getComments().stream()
-                .map(CommentDto::new)
-                .toList();
-
+        this.comments = commentDtoList;
         this.writer = new BlogDto(post.getWriter());
         this.createdAt = post.getCreatedAt();
     }
