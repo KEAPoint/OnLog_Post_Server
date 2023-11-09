@@ -20,6 +20,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PostService {
 
@@ -74,6 +75,7 @@ public class PostService {
      * @param postId 조회하고자 하는 게시글 식별자
      * @return 조회된 게시글 정보
      */
+    @Transactional(readOnly = true)
     public PostWithRelatedPostsDto getPost(UUID blogId, UUID postId) throws BaseException {
         try {
             // 내 블로그를 조회한다.
