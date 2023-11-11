@@ -16,8 +16,10 @@ import keapoint.onlog.post.dto.category.PutCategoryUpdateReqDto;
 import keapoint.onlog.post.dto.category.DeleteCategoryReqDto;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -43,6 +45,7 @@ public class CategoryService {
             log.info("카테고리 조회할 블로그 정보: " + blog.toString());
 
             return blog.getCategories().stream()
+                    .filter(Category::getStatus)  // 유효한 카테고리만 반환
                     .map(CategoryDto::new)
                     .toList();
 
@@ -71,17 +74,26 @@ public class CategoryService {
             log.info("카테고리 생성할 블로그 정보: " + blog.toString());
 
             // 사용자가 해당 이름으로 카테고리를 만든 적 있는지 조회
-            if (blog.getCategories().stream().anyMatch(category -> category.getName().equals(dto.getName()))) // 이미 사용자가 해당 이름으로 카테고리를 가지고 있는 경우
-                throw new BaseException(BaseErrorCode.ALREADY_CATEGORY_EXISTS_EXCEPTION);
+            Optional<Category> existingCategory = blog.getCategories().stream()
+                    .filter(category -> category.getName().equals(dto.getName()))
+                    .findFirst();
 
-            Category newCategory = Category.builder()
-                    .name(dto.getName())
-                    .order(blog.getCategories().size() + 1) // 생성된 카테고리 순서는 가장 마지막
-                    .posts(new ArrayList<>())
-                    .build();
+            Category newOrUpdatedCategory;
+            if (existingCategory.isPresent()) { // 이미 사용자가 해당 이름으로 카테고리를 가지고 있는 경우 활성화
+                newOrUpdatedCategory = existingCategory.get();
+                newOrUpdatedCategory.setStatus(true);
+                newOrUpdatedCategory.setCreatedAt(LocalDateTime.now());
+
+            } else { // 사용자가 해당 이름으로 카테고리를 만든 적 없는 경우 새로 생성
+                newOrUpdatedCategory = Category.builder()
+                        .name(dto.getName())
+                        .order(blog.getCategories().size() + 1) // 생성된 카테고리 순서는 가장 마지막
+                        .posts(new ArrayList<>())
+                        .build();
+            }
 
             // 카테고리 생성
-            Category category = categoryRepository.save(newCategory);
+            Category category = categoryRepository.save(newOrUpdatedCategory);
             blog.getCategories().add(category);
 
             log.info("생성된 카테고리 정보: " + category);
@@ -169,7 +181,7 @@ public class CategoryService {
             }
 
             // 카테고리 삭제
-            categoryRepository.delete(category);
+            category.setStatus(false);
             log.info("카테고리가 삭제되었습니다.");
 
         } catch (BaseException e) {
