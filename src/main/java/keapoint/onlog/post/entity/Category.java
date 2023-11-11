@@ -1,6 +1,7 @@
 package keapoint.onlog.post.entity;
 
 import jakarta.persistence.*;
+import keapoint.onlog.post.base.BaseEntity;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "category")
-public class Category {
+public class Category extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
