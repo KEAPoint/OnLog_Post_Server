@@ -6,11 +6,14 @@ import keapoint.onlog.post.entity.UserCommentLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserCommentLikeRepository extends JpaRepository<UserCommentLike, Long> {
     Optional<UserCommentLike> findByBlogAndComment(Blog blog, Comment comment);
+
+    List<UserCommentLike> findByBlogAndCommentIn(Blog blog, List<Comment> comments);
 
     void deleteByComment(Comment comment);
 }
