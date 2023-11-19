@@ -50,7 +50,7 @@ public class PostService {
             if (!myBlogId.equals(blogId) && Boolean.FALSE.equals(isPublic)) // 조회하는 비공개 게시글이 내 블로그가 아닌 경우
                 throw new BaseException(BaseErrorCode.ACCESS_DENIED_EXCEPTION); // ACCESS_DENIED_EXCEPTION을 터트린다.
 
-            Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("updatedAt").descending());
+            Pageable sortedByUpdatedDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdAt").descending());
 
             Specification<Post> specification = Specification.where(PostSpecification.withStatusTrue())
                     .and(PostSpecification.withTopicName(topicName))
@@ -98,37 +98,37 @@ public class PostService {
             post.hit();
 
             // 내가 해당 게시글을 좋아요 하고 있는지 조회한다.
-            UserPostLike userPostLike = userPostLikeRepository.findByBlogAndPost(me, post).orElseGet(() -> {
-                UserPostLike newLike = UserPostLike.builder()
-                        .blog(me)
-                        .post(post)
-                        .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
-                        .build();
-
-                return userPostLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
-            });
+            boolean isPostLiked = userPostLikeRepository.findByBlogAndPost(me, post).isPresent();
             log.info("내 블로그 정보: " + me.toString());
-            log.info("게시글 좋아요 정보: " + userPostLike);
+            log.info("게시글 좋아요 정보: " + isPostLiked);
 
-            // 게시글의 댓글들에 대해 각각 좋아요 정보를 조회하고 CommentDto를 생성한다.
+            // 댓글 정보
             List<CommentDto> commentDtoList = new ArrayList<>();
-            post.getComments().stream()
-                    .filter(Comment::getStatus) // 유효한 (삭제되지 않은) 댓글만 필터링
-                    .forEach(comment -> {
-                        UserCommentLike userCommentLike = userCommentLikeRepository.findByBlogAndComment(me, comment).orElseGet(() -> {
-                            UserCommentLike newLike = UserCommentLike.builder()
-                                    .blog(me)
-                                    .comment(comment)
-                                    .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
-                                    .build();
 
-                            return userCommentLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
-                        });
-                        commentDtoList.add(new CommentDto(comment, userCommentLike.isLiked()));
-                    });
-            log.info("사용자 댓글 좋아요 정보: " + commentDtoList);
+            if (post.getCommentsCount() != 0) {
+                // 유효한 (삭제되지 않은) 댓글만 가져온다.
+                List<Comment> validComments = post.getComments().stream()
+                        .filter(Comment::getStatus) // 유효한 (삭제되지 않은) 댓글만 필터링
+                        .toList();
+                log.info("유효한 댓글 정보: " + validComments);
 
-            return new PostWithRelatedPostsDto(post, userPostLike.isLiked(), commentDtoList);
+                // 블로그와 댓글 목록에 해당하는 좋아요 정보를 조회한다.
+                List<UserCommentLike> userCommentLikes = userCommentLikeRepository.findByBlogAndCommentIn(me, validComments);
+
+                // 각 댓글과 해당 댓글의 좋아요 상태를 CommentDto로 만들어 리스트에 저장합니다.
+                commentDtoList = validComments.stream()
+                        .map(comment -> {
+                            boolean isCommentLiked = userCommentLikes.stream()
+                                    .anyMatch(like -> like.getComment().equals(comment) && like.getBlog().equals(me));
+
+                            return new CommentDto(comment, isCommentLiked);
+                        })
+                        .toList();
+
+                log.info("사용자 댓글 좋아요 정보: " + commentDtoList);
+            }
+
+            return new PostWithRelatedPostsDto(post, isPostLiked, commentDtoList);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());

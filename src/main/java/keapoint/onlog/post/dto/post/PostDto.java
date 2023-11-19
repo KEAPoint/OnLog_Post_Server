@@ -31,7 +31,7 @@ public class PostDto {
     private TopicDto topic; // 게시글 주제
     private CategoryDto category; // 게시글 카테고리
     private List<HashtagDto> hashtagList; // 해시태그 리스트
-    private int commentsCounts; // 게시글 댓글 갯수
+    private Long commentsCounts; // 게시글 댓글 갯수
     private List<CommentDto> comments; // 게시글 댓글
     private BlogDto writer; // 작성자
     private LocalDateTime createdAt; // Row 생성 시점
@@ -53,7 +53,7 @@ public class PostDto {
                 .map(HashtagDto::new)
                 .toList();
 
-        this.commentsCounts = post.getComments().size();
+        this.commentsCounts = post.getCommentsCount();
         this.comments = commentDtoList;
         this.writer = new BlogDto(post.getWriter());
         this.createdAt = post.getCreatedAt();

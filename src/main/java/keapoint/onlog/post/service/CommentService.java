@@ -43,7 +43,12 @@ public class CommentService {
 
             Post post = postRepository.findById(data.getPostId())
                     .orElseThrow(() -> new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION));
-            log.info("댓글이 작성되는 게시글 정보: " + post.toString());
+            log.info("댓글 작성 요청 온 게시글 정보: " + post.toString());
+
+            // 게시글이 삭제되었는지 확인한다.
+            if (post.getStatus().equals(false))
+                throw new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION);
+            log.info("댓글이 작성되는 게시글 정보: " + post);
 
             long ref; // 그룹
             long refOrder; // 그룹 순서
@@ -85,6 +90,8 @@ public class CommentService {
             // 댓글 저장
             comment.addComment(post);
             commentRepository.save(comment);
+
+            post.writeComment();
 
             log.info("작성된 댓글 정보: " + comment);
 
@@ -150,6 +157,15 @@ public class CommentService {
                     .orElseThrow(() -> new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION));
             log.info("수정 요청 온 댓글: " + comment.toString());
 
+            // 작성된 게시글을 가져온다
+            Post post = comment.getPost();
+            log.info("댓글 수정 요청 온 게시글 정보: " + post.toString());
+
+            // 게시글이 삭제되었는지 확인한다.
+            if (post.getStatus().equals(false))
+                throw new BaseException(BaseErrorCode.POST_NOT_FOUND_EXCEPTION);
+            log.info("댓글이 작성되는 게시글 정보: " + post);
+
             // 댓글이 삭제되었는지 확인한다.
             if (comment.getStatus().equals(false))
                 throw new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION);
@@ -211,6 +227,8 @@ public class CommentService {
             // 댓글 삭제
             comment.setStatus(false);
             comment.resetCommentLike();
+
+            comment.getPost().deleteComment();
 
             log.info("댓글이 삭제되었습니다.");
 
