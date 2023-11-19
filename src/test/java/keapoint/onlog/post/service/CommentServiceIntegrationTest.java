@@ -298,7 +298,7 @@ class CommentServiceIntegrationTest {
         UUID commentId = commentDto.getCommentId();
 
         // 댓글 좋아요
-        commentLikeService.toggleLike(wooseokBlogId, commentId, true);
+        commentLikeService.toggleLike(wooseokBlogId, commentId);
 
         // when: 댓글을 삭제하면
         DeleteCommentReqDto deleteReqDto = new DeleteCommentReqDto(commentId);
