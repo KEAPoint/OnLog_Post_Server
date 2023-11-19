@@ -69,6 +69,9 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>(); // 게시글 댓글
 
+    @Column(name = "post_comments_count", nullable = false)
+    private Long commentsCount = 0L;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "blog_id")
     private Blog writer; // 작성자
@@ -103,6 +106,20 @@ public class Post extends BaseEntity {
      */
     public void resetPostLike() {
         this.likesCount = 0L;
+    }
+
+    /**
+     * 댓글 작성
+     */
+    public void writeComment() {
+        this.commentsCount += 1;
+    }
+
+    /**
+     * 댓글 삭제
+     */
+    public void deleteComment() {
+        this.commentsCount -= 1;
     }
 
     /**

@@ -23,7 +23,7 @@ public class PostSummaryDto {
     private Long likesCount; // 게시글 좋아요 갯수
     private CategoryDto category; // 게시글 카테고리
     private TopicDto topic; // 게시글 주제
-    private int commentsCounts; // 게시글 댓글 갯수
+    private Long commentsCounts; // 게시글 댓글 갯수
     private BlogDto writer; // 작성자
     private LocalDateTime createdAt; // 게시글 작성 시간
 
@@ -36,7 +36,7 @@ public class PostSummaryDto {
         this.likesCount = post.getLikesCount();
         this.category = new CategoryDto(post.getCategory());
         this.topic = new TopicDto(post.getTopic());
-        this.commentsCounts = post.getComments().size();
+        this.commentsCounts = post.getCommentsCount();
         this.writer = new BlogDto(post.getWriter());
         this.createdAt = post.getCreatedAt();
     }

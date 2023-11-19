@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -31,10 +32,9 @@ public class CommentLikeService {
      *
      * @param blogId      좋아요/좋아요 취소를 원하는 블로그 식별자
      * @param commentId   좋아요/좋아요 취소 할 댓글 식별자
-     * @param targetValue 댓글 좋아요/좋아요 취소 여부
      * @return 성공 여부
      */
-    public CommentLikeDto toggleLike(UUID blogId, UUID commentId, Boolean targetValue) throws BaseException {
+    public CommentLikeDto toggleLike(UUID blogId, UUID commentId) throws BaseException {
         try {
             // 사용자 정보 조회
             Blog blog = blogRepository.findById(blogId)
@@ -51,34 +51,30 @@ public class CommentLikeService {
                 throw new BaseException(BaseErrorCode.COMMENT_NOT_FOUND_EXCEPTION);
             log.info("좋아요 정보 수정하고자 하는 댓글 정보: " + comment);
 
-            // 댓글 좋아요 정보 조회
-            UserCommentLike userCommentLike = userCommentLikeRepository.findByBlogAndComment(blog, comment)
-                    .orElseGet(() -> {
-                        UserCommentLike newLike = UserCommentLike.builder()
-                                .blog(blog)
-                                .comment(comment)
-                                .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
-                                .build();
+            // 댓글 좋아요 정보를 조회한다
+            Optional<UserCommentLike> userCommentLike = userCommentLikeRepository.findByBlogAndComment(blog, comment);
+            boolean isLiked = userCommentLike.isPresent();
+            log.info("사용자 댓글 좋아요 정보: " + isLiked);
 
-                        return userCommentLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
-                    });
-            log.info("사용자 댓글 좋아요 정보: " + userCommentLike);
+            if (isLiked) { // 댓글 좋아요 했던 상태라면
+                userCommentLikeRepository.delete(userCommentLike.get()); // DB에서 삭제하고
+                comment.commentUnlike(); // 댓글 좋아요 개수를 줄여준다.
 
-            // 댓글 좋아요 정보 업데이트
-            userCommentLike.updateLike(targetValue);
-            log.info("업데이트 된 사용자 댓글 좋아요 정보: " + userCommentLike);
+            } else { // 댓글 좋아요 하지 않았던 상태라면
+                UserCommentLike like = UserCommentLike.builder()
+                        .blog(blog)
+                        .comment(comment)
+                        .build();
 
-            if (Boolean.TRUE.equals(targetValue)) { // 댓글 좋아요라면
-                comment.commentLike(); // 댓글 좋아요 개수 늘려주고
-            } else { // 댓글 좋아요 취소라면
-                comment.commentUnlike(); // 댓글 좋아요 개수 줄여준다.
+                userCommentLikeRepository.save(like); // DB에 추가하고
+                comment.commentLike(); // 댓글 좋아요 개수를 늘려준다.
             }
 
             // 업데이트 된 댓글 정보 로깅
             log.info("업데이트 된 댓글 정보: " + comment);
 
             // 결과 리턴
-            return new CommentLikeDto(userCommentLike);
+            return new CommentLikeDto(blog, comment, !isLiked);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
