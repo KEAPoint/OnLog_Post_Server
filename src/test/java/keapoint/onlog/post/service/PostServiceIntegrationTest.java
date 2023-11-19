@@ -176,7 +176,7 @@ class PostServiceIntegrationTest {
         UUID postId = postService.writePost(haniBlogId, postWritePostReqDto).getPostId();
 
         // 게시글 좋아요 설정
-        postLikeService.toggleLike(wooseokBlogId, postId, true);
+        postLikeService.toggleLike(wooseokBlogId, postId);
 
         // 게시글 삭제
         postService.deletePost(haniBlogId, new DeletePostReqDto(postId));
@@ -312,7 +312,7 @@ class PostServiceIntegrationTest {
 
         // when: 게시글을 좋아요 했을 때
         // then: POST_NOT_FOUND_EXCEPTION이 발생해야 한다.
-        BaseException thrownException = assertThrows(BaseException.class, () -> postLikeService.toggleLike(haniBlogId, postId, true));
+        BaseException thrownException = assertThrows(BaseException.class, () -> postLikeService.toggleLike(haniBlogId, postId));
 
         assertEquals(BaseErrorCode.POST_NOT_FOUND_EXCEPTION, thrownException.getErrorCode());
     }

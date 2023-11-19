@@ -16,9 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -100,15 +98,9 @@ public class PostService {
             post.hit();
 
             // 내가 해당 게시글을 좋아요 하고 있는지 조회한다.
-            UserPostLike userPostLike = userPostLikeRepository.findByBlogAndPost(me, post).orElseGet(() ->
-                    UserPostLike.builder()
-                            .blog(me)
-                            .post(post)
-                            .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
-                            .build()
-            );
+            boolean isPostLiked = userPostLikeRepository.findByBlogAndPost(me, post).isPresent();
             log.info("내 블로그 정보: " + me.toString());
-            log.info("게시글 좋아요 정보: " + userPostLike);
+            log.info("게시글 좋아요 정보: " + isPostLiked);
 
             // 댓글 정보
             List<CommentDto> commentDtoList = new ArrayList<>();
@@ -123,19 +115,20 @@ public class PostService {
                 // 블로그와 댓글 목록에 해당하는 좋아요 정보를 조회한다.
                 List<UserCommentLike> userCommentLikes = userCommentLikeRepository.findByBlogAndCommentIn(me, validComments);
 
-                // 댓글 별 좋아요 정보를 Map으로 만든다.
-                Map<UUID, Boolean> commentLikeMap = userCommentLikes.stream()
-                        .collect(Collectors.toMap(like -> like.getComment().getCommentId(), UserCommentLike::isLiked));
-
                 // 각 댓글과 해당 댓글의 좋아요 상태를 CommentDto로 만들어 리스트에 저장합니다.
                 commentDtoList = validComments.stream()
-                        .map(comment -> new CommentDto(comment, commentLikeMap.getOrDefault(comment.getCommentId(), false)))
+                        .map(comment -> {
+                            boolean isCommentLiked = userCommentLikes.stream()
+                                    .anyMatch(like -> like.getComment().equals(comment) && like.getBlog().equals(me));
+
+                            return new CommentDto(comment, isCommentLiked);
+                        })
                         .toList();
 
                 log.info("사용자 댓글 좋아요 정보: " + commentDtoList);
             }
 
-            return new PostWithRelatedPostsDto(post, userPostLike.isLiked(), commentDtoList);
+            return new PostWithRelatedPostsDto(post, isPostLiked, commentDtoList);
 
         } catch (BaseException e) {
             log.error(e.getErrorCode().getMessage());
