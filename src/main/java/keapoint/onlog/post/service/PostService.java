@@ -14,6 +14,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -99,36 +100,40 @@ public class PostService {
             post.hit();
 
             // 내가 해당 게시글을 좋아요 하고 있는지 조회한다.
-            UserPostLike userPostLike = userPostLikeRepository.findByBlogAndPost(me, post).orElseGet(() -> {
-                UserPostLike newLike = UserPostLike.builder()
-                        .blog(me)
-                        .post(post)
-                        .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
-                        .build();
-
-                return userPostLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
-            });
+            UserPostLike userPostLike = userPostLikeRepository.findByBlogAndPost(me, post).orElseGet(() ->
+                    UserPostLike.builder()
+                            .blog(me)
+                            .post(post)
+                            .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
+                            .build()
+            );
             log.info("내 블로그 정보: " + me.toString());
             log.info("게시글 좋아요 정보: " + userPostLike);
 
-            // 유효한 (삭제되지 않은) 댓글만 가져온다.
-            List<Comment> validComments = post.getComments().stream()
-                    .filter(Comment::getStatus) // 유효한 (삭제되지 않은) 댓글만 필터링
-                    .toList();
-            log.info("유효한 댓글 정보: " + validComments);
+            // 댓글 정보
+            List<CommentDto> commentDtoList = new ArrayList<>();
 
-            // 블로그와 댓글 목록에 해당하는 좋아요 정보를 조회한다.
-            List<UserCommentLike> userCommentLikes = userCommentLikeRepository.findByBlogAndCommentIn(me, validComments);
+            if (post.getCommentsCount() != 0) {
+                // 유효한 (삭제되지 않은) 댓글만 가져온다.
+                List<Comment> validComments = post.getComments().stream()
+                        .filter(Comment::getStatus) // 유효한 (삭제되지 않은) 댓글만 필터링
+                        .toList();
+                log.info("유효한 댓글 정보: " + validComments);
 
-            // 댓글 별 좋아요 정보를 Map으로 만든다.
-            Map<UUID, Boolean> commentLikeMap = userCommentLikes.stream()
-                    .collect(Collectors.toMap(like -> like.getComment().getCommentId(), UserCommentLike::isLiked));
+                // 블로그와 댓글 목록에 해당하는 좋아요 정보를 조회한다.
+                List<UserCommentLike> userCommentLikes = userCommentLikeRepository.findByBlogAndCommentIn(me, validComments);
 
-            // 각 댓글과 해당 댓글의 좋아요 상태를 CommentDto로 만들어 리스트에 저장합니다.
-            List<CommentDto> commentDtoList = validComments.stream()
-                    .map(comment -> new CommentDto(comment, commentLikeMap.getOrDefault(comment.getCommentId(), false)))
-                    .collect(Collectors.toList());
-            log.info("사용자 댓글 좋아요 정보: " + commentDtoList);
+                // 댓글 별 좋아요 정보를 Map으로 만든다.
+                Map<UUID, Boolean> commentLikeMap = userCommentLikes.stream()
+                        .collect(Collectors.toMap(like -> like.getComment().getCommentId(), UserCommentLike::isLiked));
+
+                // 각 댓글과 해당 댓글의 좋아요 상태를 CommentDto로 만들어 리스트에 저장합니다.
+                commentDtoList = validComments.stream()
+                        .map(comment -> new CommentDto(comment, commentLikeMap.getOrDefault(comment.getCommentId(), false)))
+                        .toList();
+
+                log.info("사용자 댓글 좋아요 정보: " + commentDtoList);
+            }
 
             return new PostWithRelatedPostsDto(post, userPostLike.isLiked(), commentDtoList);
 

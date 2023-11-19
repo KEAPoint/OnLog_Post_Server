@@ -7,6 +7,8 @@ import keapoint.onlog.post.dto.blog.PostCreateBlogReqDto;
 import keapoint.onlog.post.dto.category.CategoryDto;
 import keapoint.onlog.post.dto.category.DeleteCategoryReqDto;
 import keapoint.onlog.post.dto.category.PostCreateCategoryReqDto;
+import keapoint.onlog.post.dto.comment.DeleteCommentReqDto;
+import keapoint.onlog.post.dto.comment.PostCreateCommentReqDto;
 import keapoint.onlog.post.dto.post.*;
 import keapoint.onlog.post.entity.Post;
 import keapoint.onlog.post.entity.UserPostLike;
@@ -24,7 +26,9 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,12 +63,47 @@ class PostServiceIntegrationTest {
     @Autowired
     private UserPostLikeRepository userPostLikeRepository;
 
+    @Autowired
+    private CommentService commentService;
+
+
+    private final UUID haniBlogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
+    private final List<Long> haniCategoryList = new ArrayList<>();
+
+    private final UUID wooseokBlogId = UUID.fromString("5a7a63d7-02c7-43a0-82ec-f2a80bd2eba4");
+
     @BeforeEach
-    void removeData() {
+    void setUp() throws Exception {
         userPostLikeRepository.deleteAll();
         categoryRepository.deleteAll();
         postRepository.deleteAll();
         blogRepository.deleteAll();
+
+        // 하니 블로그 및 카테고리 생성
+        createBlog(haniBlogId, "Hani Tech World", "hanitech", "Hani Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.");
+        for (int i = 0; i < 3; i++) {
+            haniCategoryList.add(createCategory("test" + i));
+        }
+
+        // 우석 블로그 생성
+        createBlog(UUID.fromString("5a7a63d7-02c7-43a0-82ec-f2a80bd2eba4"), "Wooseok Tech World", "wooseoktech", "Woo Seok Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.");
+    }
+
+    void createBlog(UUID blogId, String blogName, String blogNickname, String blogIntro) throws Exception {
+        PostCreateBlogReqDto postCreateBlogReqDto = PostCreateBlogReqDto.builder()
+                .blogId(blogId)
+                .blogName(blogName)
+                .blogNickname(blogNickname)
+                .blogIntro(blogIntro)
+                .blogProfileImg(null)
+                .build();
+
+        blogService.createBlog(postCreateBlogReqDto);
+    }
+
+    Long createCategory(String name) throws Exception {
+        CategoryDto categoryDto = categoryService.createCategory(haniBlogId, new PostCreateCategoryReqDto(name));
+        return categoryDto.getId();
     }
 
     @Test
@@ -72,37 +111,21 @@ class PostServiceIntegrationTest {
     @DisplayName("비공개 게시글 조회")
     void test1() throws BaseException {
         // given: 비공개 게시글을 작성했을 때
-        // 블로그 생성
-        UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
-        PostCreateBlogReqDto postCreateHaniBlogReqDto = PostCreateBlogReqDto.builder()
-                .blogId(blogId)
-                .blogName("Hani Tech World")
-                .blogNickname("hanitech")
-                .blogIntro("Hani Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.")
-                .blogProfileImg("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_640x640.jpg")
-                .build();
-        blogService.createBlog(postCreateHaniBlogReqDto);
-
-        // 카테고리 생성
-        CategoryDto categoryDto = categoryService.createCategory(blogId, new PostCreateCategoryReqDto("TestCategory"));
-        Long categoryId = categoryDto.getId();
-
-        // 게시글 작성
+        Random rand = new Random();
         PostWritePostReqDto postWritePostReqDto = PostWritePostReqDto.builder()
                 .title("테스트 제목")
                 .content("이것은 테스트 게시글입니다.")
                 .summary("테스트")
                 .thumbnailLink("https://cdn-lostark.game.onstove.com/uploadfiles/user/2021/04/01/637528990397262868.png")
                 .isPublic(false)
-                .categoryId(categoryId)
+                .categoryId(haniCategoryList.get(rand.nextInt(haniCategoryList.size())))
                 .hashtagList(List.of("테스트"))
                 .topicId(1L)
                 .build();
-        PostSummaryDto postSummaryDto = postService.writePost(blogId, postWritePostReqDto);
-        UUID postId = postSummaryDto.getPostId();
+        UUID postId = postService.writePost(haniBlogId, postWritePostReqDto).getPostId();
 
         // when: 비공개 게시글을 조회하면
-        PostWithRelatedPostsDto post = postService.getPost(blogId, postId);
+        PostWithRelatedPostsDto post = postService.getPost(haniBlogId, postId);
 
         // then: 정상적으로 조회가 되어야 한다
         assertEquals(post.getData().getPostId(), postId);
@@ -113,39 +136,14 @@ class PostServiceIntegrationTest {
     @DisplayName("비공개 게시글을 타인이 조회하는 경우")
     void test2() throws BaseException {
         // given: 비공개 게시글을 작성했을 때
-        // 블로그 생성
-        UUID haniBlogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
-        PostCreateBlogReqDto postCreateHaniBlogReqDto = PostCreateBlogReqDto.builder()
-                .blogId(haniBlogId)
-                .blogName("Hani Tech World")
-                .blogNickname("hanitech")
-                .blogIntro("Hani Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.")
-                .blogProfileImg("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_640x640.jpg")
-                .build();
-        blogService.createBlog(postCreateHaniBlogReqDto);
-
-        UUID wooseokBlogId = UUID.fromString("5a7a63d7-02c7-43a0-82ec-f2a80bd2eba4");
-        PostCreateBlogReqDto postCreateWooseokBlogReqDto = PostCreateBlogReqDto.builder()
-                .blogId(wooseokBlogId) // 사용자 블로그 식별자
-                .blogName("Wooseok Tech World") // 사용자 블로그 이름
-                .blogNickname("wooseoktech") // 사용자 블로그 별명. 닉네임
-                .blogIntro("Woo Seok Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.") // 사용자 블로그 한 줄 소개
-                .blogProfileImg("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_640x640.jpg")
-                .build();
-        blogService.createBlog(postCreateWooseokBlogReqDto);
-
-        // 카테고리 생성
-        CategoryDto categoryDto = categoryService.createCategory(haniBlogId, new PostCreateCategoryReqDto("TestCategory"));
-        Long categoryId = categoryDto.getId();
-
-        // 게시글 작성
+        Random rand = new Random();
         PostWritePostReqDto postWritePostReqDto = PostWritePostReqDto.builder()
                 .title("테스트 제목")
                 .content("이것은 테스트 게시글입니다.")
                 .summary("테스트")
                 .thumbnailLink("https://cdn-lostark.game.onstove.com/uploadfiles/user/2021/04/01/637528990397262868.png")
                 .isPublic(false)
-                .categoryId(categoryId)
+                .categoryId(haniCategoryList.get(rand.nextInt(haniCategoryList.size())))
                 .hashtagList(List.of("테스트"))
                 .topicId(1L)
                 .build();
@@ -164,44 +162,18 @@ class PostServiceIntegrationTest {
     @DisplayName("삭제된 게시글 정보 확인")
     void test3() throws BaseException {
         // given: 삭제된 게시글은
-        // 블로그 생성
-        UUID haniBlogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
-        PostCreateBlogReqDto postCreateHaniBlogReqDto = PostCreateBlogReqDto.builder()
-                .blogId(haniBlogId)
-                .blogName("Hani Tech World")
-                .blogNickname("hanitech")
-                .blogIntro("Hani Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.")
-                .blogProfileImg("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_640x640.jpg")
-                .build();
-        blogService.createBlog(postCreateHaniBlogReqDto);
-
-        UUID wooseokBlogId = UUID.fromString("5a7a63d7-02c7-43a0-82ec-f2a80bd2eba4");
-        PostCreateBlogReqDto postCreateWooseokBlogReqDto = PostCreateBlogReqDto.builder()
-                .blogId(wooseokBlogId) // 사용자 블로그 식별자
-                .blogName("Wooseok Tech World") // 사용자 블로그 이름
-                .blogNickname("wooseoktech") // 사용자 블로그 별명. 닉네임
-                .blogIntro("Woo Seok Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.") // 사용자 블로그 한 줄 소개
-                .blogProfileImg("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_640x640.jpg")
-                .build();
-        blogService.createBlog(postCreateWooseokBlogReqDto);
-
-        // 카테고리 생성
-        CategoryDto categoryDto = categoryService.createCategory(haniBlogId, new PostCreateCategoryReqDto("TestCategory"));
-        Long categoryId = categoryDto.getId();
-
-        // 게시글 작성
+        Random rand = new Random();
         PostWritePostReqDto postWritePostReqDto = PostWritePostReqDto.builder()
                 .title("테스트 제목")
                 .content("이것은 테스트 게시글입니다.")
                 .summary("테스트")
                 .thumbnailLink("https://cdn-lostark.game.onstove.com/uploadfiles/user/2021/04/01/637528990397262868.png")
                 .isPublic(false)
-                .categoryId(categoryId)
+                .categoryId(haniCategoryList.get(rand.nextInt(haniCategoryList.size())))
                 .hashtagList(List.of("테스트"))
                 .topicId(1L)
                 .build();
-        PostSummaryDto postSummaryDto = postService.writePost(haniBlogId, postWritePostReqDto);
-        UUID postId = postSummaryDto.getPostId();
+        UUID postId = postService.writePost(haniBlogId, postWritePostReqDto).getPostId();
 
         // 게시글 좋아요 설정
         postLikeService.toggleLike(wooseokBlogId, postId, true);
@@ -223,41 +195,25 @@ class PostServiceIntegrationTest {
     @DisplayName("삭제된 게시글 조회")
     void test4() throws BaseException {
         // given: 삭제된 게시글은
-        // 블로그 생성
-        UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
-        PostCreateBlogReqDto postCreateHaniBlogReqDto = PostCreateBlogReqDto.builder()
-                .blogId(blogId)
-                .blogName("Hani Tech World")
-                .blogNickname("hanitech")
-                .blogIntro("Hani Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.")
-                .blogProfileImg("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_640x640.jpg")
-                .build();
-        blogService.createBlog(postCreateHaniBlogReqDto);
-
-        // 카테고리 생성
-        CategoryDto categoryDto = categoryService.createCategory(blogId, new PostCreateCategoryReqDto("TestCategory"));
-        Long categoryId = categoryDto.getId();
-
-        // 게시글 작성
+        Random rand = new Random();
         PostWritePostReqDto postWritePostReqDto = PostWritePostReqDto.builder()
                 .title("테스트 제목")
                 .content("이것은 테스트 게시글입니다.")
                 .summary("테스트")
                 .thumbnailLink("https://cdn-lostark.game.onstove.com/uploadfiles/user/2021/04/01/637528990397262868.png")
                 .isPublic(false)
-                .categoryId(categoryId)
+                .categoryId(haniCategoryList.get(rand.nextInt(haniCategoryList.size())))
                 .hashtagList(List.of("테스트"))
                 .topicId(1L)
                 .build();
-        PostSummaryDto postSummaryDto = postService.writePost(blogId, postWritePostReqDto);
-        UUID postId = postSummaryDto.getPostId();
+        UUID postId = postService.writePost(haniBlogId, postWritePostReqDto).getPostId();
 
         // 게시글 삭제
-        postService.deletePost(blogId, new DeletePostReqDto(postId));
+        postService.deletePost(haniBlogId, new DeletePostReqDto(postId));
 
         // when: 게시글을 조회했을 때
         // then: POST_NOT_FOUND_EXCEPTION이 발생해야 한다.
-        BaseException thrownException = assertThrows(BaseException.class, () -> postService.getPost(blogId, postId));
+        BaseException thrownException = assertThrows(BaseException.class, () -> postService.getPost(haniBlogId, postId));
 
         assertEquals(BaseErrorCode.POST_NOT_FOUND_EXCEPTION, thrownException.getErrorCode());
     }
@@ -267,22 +223,9 @@ class PostServiceIntegrationTest {
     @DisplayName("삭제된 게시글 수정")
     void test5() throws BaseException {
         // given: 삭제된 게시글은
-        // 블로그 생성
-        UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
-        PostCreateBlogReqDto postCreateHaniBlogReqDto = PostCreateBlogReqDto.builder()
-                .blogId(blogId)
-                .blogName("Hani Tech World")
-                .blogNickname("hanitech")
-                .blogIntro("Hani Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.")
-                .blogProfileImg("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_640x640.jpg")
-                .build();
-        blogService.createBlog(postCreateHaniBlogReqDto);
+        Random rand = new Random();
+        Long categoryId = haniCategoryList.get(rand.nextInt(haniCategoryList.size()));
 
-        // 카테고리 생성
-        CategoryDto categoryDto = categoryService.createCategory(blogId, new PostCreateCategoryReqDto("TestCategory"));
-        Long categoryId = categoryDto.getId();
-
-        // 게시글 작성
         PostWritePostReqDto postWritePostReqDto = PostWritePostReqDto.builder()
                 .title("테스트 제목")
                 .content("이것은 테스트 게시글입니다.")
@@ -293,11 +236,10 @@ class PostServiceIntegrationTest {
                 .hashtagList(List.of("테스트"))
                 .topicId(1L)
                 .build();
-        PostSummaryDto postSummaryDto = postService.writePost(blogId, postWritePostReqDto);
-        UUID postId = postSummaryDto.getPostId();
+        UUID postId = postService.writePost(haniBlogId, postWritePostReqDto).getPostId();
 
         // 게시글 삭제
-        postService.deletePost(blogId, new DeletePostReqDto(postId));
+        postService.deletePost(haniBlogId, new DeletePostReqDto(postId));
 
         // when: 게시글을 수정했을 때
         // then: POST_NOT_FOUND_EXCEPTION이 발생해야 한다.
@@ -313,7 +255,7 @@ class PostServiceIntegrationTest {
                 .topicId(1L)
                 .build();
 
-        BaseException thrownException = assertThrows(BaseException.class, () -> postService.modifyPost(blogId, data));
+        BaseException thrownException = assertThrows(BaseException.class, () -> postService.modifyPost(haniBlogId, data));
 
         assertEquals(BaseErrorCode.POST_NOT_FOUND_EXCEPTION, thrownException.getErrorCode());
     }
@@ -323,41 +265,26 @@ class PostServiceIntegrationTest {
     @DisplayName("삭제된 게시글 삭제")
     void test6() throws BaseException {
         // given: 삭제된 게시글은
-        // 블로그 생성
-        UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
-        PostCreateBlogReqDto postCreateHaniBlogReqDto = PostCreateBlogReqDto.builder()
-                .blogId(blogId)
-                .blogName("Hani Tech World")
-                .blogNickname("hanitech")
-                .blogIntro("Hani Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.")
-                .blogProfileImg("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_640x640.jpg")
-                .build();
-        blogService.createBlog(postCreateHaniBlogReqDto);
-
-        // 카테고리 생성
-        CategoryDto categoryDto = categoryService.createCategory(blogId, new PostCreateCategoryReqDto("TestCategory"));
-        Long categoryId = categoryDto.getId();
-
-        // 게시글 작성
+        Random rand = new Random();
         PostWritePostReqDto postWritePostReqDto = PostWritePostReqDto.builder()
                 .title("테스트 제목")
                 .content("이것은 테스트 게시글입니다.")
                 .summary("테스트")
                 .thumbnailLink("https://cdn-lostark.game.onstove.com/uploadfiles/user/2021/04/01/637528990397262868.png")
                 .isPublic(false)
-                .categoryId(categoryId)
+                .categoryId(haniCategoryList.get(rand.nextInt(haniCategoryList.size())))
                 .hashtagList(List.of("테스트"))
                 .topicId(1L)
                 .build();
-        PostSummaryDto postSummaryDto = postService.writePost(blogId, postWritePostReqDto);
+        PostSummaryDto postSummaryDto = postService.writePost(haniBlogId, postWritePostReqDto);
         UUID postId = postSummaryDto.getPostId();
 
         // 게시글 삭제
-        postService.deletePost(blogId, new DeletePostReqDto(postId));
+        postService.deletePost(haniBlogId, new DeletePostReqDto(postId));
 
         // when: 게시글을 삭제했을 때
         // then: POST_NOT_FOUND_EXCEPTION이 발생해야 한다.
-        BaseException thrownException = assertThrows(BaseException.class, () -> postService.deletePost(blogId, new DeletePostReqDto(postId)));
+        BaseException thrownException = assertThrows(BaseException.class, () -> postService.deletePost(haniBlogId, new DeletePostReqDto(postId)));
 
         assertEquals(BaseErrorCode.POST_NOT_FOUND_EXCEPTION, thrownException.getErrorCode());
     }
@@ -367,41 +294,25 @@ class PostServiceIntegrationTest {
     @DisplayName("삭제된 게시글 좋아요")
     void test7() throws BaseException {
         // given: 삭제된 게시글은
-        // 블로그 생성
-        UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
-        PostCreateBlogReqDto postCreateHaniBlogReqDto = PostCreateBlogReqDto.builder()
-                .blogId(blogId)
-                .blogName("Hani Tech World")
-                .blogNickname("hanitech")
-                .blogIntro("Hani Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.")
-                .blogProfileImg("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_640x640.jpg")
-                .build();
-        blogService.createBlog(postCreateHaniBlogReqDto);
-
-        // 카테고리 생성
-        CategoryDto categoryDto = categoryService.createCategory(blogId, new PostCreateCategoryReqDto("TestCategory"));
-        Long categoryId = categoryDto.getId();
-
-        // 게시글 작성
+        Random rand = new Random();
         PostWritePostReqDto postWritePostReqDto = PostWritePostReqDto.builder()
                 .title("테스트 제목")
                 .content("이것은 테스트 게시글입니다.")
                 .summary("테스트")
                 .thumbnailLink("https://cdn-lostark.game.onstove.com/uploadfiles/user/2021/04/01/637528990397262868.png")
                 .isPublic(false)
-                .categoryId(categoryId)
+                .categoryId(haniCategoryList.get(rand.nextInt(haniCategoryList.size())))
                 .hashtagList(List.of("테스트"))
                 .topicId(1L)
                 .build();
-        PostSummaryDto postSummaryDto = postService.writePost(blogId, postWritePostReqDto);
-        UUID postId = postSummaryDto.getPostId();
+        UUID postId = postService.writePost(haniBlogId, postWritePostReqDto).getPostId();
 
         // 게시글 삭제
-        postService.deletePost(blogId, new DeletePostReqDto(postId));
+        postService.deletePost(haniBlogId, new DeletePostReqDto(postId));
 
         // when: 게시글을 좋아요 했을 때
         // then: POST_NOT_FOUND_EXCEPTION이 발생해야 한다.
-        BaseException thrownException = assertThrows(BaseException.class, () -> postLikeService.toggleLike(blogId, postId, true));
+        BaseException thrownException = assertThrows(BaseException.class, () -> postLikeService.toggleLike(haniBlogId, postId, true));
 
         assertEquals(BaseErrorCode.POST_NOT_FOUND_EXCEPTION, thrownException.getErrorCode());
     }
@@ -411,22 +322,9 @@ class PostServiceIntegrationTest {
     @DisplayName("카테고리 삭제로 인한 게시글 카테고리 변경")
     void test8() throws BaseException {
         // given: 게시글에 카테고리가 설정되어 있는데
-        // 블로그 생성
-        UUID blogId = UUID.fromString("48f99c85-ed6b-46c2-8f47-66f9f67040bc");
-        PostCreateBlogReqDto postCreateHaniBlogReqDto = PostCreateBlogReqDto.builder()
-                .blogId(blogId)
-                .blogName("Hani Tech World")
-                .blogNickname("hanitech")
-                .blogIntro("Hani Tech World는 최신 기술 정보와 실용적인 IT 팁을 제공하는 블로그입니다.")
-                .blogProfileImg("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_640x640.jpg")
-                .build();
-        blogService.createBlog(postCreateHaniBlogReqDto);
+        Random rand = new Random();
+        Long categoryId = haniCategoryList.get(rand.nextInt(haniCategoryList.size()));
 
-        // 카테고리 생성
-        CategoryDto categoryDto = categoryService.createCategory(blogId, new PostCreateCategoryReqDto("TestCategory"));
-        Long categoryId = categoryDto.getId();
-
-        // 게시글 작성
         PostWritePostReqDto postWritePostReqDto = PostWritePostReqDto.builder()
                 .title("테스트 제목")
                 .content("이것은 테스트 게시글입니다.")
@@ -437,16 +335,119 @@ class PostServiceIntegrationTest {
                 .hashtagList(List.of("테스트"))
                 .topicId(1L)
                 .build();
-        PostSummaryDto postSummaryDto = postService.writePost(blogId, postWritePostReqDto);
-        UUID postId = postSummaryDto.getPostId();
+        UUID postId = postService.writePost(haniBlogId, postWritePostReqDto).getPostId();
 
         // when: 카테고리가 삭제되면
-        categoryService.deleteCategory(blogId, new DeleteCategoryReqDto(categoryId));
+        categoryService.deleteCategory(haniBlogId, new DeleteCategoryReqDto(categoryId));
 
         // then: null로 변해야한다.
         Post post = postRepository.findById(postId).get();
         assertNull(post.getCategory());
     }
 
+    @Test
+    @Transactional // @Transactional을 사용하여 Hibernate 세션이 메소드 호출 동안 열려 있도록 설정
+    @DisplayName("삭제된 게시글 댓글 작성")
+    void test9() throws BaseException {
+        // given: 삭제된 게시글에
+        Random rand = new Random();
+        PostWritePostReqDto postWritePostReqDto = PostWritePostReqDto.builder()
+                .title("테스트 제목")
+                .content("이것은 테스트 게시글입니다.")
+                .summary("테스트")
+                .thumbnailLink("https://cdn-lostark.game.onstove.com/uploadfiles/user/2021/04/01/637528990397262868.png")
+                .isPublic(false)
+                .categoryId(haniCategoryList.get(rand.nextInt(haniCategoryList.size())))
+                .hashtagList(List.of("테스트"))
+                .topicId(1L)
+                .build();
+        UUID postId = postService.writePost(haniBlogId, postWritePostReqDto).getPostId();
+
+        postService.deletePost(haniBlogId, new DeletePostReqDto(postId));
+
+        // when: 댓글이 작성되면
+        // then: POST_NOT_FOUND_EXCEPTION이 발생해야 한다.
+        PostCreateCommentReqDto comment = PostCreateCommentReqDto.builder()
+                .postId(postId)
+                .content("test comment")
+                .parentCommentId(null)
+                .build();
+
+        BaseException thrownException = assertThrows(BaseException.class, () -> commentService.createComment(wooseokBlogId, comment));
+
+        assertEquals(BaseErrorCode.POST_NOT_FOUND_EXCEPTION, thrownException.getErrorCode());
+    }
+
+    // 게시글 댓글 갯수 확인
+    @Test
+    @Transactional // @Transactional을 사용하여 Hibernate 세션이 메소드 호출 동안 열려 있도록 설정
+    @DisplayName("게시글 댓글 개수 확인")
+    void test10() throws BaseException {
+        // given: 게시글에 댓글을 작성하면
+        // 게시글 작성
+        Random rand = new Random();
+        PostWritePostReqDto postWritePostReqDto = PostWritePostReqDto.builder()
+                .title("테스트 제목")
+                .content("이것은 테스트 게시글입니다.")
+                .summary("테스트")
+                .thumbnailLink("https://cdn-lostark.game.onstove.com/uploadfiles/user/2021/04/01/637528990397262868.png")
+                .isPublic(false)
+                .categoryId(haniCategoryList.get(rand.nextInt(haniCategoryList.size())))
+                .hashtagList(List.of("테스트"))
+                .topicId(1L)
+                .build();
+        UUID postId = postService.writePost(haniBlogId, postWritePostReqDto).getPostId();
+
+        // 댓글 작성
+        PostCreateCommentReqDto comment = PostCreateCommentReqDto.builder()
+                .postId(postId)
+                .content("test comment")
+                .parentCommentId(null)
+                .build();
+        commentService.createComment(wooseokBlogId, comment);
+
+        // when: 게시글을 조회했을 때
+        PostWithRelatedPostsDto post = postService.getPost(haniBlogId, postId);
+
+        // then: 댓글이 1개가 나와야 한다
+        assertEquals(1, post.getData().getCommentsCounts());
+    }
+
+    @Test
+    @Transactional // @Transactional을 사용하여 Hibernate 세션이 메소드 호출 동안 열려 있도록 설정
+    @DisplayName("게시글 댓글 개수 확인")
+    void test11() throws BaseException {
+        // given: 게시글에 댓글을 작성하고 해당 댓글을 삭제했을 때
+        // 게시글 작성
+        Random rand = new Random();
+        PostWritePostReqDto postWritePostReqDto = PostWritePostReqDto.builder()
+                .title("테스트 제목")
+                .content("이것은 테스트 게시글입니다.")
+                .summary("테스트")
+                .thumbnailLink("https://cdn-lostark.game.onstove.com/uploadfiles/user/2021/04/01/637528990397262868.png")
+                .isPublic(false)
+                .categoryId(haniCategoryList.get(rand.nextInt(haniCategoryList.size())))
+                .hashtagList(List.of("테스트"))
+                .topicId(1L)
+                .build();
+        UUID postId = postService.writePost(haniBlogId, postWritePostReqDto).getPostId();
+
+        // 댓글 작성
+        PostCreateCommentReqDto comment = PostCreateCommentReqDto.builder()
+                .postId(postId)
+                .content("test comment")
+                .parentCommentId(null)
+                .build();
+        UUID commentId = commentService.createComment(wooseokBlogId, comment).getCommentId();
+
+        // 댓글 삭제
+        commentService.deleteComment(wooseokBlogId, new DeleteCommentReqDto(commentId));
+
+        // when: 게시글을 조회했을 때
+        PostWithRelatedPostsDto post = postService.getPost(haniBlogId, postId);
+
+        // then: 댓글이 1개가 나와야 한다
+        assertEquals(0, post.getData().getCommentsCounts());
+    }
 
 }

@@ -53,15 +53,12 @@ public class CommentLikeService {
 
             // 댓글 좋아요 정보 조회
             UserCommentLike userCommentLike = userCommentLikeRepository.findByBlogAndComment(blog, comment)
-                    .orElseGet(() -> {
-                        UserCommentLike newLike = UserCommentLike.builder()
-                                .blog(blog)
-                                .comment(comment)
-                                .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
-                                .build();
-
-                        return userCommentLikeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
-                    });
+                    .orElseGet(() -> UserCommentLike.builder()
+                            .blog(blog)
+                            .comment(comment)
+                            .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
+                            .build()
+                    );
             log.info("사용자 댓글 좋아요 정보: " + userCommentLike);
 
             // 댓글 좋아요 정보 업데이트
@@ -69,8 +66,11 @@ public class CommentLikeService {
             log.info("업데이트 된 사용자 댓글 좋아요 정보: " + userCommentLike);
 
             if (Boolean.TRUE.equals(targetValue)) { // 댓글 좋아요라면
-                comment.commentLike(); // 댓글 좋아요 개수 늘려주고
+                userCommentLikeRepository.save(userCommentLike); // DB에 저장하고
+                comment.commentLike(); // 댓글 좋아요 개수 늘려준다
+
             } else { // 댓글 좋아요 취소라면
+                userCommentLikeRepository.deleteById(userCommentLike.getId()); // DB에서 삭제하고
                 comment.commentUnlike(); // 댓글 좋아요 개수 줄여준다.
             }
 

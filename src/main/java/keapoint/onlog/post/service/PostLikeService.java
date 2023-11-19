@@ -54,15 +54,12 @@ public class PostLikeService {
             log.info("좋아요 정보 수정하고자 하는 게시글 정보: " + post);
 
             UserPostLike userPostLike = likeRepository.findByBlogAndPost(blog, post)
-                    .orElseGet(() -> {
-                        UserPostLike newLike = UserPostLike.builder()
-                                .blog(blog)
-                                .post(post)
-                                .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
-                                .build();
-
-                        return likeRepository.save(newLike); // 새로운 '좋아요' 정보 생성 및 저장
-                    });
+                    .orElseGet(() -> UserPostLike.builder()
+                            .blog(blog)
+                            .post(post)
+                            .isLiked(false) // 기존에 좋아요 한 기록이 없으면 좋아요X 상태
+                            .build()
+                    );
             log.info("사용자 게시글 좋아요 정보: " + userPostLike);
 
             // 게시글 좋아요 정보 업데이트
@@ -70,8 +67,11 @@ public class PostLikeService {
             log.info("업데이트 된 사용자 게시글 좋아요 정보: " + userPostLike);
 
             if (Boolean.TRUE.equals(targetValue)) { // 게시글 좋아요라면
-                post.postLike(); // 게시글 좋아요 개수 늘려주고
+                likeRepository.save(userPostLike); // DB에 저장하고
+                post.postLike(); // 게시글 좋아요 개수 늘려준다
+
             } else { // 게시글 좋아요 취소라면
+                likeRepository.delete(userPostLike); // DB에서 삭제하고
                 post.postUnlike(); // 게시글 좋아요 개수 줄여준다.
             }
 
