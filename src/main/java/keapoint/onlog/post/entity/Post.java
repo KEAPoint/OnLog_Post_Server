@@ -251,6 +251,7 @@ public class Post extends BaseEntity {
                 ", isPublic=" + isPublic +
                 ", modified=" + modified +
                 ", likesCount=" + likesCount +
+                ", commentsCount=" + commentsCount +
                 ", category=" + category +
                 ", topic=" + topic +
                 ", hashtagList=" + hashtagList +
