@@ -113,16 +113,12 @@ public class PostService {
             List<CommentDto> commentDtoList = new ArrayList<>();
 
             if (post.getCommentsCount() != 0) {
-                // 유효한 (삭제되지 않은) 댓글만 가져온다.
-                List<Comment> validComments = post.getComments().stream()
-                        .filter(Comment::getStatus) // 유효한 (삭제되지 않은) 댓글만 필터링
-                        .toList();
-
                 // 블로그와 댓글 목록에 해당하는 좋아요 정보를 조회한다.
-                List<UserCommentLike> userCommentLikes = userCommentLikeRepository.findByBlogAndCommentIn(me, validComments);
+                List<UserCommentLike> userCommentLikes = userCommentLikeRepository.findByBlogAndValidComments(me, post.getComments());
 
-                // 각 댓글과 해당 댓글의 좋아요 상태를 CommentDto로 만들어 리스트에 저장합니다.
-                commentDtoList = validComments.stream()
+                // 각 댓글과 해당 댓글의 좋아요 상태를 CommentDto로 만들어 리스트에 저장한다.
+                commentDtoList = post.getComments().stream()
+                        .filter(Comment::getStatus) // 유효한 (삭제되지 않은) 댓글만 필터링
                         .map(comment -> {
                             boolean isCommentLiked = userCommentLikes.stream()
                                     .anyMatch(like -> like.getComment().equals(comment) && like.getBlog().equals(me));
@@ -133,16 +129,16 @@ public class PostService {
 
             }
 
-            log.info("사용자(" + blogId + ")가 게시글(" + postId + ")를 조회하는 데 성공하였습니다.");
+            log.info("사용자({})가 게시글({})를 조회하는 데 성공하였습니다.", blogId, postId);
             return new PostWithRelatedPostsDto(post, isPostLiked, commentDtoList);
 
         } catch (BaseException e) {
-            log.info("사용자(" + blogId + ")가 게시글(" + postId + ")를 조회하는 데 실패하였습니다.");
+            log.info("사용자({})가 게시글({})를 조회하는 데 실패하였습니다.", blogId, postId);
             log.error(e.getErrorCode().getMessage());
             throw e;
 
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("User : " + blogId, e);
             throw new BaseException(BaseErrorCode.INTERNAL_SERVER_ERROR);
         }
     }

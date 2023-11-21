@@ -44,19 +44,14 @@ public class JwtTokenProvider {
      */
     public String extractIdx(String bearerToken) throws BaseException {
         try {
-            log.info("요청 token 정보: " + bearerToken);
             String token = getTokenFromBearer(bearerToken);
-            log.info("추출된 token 정보: " + token);
 
             Jws<Claims> claimsJws = Jwts.parserBuilder()
                     .setSigningKey(jwtKey.getBytes())
                     .build()
                     .parseClaimsJws(token);
 
-            String memberIdx = claimsJws.getBody().get("memberIdx", String.class);
-            log.info("요청 사용자 정보: " + memberIdx);
-
-            return memberIdx;
+            return claimsJws.getBody().get("memberIdx", String.class);
 
         } catch (Exception e) {
             log.error(e.getMessage());
