@@ -210,12 +210,14 @@ public class PostService {
             // 해시태그를 조회한다. 만약 해시태그가 없는 경우엔 만든다
             List<Hashtag> hashtagList = dto.getHashtagList()
                     .stream()
-                    .map(hashtag -> hashtagRepository.findByName(hashtag)
-                            .orElseGet(() -> {
-                                Hashtag newHashtag = new Hashtag(hashtag);
-                                return hashtagRepository.save(newHashtag);
-                            })
-                    )
+                    .flatMap(hashtag -> {
+                        List<Hashtag> hashtags = hashtagRepository.findByName(hashtag);
+                        if (hashtags.isEmpty()) {
+                            Hashtag newHashtag = new Hashtag(hashtag);
+                            hashtags = List.of(hashtagRepository.save(newHashtag));
+                        }
+                        return hashtags.stream();
+                    })
                     .toList();
 
             // 게시글을 생성한다.
@@ -281,12 +283,14 @@ public class PostService {
             // 해시태그를 조회한다. 만약 해시태그가 없는 경우엔 만든다
             List<Hashtag> hashtagList = dto.getHashtagList()
                     .stream()
-                    .map(hashtag -> hashtagRepository.findByName(hashtag)
-                            .orElseGet(() -> {
-                                Hashtag newHashtag = new Hashtag(hashtag);
-                                return hashtagRepository.save(newHashtag);
-                            })
-                    )
+                    .flatMap(hashtag -> {
+                        List<Hashtag> hashtags = hashtagRepository.findByName(hashtag);
+                        if (hashtags.isEmpty()) {
+                            Hashtag newHashtag = new Hashtag(hashtag);
+                            hashtags = List.of(hashtagRepository.save(newHashtag));
+                        }
+                        return hashtags.stream();
+                    })
                     .toList();
             log.info("게시글 해시태그 정보: " + hashtagList);
 
