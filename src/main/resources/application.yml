@@ -11,6 +11,13 @@ spring:
 #        show_sql: true
         format_sql: true
 
+  data:
+    mongodb:
+      host: 172.16.213.30
+      port: 27017
+      username: mongouser
+      password: mongopassword
+      
 logging.level:
 #  org.hibernate.SQL: debug
   org.hibernate.type: trace
