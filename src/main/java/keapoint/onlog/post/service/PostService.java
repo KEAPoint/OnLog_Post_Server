@@ -55,20 +55,9 @@ public class PostService {
             Specification<Post> specification = Specification.where(PostSpecification.withStatusTrue())
                     .and(PostSpecification.withTopicName(topicName))
                     .and(PostSpecification.withHashtag(hashtag))
-                    .and(PostSpecification.withCategoryId(categoryId));
-
-            if (isPublic != null) { // isPublic 값이 있을 때는, 해당 조건대로
-                specification = specification.and(PostSpecification.withIsPublic(isPublic));
-
-            } else { // isPublic 값이 없는 경우
-                Specification<Post> myBlogSpec = Specification.where(PostSpecification.withBlogId(myBlogId));
-                Specification<Post> publicOtherBlogsSpec = Specification.where(PostSpecification.withBlogId(blogId))
-                        .and(PostSpecification.withIsPublic(true));
-
-                specification = specification.and(myBlogSpec.or(publicOtherBlogsSpec));
-            }
-
-            log.info("사용자(" + myBlogId + ")가 게시글을 조회하는 데 성공하였습니다.");
+                    .and(PostSpecification.withBlogId(blogId))
+                    .and(PostSpecification.withCategoryId(categoryId))
+                    .and(PostSpecification.withIsPublic(isPublic));
 
             return postRepository.findAll(specification, sortedByUpdatedDateDesc)
                     .map(PostSummaryDto::new);
