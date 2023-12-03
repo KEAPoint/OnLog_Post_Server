@@ -28,6 +28,8 @@ public class DatabaseInitializer implements CommandLineRunner {
         // 생성된 토픽 객체 저장
         List<Topic> topics = Arrays.asList(topic1, topic2, topic3, topic4, topic5, topic6, topic7);
 
-        topicRepository.saveAll(topics);
+        if (topicRepository.findAll().isEmpty()) {
+            topicRepository.saveAll(topics);
+        }
     }
 }
