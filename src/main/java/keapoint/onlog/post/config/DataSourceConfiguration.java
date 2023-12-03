@@ -21,8 +21,8 @@ public class DataSourceConfiguration {
 
 
     @Bean(WRITER_DATASOURCE) // writerDataSource 이름의 Bean을 생성한다.
-    @ConfigurationProperties(prefix = "spring.datasource.master") // 접두사로 시작하는 속성을 사용해서 Bean을 구성한다.
-    public DataSource masterDataSource() {
+    @ConfigurationProperties(prefix = "spring.datasource.writer") // 접두사로 시작하는 속성을 사용해서 Bean을 구성한다.
+    public DataSource writerDataSource() {
         return DataSourceBuilder.create()
                 // HikariDataSource 타입의 DataSource 객체를 생성한다.
                 .type(HikariDataSource.class)
@@ -30,8 +30,8 @@ public class DataSourceConfiguration {
     }
 
     @Bean(READER_DATASOURCE) // readerDataSource 이름의 Bean을 생성한다.
-    @ConfigurationProperties(prefix = "spring.datasource.slave")
-    public DataSource slaveDataSource() {
+    @ConfigurationProperties(prefix = "spring.datasource.reader")
+    public DataSource readerDataSource() {
         return DataSourceBuilder.create()
                 .type(HikariDataSource.class)
                 .build();
@@ -40,7 +40,7 @@ public class DataSourceConfiguration {
     @Bean
     public DataSource routingDataSource(
             @Qualifier(WRITER_DATASOURCE) DataSource writerDataSource,
-            @Qualifier(READER_DATASOURCE) DataSource readerDataSource) { // masterDataSource와 slaveDataSource라는 이름을 가진 Bean을 주입받는다.
+            @Qualifier(READER_DATASOURCE) DataSource readerDataSource) { // writerDataSource와 readerDataSource라는 이름을 가진 Bean을 주입받는다.
 
         RoutingDataSource routingDataSource = new RoutingDataSource();
 
