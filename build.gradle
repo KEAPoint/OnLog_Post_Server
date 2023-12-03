@@ -38,6 +38,9 @@ dependencies {
     // Database
     runtimeOnly 'com.mysql:mysql-connector-j'
 
+    // Guava
+    implementation 'com.google.guava:guava:31.1-jre'
+
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -54,7 +57,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     // Query
-    implementation('com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0')
+//    implementation('com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0')
 }
 
 dependencyManagement {
