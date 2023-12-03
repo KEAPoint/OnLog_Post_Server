@@ -58,17 +58,17 @@ jobs:
           platforms: linux/amd64 # 타겟 플랫폼
           tags: ${{ secrets.DOCKERHUB_REPOSITORY }}
 
-      # 8. 배포
-      - name: execute remote ssh
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.REMOTE_SSH_HOST }}
-          username: ${{ secrets.REMOTE_SSH_USERNAME }}
-          password: ${{ secrets.REMOTE_SSH_PASSWORD }}
-          port: ${{ secrets.REMOTE_SSH_PORT }}
-          script: |
-            docker compose down
-            docker rmi ${{ secrets.DOCKERHUB_REPOSITORY }}
-            docker compose up -d
+#      # 8. 배포
+#      - name: execute remote ssh
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.REMOTE_SSH_HOST }}
+#          username: ${{ secrets.REMOTE_SSH_USERNAME }}
+#          password: ${{ secrets.REMOTE_SSH_PASSWORD }}
+#          port: ${{ secrets.REMOTE_SSH_PORT }}
+#          script: |
+#            docker compose down
+#            docker rmi ${{ secrets.DOCKERHUB_REPOSITORY }}
+#            docker compose up -d
 
 # Reference: https://github.com/docker/build-push-action
