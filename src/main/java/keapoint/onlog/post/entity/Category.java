@@ -2,7 +2,10 @@ package keapoint.onlog.post.entity;
 
 import jakarta.persistence.*;
 import keapoint.onlog.post.base.BaseEntity;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;

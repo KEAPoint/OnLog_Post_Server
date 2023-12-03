@@ -3,10 +3,12 @@ package keapoint.onlog.post.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
+import keapoint.onlog.post.dto.auth.TokensDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +24,8 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -34,6 +38,42 @@ public class JwtTokenProvider {
     @Autowired
     public JwtTokenProvider(AES256 aes256) {
         this.aes256 = aes256;
+    }
+
+    /**
+     * accessToken과 refreshToken 생성
+     *
+     * @param authentication
+     * @return TokensDto
+     */
+    public TokensDto createTokens(Authentication authentication, UUID memberIdx, String password) throws Exception {
+        Key key = Keys.hmacShaKeyFor(jwtKey.getBytes());
+
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        Date now = new Date();
+        long oneDay = 1000L * 60 * 60 * 24;
+
+        String accessToken = Jwts.builder()
+                .setHeaderParam("type", "jwt")
+                .setSubject(authentication.getName())
+                .claim("auth", authorities)
+                .claim("memberIdx", memberIdx.toString())
+                .setIssuedAt(now)
+                .setExpiration(new Date(System.currentTimeMillis() + oneDay * 7))
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+
+        String refreshToken = Jwts.builder()
+                .setIssuedAt(now)
+                .setExpiration(new Date(System.currentTimeMillis() + oneDay * 7))
+                .claim("password", aes256.encrypt(password))
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+
+        return new TokensDto("Bearer", accessToken, refreshToken);
     }
 
     /**

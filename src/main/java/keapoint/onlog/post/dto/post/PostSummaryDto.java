@@ -3,7 +3,7 @@ package keapoint.onlog.post.dto.post;
 import keapoint.onlog.post.dto.blog.BlogDto;
 import keapoint.onlog.post.dto.category.CategoryDto;
 import keapoint.onlog.post.dto.topic.TopicDto;
-import keapoint.onlog.post.entity.*;
+import keapoint.onlog.post.entity.Post;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
