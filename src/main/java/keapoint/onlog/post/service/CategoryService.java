@@ -3,7 +3,9 @@ package keapoint.onlog.post.service;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.dto.category.CategoryDto;
+import keapoint.onlog.post.dto.category.DeleteCategoryReqDto;
 import keapoint.onlog.post.dto.category.PostCreateCategoryReqDto;
+import keapoint.onlog.post.dto.category.PutCategoryUpdateReqDto;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Category;
 import keapoint.onlog.post.entity.Post;
@@ -12,8 +14,6 @@ import keapoint.onlog.post.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import keapoint.onlog.post.dto.category.PutCategoryUpdateReqDto;
-import keapoint.onlog.post.dto.category.DeleteCategoryReqDto;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;

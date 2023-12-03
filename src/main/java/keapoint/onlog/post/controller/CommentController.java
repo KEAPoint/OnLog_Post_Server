@@ -1,16 +1,19 @@
 package keapoint.onlog.post.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
 import keapoint.onlog.post.base.BaseResponse;
-import keapoint.onlog.post.dto.comment.*;
+import keapoint.onlog.post.dto.comment.CommentSummaryDto;
+import keapoint.onlog.post.dto.comment.DeleteCommentReqDto;
+import keapoint.onlog.post.dto.comment.PostCreateCommentReqDto;
+import keapoint.onlog.post.dto.comment.PutUpdateCommentReqDto;
 import keapoint.onlog.post.service.CommentService;
 import keapoint.onlog.post.utils.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.UUID;
 

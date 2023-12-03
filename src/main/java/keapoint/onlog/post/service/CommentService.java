@@ -2,7 +2,10 @@ package keapoint.onlog.post.service;
 
 import keapoint.onlog.post.base.BaseErrorCode;
 import keapoint.onlog.post.base.BaseException;
-import keapoint.onlog.post.dto.comment.*;
+import keapoint.onlog.post.dto.comment.CommentSummaryDto;
+import keapoint.onlog.post.dto.comment.DeleteCommentReqDto;
+import keapoint.onlog.post.dto.comment.PostCreateCommentReqDto;
+import keapoint.onlog.post.dto.comment.PutUpdateCommentReqDto;
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Comment;
 import keapoint.onlog.post.entity.Post;

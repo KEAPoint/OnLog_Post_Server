@@ -2,7 +2,9 @@ package keapoint.onlog.post.dto.post.like;
 
 import keapoint.onlog.post.entity.Blog;
 import keapoint.onlog.post.entity.Post;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
