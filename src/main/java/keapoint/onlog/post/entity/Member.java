@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -48,6 +49,9 @@ public class Member extends BaseEntity {
 
     @Column(length = 20, name = "name")
     private String userName;
+
+    @OneToMany(mappedBy = "member")
+    private List<Blog> blogList;
 
     @Builder
     public Member(String email, String password, String phoneNumber, boolean agreePersonalInfo, boolean agreePromotion, String refreshToken, Role role, AccountType accountType, String userName) {

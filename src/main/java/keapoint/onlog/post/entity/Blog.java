@@ -22,7 +22,12 @@ public class Blog extends BaseEntity {
 
     @Id
     @Column(name = "blog_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID blogId; // 사용자 블로그 id
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_idx")
+    private Member member; // 사용자
 
     @Column(name = "blog_name", nullable = false, length = 36)
     private String blogName; // 사용자 블로그 이름
