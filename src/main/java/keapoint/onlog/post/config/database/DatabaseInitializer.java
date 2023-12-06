@@ -1,4 +1,4 @@
-package keapoint.onlog.post.config;
+package keapoint.onlog.post.config.database;
 
 import keapoint.onlog.post.entity.Topic;
 import keapoint.onlog.post.repository.TopicRepository;
