@@ -1,4 +1,4 @@
-package keapoint.onlog.post.config;
+package keapoint.onlog.post.config.database;
 
 import com.google.common.collect.ImmutableMap;
 import com.zaxxer.hikari.HikariDataSource;

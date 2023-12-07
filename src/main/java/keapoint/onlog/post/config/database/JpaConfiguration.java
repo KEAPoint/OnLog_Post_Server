@@ -1,4 +1,4 @@
-package keapoint.onlog.post.config;
+package keapoint.onlog.post.config.database;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
