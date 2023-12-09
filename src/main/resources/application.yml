@@ -1,16 +1,10 @@
 spring:
+  profiles:
+    default: local # 기본 환경을 local로
+
   config:
     import: classpath:secret.yml
 
   jpa:
     hibernate:
-      ddl-auto: create
-
-#    properties:
-#      hibernate:
-#        show_sql: true
-#        format_sql: true
-
-#logging.level:
-#  org.hibernate.SQL: debug
-#  org.hibernate.type: trace
+      ddl-auto: none

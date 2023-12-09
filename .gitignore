@@ -283,3 +283,6 @@ ehthumbs_vista.db
 
 # secret.yml
 secret.yml
+
+# log
+/log
