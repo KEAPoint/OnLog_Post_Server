@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <!-- 기본 설정을 포함합니다. -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <!-- 색상 변환 규칙을 설정합니다. -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+
+    <!-- 로그 파일이 저장될 경로를 설정합니다. -->
+    <property name="LOG_PATH" value="log"/>
+    <!-- 로그 파일 이름을 설정합니다. -->
+    <property name="LOG_FILE_NAME" value="onlogBlogServer"/>
+    <!-- 로그 출력 패턴을 설정합니다. -->
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%logger{40}] - %msg%n"/>
+
+    <!-- 로컬 환경에 대한 설정입니다. -->
+    <springProfile name="local">
+        <!-- 콘솔 출력에 대한 설정을 가져옵니다. -->
+        <include resource="./log/console-appender.xml"/>
+        <!-- 로그 레벨이 INFO 이상인 로그를 콘솔에 출력합니다. -->
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- 개발 환경에 대한 설정입니다. -->
+    <springProfile name="dev">
+        <!-- 콘솔 출력에 대한 설정을 가져옵니다. -->
+        <include resource="./log/console-appender.xml"/>
+        <!-- 로그 레벨이 INFO 이상인 로그를 콘솔에 출력합니다. -->
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+
+        <!-- 파일 출력에 대한 설정을 가져옵니다. -->
+        <include resource="./log/file-info-appender.xml"/>
+        <!-- 로그 레벨이 INFO 이상인 로그를 파일에 출력합니다. -->
+        <root level="INFO">
+            <appender-ref ref="FILE-INFO"/>
+        </root>
+    </springProfile>
+
+    <!-- 프로덕션 환경에 대한 설정입니다. -->
+    <springProfile name="prod">
+        <!-- 콘솔 출력에 대한 설정을 가져옵니다. -->
+        <include resource="./log/console-appender.xml"/>
+        <!-- 로그 레벨이 INFO 이상인 로그를 콘솔에 출력합니다. -->
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+
+        <!-- 파일 출력에 대한 설정을 가져옵니다. -->
+        <include resource="./log/file-info-appender.xml"/>
+        <!-- 로그 레벨이 INFO 이상인 로그를 파일에 출력합니다. -->
+        <root level="INFO">
+            <appender-ref ref="FILE-INFO"/>
+        </root>
+
+        <!-- 에러 로그 출력에 대한 설정을 가져옵니다. -->
+        <include resource="./log/file-error-appender.xml"/>
+        <!-- 로그 레벨이 ERROR인 로그를 별도의 파일에 출력합니다. -->
+        <root level="ERROR">
+            <appender-ref ref="FILE-ERROR"/>
+        </root>
+
+    </springProfile>
+
+</configuration>

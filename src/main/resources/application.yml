@@ -1,4 +1,7 @@
 spring:
+  profiles:
+    default: local # 기본 환경을 local로
+
   config:
     import: classpath:secret.yml
 
