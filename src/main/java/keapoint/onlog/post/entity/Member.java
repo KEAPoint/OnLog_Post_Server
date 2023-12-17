@@ -81,4 +81,11 @@ public class Member extends BaseEntity {
     public void invalidateRefreshToken() {
         this.refreshToken = null;
     }
+
+    /**
+     * 사용자의 mail 수정
+     */
+    public void updateEmail(String email) {
+        this.email = email;
+    }
 }
